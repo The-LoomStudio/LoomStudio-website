@@ -1,0 +1,137 @@
+<div class="intro-loader" data-intro-loader aria-hidden="true">
+  <canvas width="280" height="280"></canvas>
+  <div class="intro-loader__meta">
+    <span>LOOM STUDIO</span>
+    <small>WORLDLINE INITIALIZATION / 00</small>
+  </div>
+</div>
+
+<script>
+  const loader = document.querySelector<HTMLElement>('[data-intro-loader]');
+  const canvas = loader?.querySelector<HTMLCanvasElement>('canvas');
+  const context = canvas?.getContext('2d');
+  let shouldPlay = true;
+
+  try {
+    shouldPlay = sessionStorage.getItem('loom-intro-seen') !== '1';
+    if (shouldPlay) sessionStorage.setItem('loom-intro-seen', '1');
+  } catch {}
+
+  if (loader && canvas && context && shouldPlay && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    loader.dataset.active = '';
+    const startedAt = performance.now();
+    const duration = 1900;
+    let frame = 0;
+
+    const ease = (value: number) => value * value * (3 - 2 * value);
+    const mix = (from: number, to: number, amount: number) => from + (to - from) * amount;
+
+    const draw = (now: number) => {
+      const elapsed = now - startedAt;
+      const morph = ease(Math.min(Math.max((elapsed - 920) / 560, 0), 1));
+      const ratio = Math.min(window.devicePixelRatio, 2);
+      const size = Math.min(280, Math.max(220, window.innerWidth * 0.56));
+
+      if (canvas.width !== Math.round(size * ratio)) {
+        canvas.width = Math.round(size * ratio);
+        canvas.height = Math.round(size * ratio);
+        canvas.style.width = `${size}px`;
+        canvas.style.height = `${size}px`;
+      }
+
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.clearRect(0, 0, size, size);
+      context.translate(size / 2, size / 2);
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+
+      const points: Array<{ x: number; y: number; depth: number }> = [];
+      const spin = elapsed * 0.0014;
+      const tilt = mix(0.68, 0.08, morph);
+
+      for (let index = 0; index <= 240; index += 1) {
+        const t = index / 240 * Math.PI * 2;
+        const radius = 2 + 0.72 * Math.cos(3 * t);
+        const knot = {
+          x: radius * Math.cos(2 * t),
+          y: radius * Math.sin(2 * t),
+          z: 0.72 * Math.sin(3 * t),
+        };
+        const ring = { x: 2.55 * Math.cos(t), y: 2.55 * Math.sin(t), z: 0 };
+        const source = {
+          x: mix(knot.x, ring.x, morph),
+          y: mix(knot.y, ring.y, morph),
+          z: mix(knot.z, ring.z, morph),
+        };
+
+        const cosX = Math.cos(spin);
+        const sinX = Math.sin(spin);
+        const y1 = source.y * cosX - source.z * sinX;
+        const z1 = source.y * sinX + source.z * cosX;
+        const cosY = Math.cos(tilt);
+        const sinY = Math.sin(tilt);
+        const x2 = source.x * cosY + z1 * sinY;
+        const z2 = -source.x * sinY + z1 * cosY;
+        const perspective = 1 / (1.08 - z2 * 0.055);
+        points.push({ x: x2 * 35 * perspective, y: y1 * 35 * perspective, depth: z2 });
+      }
+
+      context.beginPath();
+      points.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+      context.strokeStyle = 'rgba(42, 54, 64, 0.16)';
+      context.lineWidth = 9;
+      context.stroke();
+
+      context.beginPath();
+      points.forEach((point, index) => index ? context.lineTo(point.x, point.y) : context.moveTo(point.x, point.y));
+      context.strokeStyle = '#f4f1ec';
+      context.lineWidth = 3.2;
+      context.stroke();
+
+      if (elapsed < duration) frame = window.requestAnimationFrame(draw);
+      else loader.remove();
+    };
+
+    frame = window.requestAnimationFrame(draw);
+    window.addEventListener('pagehide', () => window.cancelAnimationFrame(frame), { once: true });
+  } else {
+    loader?.remove();
+  }
+</script>
+
+<style>
+  .intro-loader {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    color: var(--loom-site-text);
+    background: var(--loom-site-bg);
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .intro-loader[data-active] {
+    visibility: visible;
+    pointer-events: auto;
+    animation: intro-loader-exit 420ms cubic-bezier(.55, 0, .1, 1) 1.48s forwards;
+  }
+  .intro-loader canvas { display: block; }
+  .intro-loader__meta {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin-top: -24px;
+    font-family: var(--loom-site-font-sans);
+    letter-spacing: 0.32em;
+  }
+  .intro-loader__meta span { font-size: 12px; font-weight: 650; }
+  .intro-loader__meta small { opacity: 0.62; font: 9px var(--loom-site-font-mono); }
+  @keyframes intro-loader-exit {
+    to { visibility: hidden; opacity: 0; transform: scale(1.035); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .intro-loader { display: none; }
+  }
+</style>

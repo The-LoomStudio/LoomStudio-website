@@ -1,0 +1,97 @@
+---
+import PortalLayout from '../layouts/PortalLayout.astro';
+import { ArrowUpRight, Laptop, Monitor, Terminal } from '@lucide/astro';
+
+const platforms = [
+  { name: 'macOS', note: 'Apple Silicon / Intel 状态待确认', icon: Laptop },
+  { name: 'Windows', note: '公开构建与签名状态待确认', icon: Monitor },
+  { name: 'Linux', note: '发行格式与支持范围待确认', icon: Terminal },
+];
+---
+
+<PortalLayout
+  title="下载"
+  description="Loom Studio 下载页草稿：公开构建、平台支持和本地优先边界。"
+  eyebrow="Download Loom Studio"
+  marker="PAGE / 03 · RELEASE FOUNDATION"
+  headline="把工作台留在自己的机器上"
+  intro="下载页将负责公开构建、平台支持、校验信息与升级说明。当前尚未发布正式安装包，因此这里只建立诚实的发布入口，不制造不可用的下载按钮。"
+>
+  <section class="portal-section portal-section--soft">
+    <div class="container">
+      <div class="portal-section__heading">
+        <div><small>BUILDS / PLATFORMS</small><h2>公开构建准备中</h2></div>
+        <p>平台、架构、签名和系统要求会在首个公开构建确认后填写。现在的状态标签只说明页面进度。</p>
+      </div>
+      <div class="download-platforms">
+        {platforms.map(({ name, note, icon: Icon }) => (
+          <article class="download-platform">
+            <div><Icon size={28} stroke-width={1.5} /><span class="portal-tag">PENDING</span></div>
+            <h3>{name}</h3>
+            <p>{note}</p>
+            <span class="download-platform__status">尚未开放下载</span>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="portal-section">
+    <div class="container download-release">
+      <div>
+        <span class="portal-tag">FOUNDATION BUILD</span>
+        <small>RELEASE CHANNEL / NOT PUBLISHED</small>
+        <h2>首个版本应当同时给出文件校验值和明确的兼容说明</h2>
+      </div>
+      <div class="download-release__facts">
+        <div><span>VERSION</span><b>待首个公开版本确认</b></div>
+        <div><span>INSTALLER</span><b>尚未生成正式安装包</b></div>
+        <div><span>UPDATES</span><b>升级与回退策略待发布</b></div>
+        <a href="https://github.com/shiyue137mh-netizen/LoomStudio" target="_blank" rel="noreferrer">
+          查看源代码 <ArrowUpRight size={15} stroke-width={1.7} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="portal-section">
+    <div class="container">
+      <div class="portal-section__heading">
+        <div><small>BOUNDARY / LOCAL-FIRST</small><h2>下载的不只是一个界面</h2></div>
+        <p>桌面端需要把数据位置、Provider 凭据、插件能力和升级边界说清楚。正式发布前，这些内容不会用一句“安全可靠”含混带过。</p>
+      </div>
+      <div class="download-boundaries">
+        <article><span>01</span><h3>本地数据</h3><p>工作区和创作数据默认留在本地边界中。</p></article>
+        <article><span>02</span><h3>Provider</h3><p>模型调用边界与凭据处理需要在发布说明中明确。</p></article>
+        <article><span>03</span><h3>Extensions</h3><p>插件能力、来源与版本必须可见、可诊断。</p></article>
+      </div>
+    </div>
+  </section>
+</PortalLayout>
+
+<style>
+  .download-platforms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .download-platform { min-height: 300px; display: flex; flex-direction: column; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
+  .download-platform > div { display: flex; align-items: center; justify-content: space-between; }
+  .download-platform h3 { margin: auto 0 10px; font-size: 28px; }
+  .download-platform p { min-height: 44px; margin: 0 0 24px; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.7; }
+  .download-platform__status { color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); letter-spacing: .1em; }
+  .download-release { display: grid; grid-template-columns: 1fr minmax(300px, .72fr); gap: clamp(48px, 9vw, 120px); padding: clamp(42px, 6vw, 68px) 0; border-top: 1px solid var(--loom-site-border); border-bottom: 1px solid var(--loom-site-border); }
+  .download-release small { display: block; margin: 28px 0 16px; color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); letter-spacing: .14em; }
+  .download-release h2 { max-width: 650px; margin: 0; font: 580 clamp(28px, 4vw, 46px)/1.24 var(--loom-site-font-display); letter-spacing: -.03em; }
+  .download-release__facts { display: grid; align-content: center; gap: 20px; }
+  .download-release__facts div { display: grid; gap: 5px; }
+  .download-release__facts span { color: var(--loom-site-text-subtle); font: 8px var(--loom-site-font-mono); letter-spacing: .14em; }
+  .download-release__facts b { font-size: 13px; font-weight: 560; }
+  .download-release__facts a { display: inline-flex; width: fit-content; align-items: center; gap: 8px; margin-top: 12px; color: var(--loom-site-accent-strong); font-size: 12px; }
+  .download-boundaries { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .download-boundaries article { min-height: 210px; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
+  .download-boundaries span { color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); }
+  .download-boundaries h3 { margin: 52px 0 10px; font-size: 20px; }
+  .download-boundaries p { margin: 0; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.7; }
+  @media (max-width: 760px) {
+    .download-platforms,
+    .download-boundaries,
+    .download-release { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,395 @@
+---
+const stars = Array.from({ length: 72 }, (_, index) => ({
+  x: (index * 47 + 11) % 100,
+  y: (index * 29 + 7) % 92,
+  size: 0.7 + ((index * 13) % 18) / 10,
+  alpha: 0.38 + ((index * 17) % 52) / 100,
+  duration: 3.2 + ((index * 11) % 62) / 10,
+  delay: -((index * 7) % 54) / 10,
+}));
+---
+
+<div class="sky-backdrop" data-sky-backdrop aria-hidden="true">
+  <div class="sky-backdrop__tone" data-sky-tone></div>
+  <div class="sky-backdrop__stars" data-sky-stars>
+    {stars.map((star) => (
+      <i
+        style={`--star-x:${star.x}%;--star-y:${star.y}%;--star-size:${star.size}px;--star-alpha:${star.alpha};--star-duration:${star.duration}s;--star-delay:${star.delay}s`}
+      ></i>
+    ))}
+  </div>
+  <div class="sky-backdrop__clouds" data-sky-clouds></div>
+</div>
+
+<div class="sakura-foreground" data-sakura-foreground aria-hidden="true"></div>
+
+<script>
+  import { CloudField } from '../scripts/cloud-field';
+  import { SakuraFX } from '../scripts/sakura.js';
+
+  type RGB = readonly [number, number, number];
+  type CloudTone = {
+    brightness: number;
+    contrast: number;
+    grayscale: number;
+    sepia: number;
+    saturate: number;
+    hue: number;
+  };
+  type Scene = {
+    top: RGB;
+    middle: RGB;
+    bottom: RGB;
+    cloud: CloudTone;
+    cloudOpacity: number;
+    starOpacity: number;
+  };
+
+  const scenes = {
+    dawn: {
+      top: [34, 48, 72],
+      middle: [104, 119, 139],
+      bottom: [190, 151, 146],
+      cloud: { brightness: 0.76, contrast: 0.96, grayscale: 0.12, sepia: 0.22, saturate: 1.1, hue: -12 },
+      cloudOpacity: 0.72,
+      starOpacity: 0.28,
+    },
+    day: {
+      top: [83, 117, 146],
+      middle: [145, 169, 187],
+      bottom: [205, 211, 214],
+      cloud: { brightness: 1, contrast: 0.95, grayscale: 0, sepia: 0, saturate: 1, hue: 0 },
+      cloudOpacity: 0.84,
+      starOpacity: 0,
+    },
+    sunset: {
+      top: [45, 56, 80],
+      middle: [124, 91, 92],
+      bottom: [202, 137, 117],
+      cloud: { brightness: 0.68, contrast: 1, grayscale: 0.25, sepia: 0.38, saturate: 1.15, hue: -22 },
+      cloudOpacity: 0.76,
+      starOpacity: 0.16,
+    },
+    night: {
+      top: [8, 14, 28],
+      middle: [21, 34, 57],
+      bottom: [42, 55, 76],
+      cloud: { brightness: 0.28, contrast: 1.12, grayscale: 0.58, sepia: 0.04, saturate: 0.72, hue: 8 },
+      cloudOpacity: 0.52,
+      starOpacity: 0.96,
+    },
+    morning: {
+      top: [91, 129, 156],
+      middle: [178, 177, 184],
+      bottom: [237, 190, 177],
+      cloud: { brightness: 0.9, contrast: 0.94, grayscale: 0.06, sepia: 0.34, saturate: 1.25, hue: -18 },
+      cloudOpacity: 0.8,
+      starOpacity: 0.06,
+    },
+  } satisfies Record<string, Scene>;
+
+  type SceneName = keyof typeof scenes;
+
+  const backdrop = document.querySelector<HTMLElement>('[data-sky-backdrop]');
+  const tone = backdrop?.querySelector<HTMLElement>('[data-sky-tone]');
+  const stars = backdrop?.querySelector<HTMLElement>('[data-sky-stars]');
+  const cloudViewport = backdrop?.querySelector<HTMLElement>('[data-sky-clouds]');
+  const sakuraForeground = document.querySelector<HTMLElement>('[data-sakura-foreground]');
+  const sakuraTrigger = document.querySelector<HTMLButtonElement>('[data-sakura-trigger]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (backdrop && tone && stars && cloudViewport && sakuraForeground) {
+    const cloudField = new CloudField(cloudViewport, {
+      density: window.innerWidth < 720 ? 0.9 : 1.35,
+      motionScale: 0.32,
+    });
+    cloudField.start();
+
+    const introSection = document.querySelector<HTMLElement>('[data-sky-intro]');
+    const finalSection = document.querySelector<HTMLElement>('[data-sky-final]');
+    const timeStops: Array<{ hour: number; scene: SceneName }> = [
+      { hour: 0, scene: 'night' },
+      { hour: 4.5, scene: 'night' },
+      { hour: 6, scene: 'dawn' },
+      { hour: 8, scene: 'morning' },
+      { hour: 11, scene: 'day' },
+      { hour: 16, scene: 'day' },
+      { hour: 18.5, scene: 'sunset' },
+      { hour: 20.5, scene: 'night' },
+      { hour: 24, scene: 'night' },
+    ];
+    let frame = 0;
+    let sakuraActive = false;
+    let minuteTimer = 0;
+
+    const mix = (from: number, to: number, amount: number) => from + (to - from) * amount;
+    const mixRgb = (from: RGB, to: RGB, amount: number): RGB =>
+      from.map((channel, index) => Math.round(mix(channel, to[index], amount))) as unknown as RGB;
+    const mixColor = (from: RGB, to: RGB, amount: number) =>
+      `rgb(${mixRgb(from, to, amount).join(' ')})`;
+    const relativeLuminance = (color: RGB) => {
+      const [red, green, blue] = color.map((channel) => {
+        const value = channel / 255;
+        return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+      });
+      return red * 0.2126 + green * 0.7152 + blue * 0.0722;
+    };
+    const mixCloud = (from: CloudTone, to: CloudTone, amount: number): CloudTone => ({
+      brightness: mix(from.brightness, to.brightness, amount),
+      contrast: mix(from.contrast, to.contrast, amount),
+      grayscale: mix(from.grayscale, to.grayscale, amount),
+      sepia: mix(from.sepia, to.sepia, amount),
+      saturate: mix(from.saturate, to.saturate, amount),
+      hue: mix(from.hue, to.hue, amount),
+    });
+
+    const formatCloudFilter = (cloud: CloudTone) => [
+      `brightness(${cloud.brightness.toFixed(3)})`,
+      `contrast(${cloud.contrast.toFixed(3)})`,
+      `grayscale(${cloud.grayscale.toFixed(3)})`,
+      `sepia(${cloud.sepia.toFixed(3)})`,
+      `saturate(${cloud.saturate.toFixed(3)})`,
+      `hue-rotate(${cloud.hue.toFixed(2)}deg)`,
+    ].join(' ');
+
+    const getTimeScenePair = (date: Date) => {
+      const hour = date.getHours() + date.getMinutes() / 60 + date.getSeconds() / 3600;
+      for (let index = 0; index < timeStops.length - 1; index += 1) {
+        const from = timeStops[index];
+        const to = timeStops[index + 1];
+        if (hour <= to.hour) {
+          const linearAmount = (hour - from.hour) / (to.hour - from.hour);
+          const amount = linearAmount * linearAmount * (3 - 2 * linearAmount);
+          return { from: from.scene, to: to.scene, amount };
+        }
+      }
+      return { from: 'night' as SceneName, to: 'night' as SceneName, amount: 0 };
+    };
+
+    const syncSakuraTrigger = () => {
+      if (!sakuraTrigger) return;
+      const label = sakuraActive ? '关闭樱花彩蛋' : '触发樱花彩蛋';
+      sakuraTrigger.disabled = reduceMotion.matches;
+      sakuraTrigger.setAttribute('aria-pressed', String(sakuraActive));
+      sakuraTrigger.setAttribute('aria-label', reduceMotion.matches ? '已根据减少动态效果设置禁用樱花彩蛋' : label);
+      sakuraTrigger.title = reduceMotion.matches ? '已根据系统设置禁用动态效果' : label;
+    };
+
+    const stopSakura = () => {
+      if (sakuraActive) SakuraFX.stop();
+      sakuraForeground.replaceChildren();
+      sakuraActive = false;
+      syncSakuraTrigger();
+    };
+
+    const startSakura = () => {
+      if (sakuraActive || reduceMotion.matches || document.hidden) return;
+      sakuraForeground.replaceChildren();
+      const canvas = document.createElement('canvas');
+      canvas.className = 'sakura-foreground__canvas';
+      sakuraForeground.append(canvas);
+      SakuraFX.init(canvas, {
+        density: window.innerWidth < 720 ? 'sparse' : 'dense',
+        windStrength: 0.3,
+      });
+      sakuraActive = true;
+      syncSakuraTrigger();
+    };
+
+    const toggleSakura = () => sakuraActive ? stopSakura() : startSakura();
+
+    const syncSkyActivity = () => {
+      const nearViewport = (section: HTMLElement | null) => {
+        if (!section) return false;
+        const rect = section.getBoundingClientRect();
+        return rect.top < window.innerHeight * 1.35 && rect.bottom > -window.innerHeight * 0.35;
+      };
+      const active = nearViewport(introSection) || nearViewport(finalSection);
+      backdrop.toggleAttribute('data-active', active);
+      cloudField.setPaused(document.hidden || reduceMotion.matches || !active);
+      if (!active && sakuraActive) stopSakura();
+      return active;
+    };
+
+    const render = () => {
+      frame = 0;
+      const pair = getTimeScenePair(new Date());
+      const from = scenes[pair.from];
+      const to = scenes[pair.to];
+      const cloud = mixCloud(from.cloud, to.cloud, pair.amount);
+      const topColor = mixRgb(from.top, to.top, pair.amount);
+      const bottomColor = mixRgb(from.bottom, to.bottom, pair.amount);
+
+      tone.style.background = `linear-gradient(180deg, ${mixColor(from.top, to.top, pair.amount)} 0%, ${mixColor(from.middle, to.middle, pair.amount)} 58%, ${mixColor(from.bottom, to.bottom, pair.amount)} 100%)`;
+      stars.style.opacity = String(mix(from.starOpacity, to.starOpacity, pair.amount));
+      cloudField.setAtmosphere(
+        formatCloudFilter(cloud),
+        mix(from.cloudOpacity, to.cloudOpacity, pair.amount),
+      );
+      backdrop.dataset.scene = pair.amount < 0.5 ? pair.from : pair.to;
+      const introTextTone = relativeLuminance(topColor) > 0.42 ? 'dark' : 'light';
+      const textTone = relativeLuminance(bottomColor) > 0.42 ? 'dark' : 'light';
+      if (introSection) introSection.dataset.skyText = introTextTone;
+      if (finalSection) finalSection.dataset.skyText = textTone;
+      document.documentElement.dataset.skyText = textTone;
+      syncSkyActivity();
+    };
+
+    const requestRender = () => {
+      if (!frame) frame = window.requestAnimationFrame(render);
+    };
+
+    const handleResize = () => {
+      requestRender();
+    };
+
+    const handleVisibility = () => {
+      if (document.hidden || reduceMotion.matches) stopSakura();
+      else syncSakuraTrigger();
+      requestRender();
+    };
+
+    const cleanup = () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(minuteTimer);
+      cloudField.destroy();
+      stopSakura();
+      window.removeEventListener('scroll', requestRender);
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      reduceMotion.removeEventListener('change', handleVisibility);
+      sakuraTrigger?.removeEventListener('click', toggleSakura);
+    };
+
+    window.addEventListener('scroll', requestRender, { passive: true });
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibility);
+    reduceMotion.addEventListener('change', handleVisibility);
+    sakuraTrigger?.addEventListener('click', toggleSakura);
+    window.addEventListener('pagehide', cleanup, { once: true });
+
+    minuteTimer = window.setInterval(requestRender, 60_000);
+    syncSakuraTrigger();
+    handleVisibility();
+    render();
+  }
+</script>
+
+<style is:global>
+  .sky-backdrop {
+    position: fixed;
+    z-index: 0;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: #223048;
+    opacity: 0;
+    transition: opacity 420ms ease;
+  }
+
+  .sky-backdrop[data-active] { opacity: 1; }
+
+  .sky-backdrop__tone {
+    position: absolute;
+    z-index: 0;
+    inset: -2px;
+  }
+
+  .sky-backdrop__stars {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    transition: opacity 180ms linear;
+  }
+
+  .sky-backdrop__stars > i {
+    position: absolute;
+    top: var(--star-y);
+    left: var(--star-x);
+    width: var(--star-size);
+    height: var(--star-size);
+    border-radius: 50%;
+    opacity: var(--star-alpha);
+    background: #f2f6ff;
+    animation: sky-star-twinkle var(--star-duration) ease-in-out var(--star-delay) infinite alternate;
+  }
+
+  .sky-backdrop__clouds {
+    position: absolute;
+    z-index: 2;
+    inset: -8%;
+    overflow: hidden;
+    perspective: 1000px;
+    transform: translateZ(0);
+    transition: opacity 180ms linear;
+    backface-visibility: hidden;
+  }
+
+  .sky-cloud-world {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 512px;
+    height: 512px;
+    margin: -256px 0 0 -256px;
+    transform-style: preserve-3d;
+  }
+
+  .sky-cloud-world div {
+    transform-style: preserve-3d;
+  }
+
+  .sky-cloud-base {
+    position: absolute;
+    top: 256px;
+    left: 256px;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .sky-cloud-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 256px;
+    height: 256px;
+    margin: -128px 0 0 -128px;
+    background: url('/images/cloud.png') center / contain no-repeat;
+    transition: filter 360ms linear, opacity 500ms ease-out;
+    transform-style: flat;
+    backface-visibility: hidden;
+    will-change: transform, opacity, filter;
+  }
+
+  .sakura-foreground {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .sakura-foreground__canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  @keyframes sky-star-twinkle {
+    from { opacity: 0.18; transform: scale(0.74); }
+    to { opacity: var(--star-alpha); transform: scale(1); }
+  }
+
+  @media (max-width: 720px) {
+    .sky-backdrop__clouds { inset: -14%; }
+    .sky-cloud-world { transform: scale(0.82); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sky-backdrop__stars > i { animation: none; }
+    .sakura-foreground { display: none; }
+  }
+</style>

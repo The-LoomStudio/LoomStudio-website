@@ -1,0 +1,112 @@
+---
+import PortalLayout from '../layouts/PortalLayout.astro';
+import { ArrowRight, Files, Package, Palette } from '@lucide/astro';
+
+const entries = [
+  {
+    type: 'EXTENSION / STRUCTURE PREVIEW',
+    title: 'Extension Package',
+    id: 'package.id · 0.1.0',
+    copy: '展示插件说明、版本、作者、能力声明与兼容范围。正式目录开放前，不提供虚假的在线安装入口。',
+    tags: ['SERVER', 'CAPABILITY', 'LOCAL'],
+  },
+  {
+    type: 'TEMPLATE / RESERVED',
+    title: 'Narrative Template',
+    id: 'template.worldline',
+    copy: '预留给世界设定、角色结构和长篇工作流模板。它们是可检查的创作起点，不是不可解释的整包提示词。',
+    tags: ['WORLD', 'CHARACTER', 'WORKFLOW'],
+  },
+  {
+    type: 'RESOURCE / RESERVED',
+    title: 'Portable Resource Pack',
+    id: 'resource.portable',
+    copy: '未来承载可移植资源与扩展数据。页面会明确来源、权限和兼容性，而不是把资源混进应用本体。',
+    tags: ['PORTABLE', 'VERSIONED', 'LOCAL-FIRST'],
+  },
+];
+---
+
+<PortalLayout
+  title="Marketplace"
+  description="Loom Studio Marketplace 页面草稿：用于发现插件、模板与可移植资源。"
+  eyebrow="Loom Studio Marketplace"
+  marker="PAGE / 02 · FOUNDATION DRAFT"
+  headline="扩展工作台 别替故事做决定"
+  intro="Marketplace 将成为插件、模板与资源包的公开入口。当前版本只建立信息结构与视觉基建，所有能力都必须诚实标注来源、权限和兼容范围。"
+>
+  <section class="portal-section portal-section--soft">
+    <div class="container">
+      <div class="portal-section__heading">
+        <div><small>CATALOG / TYPES</small><h2>三类内容 三种边界</h2></div>
+        <p>插件增加运行能力，模板提供创作起点，资源包负责可移植内容。它们不会被包装成一种含混的“万能预设”。</p>
+      </div>
+      <div class="market-types">
+        <article>
+          <Package size={25} stroke-width={1.5} />
+          <span>01</span><h3>Extensions</h3><p>声明能力、运行位置、版本与 Studio 兼容范围。</p>
+        </article>
+        <article>
+          <Files size={25} stroke-width={1.5} />
+          <span>02</span><h3>Templates</h3><p>世界、角色与创作工作流的结构化起点。</p>
+        </article>
+        <article>
+          <Palette size={25} stroke-width={1.5} />
+          <span>03</span><h3>Resources</h3><p>可移植、可追踪、不会污染核心数据边界的内容包。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="portal-section">
+    <div class="container">
+      <div class="portal-section__heading">
+        <div><small>CATALOG / PREVIEW</small><h2>目录结构草稿</h2></div>
+        <p>以下条目只用于确定市场页的信息密度，并不代表已经公开发布的产品内容。</p>
+      </div>
+      <div class="market-list">
+        {entries.map((entry) => (
+          <article class="market-entry">
+            <div class="market-entry__meta"><span>{entry.type}</span><b>DRAFT</b></div>
+            <div class="market-entry__body">
+              <div><h3>{entry.title}</h3><code>{entry.id}</code></div>
+              <p>{entry.copy}</p>
+            </div>
+            <div class="market-entry__footer">
+              <div>{entry.tags.map((tag) => <span class="portal-tag">{tag}</span>)}</div>
+              <span class="market-entry__placeholder">详情结构待接入 <ArrowRight size={14} stroke-width={1.6} /></span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</PortalLayout>
+
+<style>
+  .market-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .market-types article { min-height: 260px; display: flex; flex-direction: column; align-items: flex-start; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
+  .market-types svg { color: var(--loom-site-accent); }
+  .market-types span { margin-top: auto; color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); }
+  .market-types h3 { margin: 12px 0 8px; font-size: 22px; }
+  .market-types p { margin: 0; color: var(--loom-site-text-muted); font-size: 13px; line-height: 1.75; }
+  .market-list { display: grid; gap: 12px; }
+  .market-entry { padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
+  .market-entry:last-child { border-bottom: 1px solid var(--loom-site-border); }
+  .market-entry__meta,
+  .market-entry__footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .market-entry__meta { color: var(--loom-site-text-subtle); font: 8px var(--loom-site-font-mono); letter-spacing: 0.12em; }
+  .market-entry__meta b { font-weight: 600; }
+  .market-entry__body { display: grid; grid-template-columns: minmax(220px, .72fr) minmax(280px, 1fr); gap: 48px; padding: 34px 0; }
+  .market-entry h3 { margin: 0 0 8px; font-size: 24px; }
+  .market-entry code { color: var(--loom-site-text-subtle); font: 10px var(--loom-site-font-mono); }
+  .market-entry p { margin: 0; color: var(--loom-site-text-muted); font-size: 13px; line-height: 1.8; }
+  .market-entry__footer > div { display: flex; flex-wrap: wrap; gap: 6px; }
+  .market-entry__placeholder { display: inline-flex; align-items: center; gap: 8px; color: var(--loom-site-text-subtle); font-size: 11px; }
+  @media (max-width: 760px) {
+    .market-types { grid-template-columns: 1fr; }
+    .market-types article { min-height: 210px; }
+    .market-entry__body { grid-template-columns: 1fr; gap: 22px; }
+    .market-entry__footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>

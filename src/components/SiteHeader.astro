@@ -1,0 +1,636 @@
+---
+import { ArrowUpRight, GitFork, Moon, Sun } from '@lucide/astro';
+
+const path = Astro.url.pathname;
+const activeRoute = path.startsWith('/docs')
+  ? 'docs'
+  : path.startsWith('/marketplace')
+    ? 'marketplace'
+    : path.startsWith('/showcase')
+      ? 'showcase'
+      : path.startsWith('/download')
+        ? 'download'
+        : 'home';
+const routes = [
+  { id: 'home', href: '/', label: '发布', caption: 'Product launch' },
+  { id: 'showcase', href: '/showcase', label: '作品展厅', caption: 'Story showcase' },
+  { id: 'marketplace', href: '/marketplace', label: 'Marketplace', caption: 'Extensions & resources' },
+  { id: 'download', href: '/download', label: '下载', caption: 'Desktop builds' },
+  { id: 'docs', href: '/docs', label: '文档', caption: 'Public documents' },
+];
+const activeRouteIndex = routes.findIndex((route) => route.id === activeRoute);
+const stageOffset = (index: number) => {
+  const half = Math.floor(routes.length / 2);
+  let offset = index - activeRouteIndex;
+  if (offset > half) offset -= routes.length;
+  if (offset < -half) offset += routes.length;
+  return offset;
+};
+---
+
+<header class="site-controls">
+  <button
+    class="menu-trigger"
+    type="button"
+    aria-label="打开页面导航"
+    aria-controls="route-menu"
+    aria-expanded="false"
+    data-menu-trigger
+  >
+    <i class="menu-trigger__line menu-trigger__line--top"></i>
+    <i class="menu-trigger__line menu-trigger__line--middle"></i>
+    <i class="menu-trigger__line menu-trigger__line--bottom"></i>
+  </button>
+
+  <button class="theme-toggle" type="button" aria-label="切换至暗色模式" aria-pressed="false" title="切换至暗色模式" data-theme-toggle>
+    <Sun class="theme-toggle__sun" size={23} stroke-width={1.8} aria-hidden="true" />
+    <Moon class="theme-toggle__moon" size={22} stroke-width={1.8} aria-hidden="true" />
+  </button>
+</header>
+
+<div
+  class="route-menu"
+  id="route-menu"
+  role="dialog"
+  aria-modal="true"
+  aria-label="页面导航"
+  aria-hidden="true"
+  data-route-menu
+  hidden
+  inert
+>
+  <div class="route-menu__content">
+    <a class="route-menu__brand" href="/" data-menu-link>
+      <img src="/brand/loom-logo.png" alt="" width="38" height="38" />
+      <span>Loom Studio</span>
+      <small>PAGE / WORLDLINE NAVIGATION</small>
+    </a>
+
+    <nav class="route-menu__routes" aria-label="页面入口" data-route-stage data-current-index={activeRouteIndex} tabindex="0">
+      {routes.map((route, index) => {
+        const offset = stageOffset(index);
+        const titleLength = Array.from(route.label).length;
+        const titleSize = titleLength >= 8 ? 'long' : titleLength >= 4 ? 'medium' : 'short';
+        return (
+          <a
+            class:list={['route-menu__route', { active: route.id === activeRoute }]}
+            href={route.href}
+            aria-current={route.id === activeRoute ? 'page' : undefined}
+            data-menu-link
+            data-route-index={index}
+            data-front={offset === 0 ? 'true' : undefined}
+            draggable="false"
+            data-stage-offset={offset}
+            style={`z-index:${10 - Math.abs(offset)}`}
+          >
+            <small>{String(index).padStart(2, '0')} / {route.id === activeRoute ? 'CURRENT' : 'PAGE'}</small>
+            <span class="route-menu__route-title" data-title-size={titleSize}>{route.label}</span>
+            <em>{route.caption}</em>
+          </a>
+        );
+      })}
+    </nav>
+
+    <div class="route-menu__footer">
+      <a class="route-menu__github" href="https://github.com/shiyue137mh-netizen/LoomStudio" target="_blank" rel="noreferrer">
+        <GitFork size={14} stroke-width={1.7} /> GitHub <ArrowUpRight size={13} stroke-width={1.7} />
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const trigger = document.querySelector<HTMLButtonElement>('[data-menu-trigger]');
+  const menu = document.querySelector<HTMLElement>('[data-route-menu]');
+  const themeToggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  let menuAnimating = false;
+
+  const syncThemeToggle = () => {
+    if (!themeToggle) return;
+    const dark = document.documentElement.dataset.theme === 'dark';
+    const label = dark ? '切换至浅色模式' : '切换至暗色模式';
+    themeToggle.setAttribute('aria-pressed', String(dark));
+    themeToggle.setAttribute('aria-label', label);
+    themeToggle.title = label;
+  };
+
+  themeToggle?.addEventListener('click', () => {
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    document.querySelector<HTMLMetaElement>('[data-theme-color]')?.setAttribute('content', theme === 'dark' ? '#252b31' : '#82919b');
+    try { localStorage.setItem('loom-site-theme', theme); } catch {}
+    syncThemeToggle();
+  });
+  syncThemeToggle();
+
+  if (trigger && menu) {
+    const backgroundTargets = Array.from(document.querySelectorAll<HTMLElement>('main, footer'));
+    const routeStage = menu.querySelector<HTMLElement>('[data-route-stage]');
+    const routeLinks = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-route-index]'));
+    const currentRouteIndex = Number(routeStage?.dataset.currentIndex ?? 0);
+    let stagedRouteIndex = currentRouteIndex;
+    let wheelDistance = 0;
+    let lastWheelStepAt = 0;
+    let activePointerId: number | null = null;
+    let pointerAnchorX = 0;
+    let pointerStartY = 0;
+    let pointerMoved = false;
+    let suppressRouteClick = false;
+
+    const circularRouteOffset = (index: number, center: number) => {
+      const half = Math.floor(routeLinks.length / 2);
+      let offset = index - center;
+      if (offset > half) offset -= routeLinks.length;
+      if (offset < -half) offset += routeLinks.length;
+      return offset;
+    };
+
+    const stageRoute = (index: number, moveFocus = false) => {
+      stagedRouteIndex = index;
+      routeLinks.forEach((link, routeIndex) => {
+        const offset = circularRouteOffset(routeIndex, index);
+        const distance = Math.abs(offset);
+        link.dataset.stageOffset = String(offset);
+        link.style.zIndex = String(10 - distance);
+        link.toggleAttribute('data-front', distance === 0);
+      });
+      if (moveFocus) routeLinks[index]?.focus({ preventScroll: true });
+    };
+
+    const commitMenuState = (open: boolean) => {
+      menu.hidden = !open;
+      menu.inert = !open;
+      menu.setAttribute('aria-hidden', String(!open));
+      trigger.setAttribute('aria-expanded', String(open));
+      trigger.setAttribute('aria-label', open ? '关闭页面导航' : '打开页面导航');
+      document.documentElement.toggleAttribute('data-menu-open', open);
+      backgroundTargets.forEach((element) => { element.inert = open; });
+    };
+
+    const transitionMenu = (open: boolean, afterTransition?: () => void) => {
+      if (menuAnimating || open === !menu.hidden) return;
+      if (open) stageRoute(currentRouteIndex);
+      menuAnimating = true;
+      document.documentElement.dataset.menuTransition = open ? 'opening' : 'closing';
+
+      const update = () => commitMenuState(open);
+      const transition = document.startViewTransition?.(update);
+      if (!transition) update();
+
+      const finished = transition?.finished ?? Promise.resolve();
+      finished
+        .catch(() => {})
+        .finally(() => {
+          delete document.documentElement.dataset.menuTransition;
+          menuAnimating = false;
+          afterTransition?.();
+        });
+    };
+
+    trigger.addEventListener('click', () => transitionMenu(menu.hasAttribute('hidden')));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu.hidden) transitionMenu(false);
+    });
+
+    routeStage?.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      const direction = event.key === 'ArrowRight' ? 1 : -1;
+      const nextIndex = (stagedRouteIndex + direction + routeLinks.length) % routeLinks.length;
+      stageRoute(nextIndex, true);
+      event.preventDefault();
+    });
+
+    routeStage?.addEventListener('wheel', (event) => {
+      const rawDistance = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      const distance = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? rawDistance * 16 : rawDistance;
+      const now = performance.now();
+      event.preventDefault();
+
+      if (now - lastWheelStepAt < 170) return;
+      if (wheelDistance && Math.sign(wheelDistance) !== Math.sign(distance)) wheelDistance = 0;
+      wheelDistance += distance;
+      if (Math.abs(wheelDistance) < 42) return;
+
+      const direction = wheelDistance > 0 ? 1 : -1;
+      const nextIndex = (stagedRouteIndex + direction + routeLinks.length) % routeLinks.length;
+      wheelDistance = 0;
+      lastWheelStepAt = now;
+      stageRoute(nextIndex);
+    }, { passive: false });
+
+    routeStage?.addEventListener('pointerdown', (event) => {
+      if (!event.isPrimary || event.button !== 0 || event.pointerType === 'mouse') return;
+      activePointerId = event.pointerId;
+      pointerAnchorX = event.clientX;
+      pointerStartY = event.clientY;
+      pointerMoved = false;
+      routeStage.setPointerCapture(event.pointerId);
+      routeStage.toggleAttribute('data-dragging', true);
+    });
+
+    routeStage?.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== activePointerId) return;
+      const horizontalDistance = event.clientX - pointerAnchorX;
+      const verticalDistance = event.clientY - pointerStartY;
+      if (!pointerMoved && Math.abs(horizontalDistance) <= Math.max(8, Math.abs(verticalDistance))) return;
+      if (Math.abs(horizontalDistance) < 48) return;
+
+      event.preventDefault();
+      const direction = horizontalDistance < 0 ? 1 : -1;
+      const nextIndex = (stagedRouteIndex + direction + routeLinks.length) % routeLinks.length;
+      pointerAnchorX = event.clientX;
+      pointerStartY = event.clientY;
+      pointerMoved = true;
+      suppressRouteClick = true;
+      stageRoute(nextIndex);
+    });
+
+    const finishPointerInteraction = (event: PointerEvent) => {
+      if (!routeStage || event.pointerId !== activePointerId) return;
+      if (routeStage.hasPointerCapture(event.pointerId)) routeStage.releasePointerCapture(event.pointerId);
+      activePointerId = null;
+      routeStage.removeAttribute('data-dragging');
+      if (pointerMoved) window.setTimeout(() => { suppressRouteClick = false; }, 80);
+    };
+
+    routeStage?.addEventListener('pointerup', finishPointerInteraction);
+    routeStage?.addEventListener('pointercancel', finishPointerInteraction);
+    routeStage?.addEventListener('dragstart', (event) => event.preventDefault());
+
+    menu.querySelectorAll<HTMLAnchorElement>('[data-menu-link]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const destination = new URL(link.href, window.location.href);
+        const sameDocument = destination.pathname === window.location.pathname && destination.search === window.location.search;
+        const routeIndex = Number(link.dataset.routeIndex);
+        event.preventDefault();
+
+        if (Number.isInteger(routeIndex) && suppressRouteClick) return;
+
+        if (Number.isInteger(routeIndex) && routeIndex !== stagedRouteIndex) {
+          stageRoute(routeIndex);
+          return;
+        }
+        if (sameDocument) {
+          transitionMenu(false, () => window.location.assign(destination.href));
+          return;
+        }
+        window.location.assign(destination.href);
+      });
+    });
+  }
+</script>
+
+<style is:global>
+  .site-controls {
+    position: fixed;
+    z-index: 400;
+    inset: 0 0 auto;
+    height: var(--loom-site-header-height);
+    pointer-events: none;
+  }
+
+  .menu-trigger,
+  .theme-toggle {
+    position: absolute;
+    pointer-events: auto;
+  }
+
+  .menu-trigger {
+    top: 10px;
+    left: 10px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 8px;
+    padding: 0;
+    color: var(--loom-site-text);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .menu-trigger__line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 3px;
+    border-radius: 999px;
+    background: currentColor;
+    filter: drop-shadow(0 2px 3px rgba(4, 8, 13, 0.62));
+    transform: translate(-50%, -50%) rotate(-38deg);
+    transform-origin: center;
+    transition:
+      top 320ms cubic-bezier(.55, 0, .1, 1),
+      left 320ms cubic-bezier(.55, 0, .1, 1),
+      width 320ms cubic-bezier(.55, 0, .1, 1),
+      opacity 180ms ease,
+      transform 360ms cubic-bezier(.55, 0, .1, 1);
+  }
+
+  .menu-trigger__line::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--loom-site-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms cubic-bezier(.55, 0, .1, 1);
+  }
+
+  .menu-trigger:hover .menu-trigger__line::before { transform: scaleX(1); }
+  .menu-trigger__line--top { top: 14px; left: 18px; width: 12px; }
+  .menu-trigger__line--middle { top: 22px; }
+  .menu-trigger__line--bottom { top: 30px; left: 26px; width: 12px; }
+
+  html[data-menu-open] .menu-trigger__line--top {
+    top: 22px;
+    left: 22px;
+    width: 24px;
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  html[data-menu-open] .menu-trigger__line--middle {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-38deg) scaleX(0);
+  }
+
+  html[data-menu-open] .menu-trigger__line--bottom {
+    top: 22px;
+    left: 22px;
+    width: 24px;
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
+  .theme-toggle {
+    z-index: 2;
+    top: 10px;
+    right: 10px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    padding: 0;
+    color: var(--loom-site-text);
+    background: transparent;
+    cursor: pointer;
+    filter: drop-shadow(0 2px 3px rgba(4, 8, 13, 0.62));
+    view-transition-name: theme-toggle;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .theme-toggle:hover { transform: translateY(-1px) rotate(8deg) scale(1.06); }
+  .theme-toggle__moon { display: none; }
+  html[data-theme='dark'] .theme-toggle__sun { display: none; }
+  html[data-theme='dark'] .theme-toggle__moon { display: block; }
+
+  .route-menu {
+    position: fixed;
+    z-index: 300;
+    inset: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    color: var(--loom-site-text);
+    background: var(--loom-site-menu-bg);
+  }
+
+  .route-menu[hidden] { display: none; }
+
+  html[data-menu-transition] .menu-trigger { view-transition-name: menu-toggle; }
+  html[data-menu-transition] .route-menu { view-transition-name: route-menu; }
+
+  .route-menu__content {
+    width: min(calc(100% - 80px), 1440px);
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    margin-inline: auto;
+    padding: 10px 0 34px;
+  }
+
+  .route-menu__brand {
+    position: fixed;
+    top: 10px;
+    left: 64px;
+    display: flex;
+    width: fit-content;
+    min-height: 44px;
+    align-items: center;
+    gap: 11px;
+    font-size: 15px;
+    font-weight: 680;
+    letter-spacing: 0.02em;
+  }
+
+  .route-menu__brand img { width: 38px; height: 38px; }
+  .route-menu__brand small { margin-left: 6px; opacity: 0.58; font: 8px var(--loom-site-font-mono); letter-spacing: 0.18em; }
+
+  .route-menu__routes {
+    grid-row: 2;
+    position: relative;
+    min-height: min(62vh, 580px);
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .route-menu__routes:focus-visible { outline: 0; }
+  .route-menu__routes:focus-visible .route-menu__route[data-front] .route-menu__route-title {
+    outline: 2px solid var(--loom-site-accent-strong);
+    outline-offset: 6px;
+    border-radius: 8px;
+  }
+  .route-menu__routes[data-dragging],
+  .route-menu__routes[data-dragging] .route-menu__route { cursor: grabbing; }
+
+  .route-menu__route {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 260px;
+    height: 190px;
+    color: var(--loom-site-text);
+    text-align: center;
+    cursor: pointer;
+    opacity: 0.42;
+    filter: blur(0.8px);
+    transform: translate(-50%, -50%) scale(0.72);
+    transform-origin: center;
+    transition:
+      opacity 420ms ease,
+      filter 420ms ease,
+      transform 520ms cubic-bezier(.22, .8, .2, 1);
+  }
+
+  .route-menu__route[data-stage-offset='-2'] {
+    transform: translate(-50%, -50%) translateX(clamp(-660px, -43vw, -390px)) scale(0.72);
+  }
+  .route-menu__route[data-stage-offset='-1'] {
+    opacity: 0.68;
+    filter: blur(0.35px);
+    transform: translate(-50%, -50%) translateX(clamp(-360px, -24vw, -230px)) scale(0.86);
+  }
+  .route-menu__route[data-stage-offset='0'] {
+    opacity: 1;
+    filter: none;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .route-menu__route[data-stage-offset='1'] {
+    opacity: 0.68;
+    filter: blur(0.35px);
+    transform: translate(-50%, -50%) translateX(clamp(230px, 24vw, 360px)) scale(0.86);
+  }
+  .route-menu__route[data-stage-offset='2'] {
+    transform: translate(-50%, -50%) translateX(clamp(390px, 43vw, 660px)) scale(0.72);
+  }
+  .route-menu__route:hover { opacity: 0.9; filter: none; }
+  .route-menu__route[data-front] { color: var(--loom-site-accent-strong); }
+  .route-menu__route[data-front]:hover { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
+  .route-menu__route small,
+  .route-menu__route em,
+  .route-menu__route-title {
+    position: absolute;
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+  }
+  .route-menu__route small {
+    top: 17px;
+    font: 9px var(--loom-site-font-mono);
+    letter-spacing: 0.2em;
+  }
+  .route-menu__route-title {
+    top: 50%;
+    max-width: 100%;
+    font-family: var(--loom-site-font-display);
+    font-weight: 650;
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+  .route-menu__route-title[data-title-size='short'] { font-size: clamp(46px, 5vw, 70px); }
+  .route-menu__route-title[data-title-size='medium'] { font-size: clamp(40px, 4.3vw, 60px); }
+  .route-menu__route-title[data-title-size='long'] { font-size: clamp(26px, 2.5vw, 36px); letter-spacing: -0.04em; }
+  .route-menu__route em {
+    bottom: 17px;
+    font-size: 8px;
+    font-style: normal;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .route-menu__footer {
+    grid-row: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+    padding-top: 20px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+
+  .route-menu__footer a { opacity: 0.72; transition: opacity 160ms ease; }
+  .route-menu__footer a:hover { opacity: 1; }
+  .route-menu__github { display: inline-flex; align-items: center; gap: 7px; }
+
+  html[data-menu-transition]::view-transition-old(root),
+  html[data-menu-transition]::view-transition-new(root) { animation: none; }
+
+  ::view-transition-group(route-menu) {
+    z-index: 1000;
+    animation-duration: 680ms;
+    animation-timing-function: cubic-bezier(.55, 0, .1, 1);
+  }
+
+  ::view-transition-old(route-menu),
+  ::view-transition-new(route-menu) { mix-blend-mode: normal; }
+
+  ::view-transition-group(theme-toggle) {
+    z-index: 1002;
+    animation: none;
+  }
+
+  ::view-transition-old(theme-toggle),
+  ::view-transition-new(theme-toggle) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  html[data-menu-transition='opening']::view-transition-new(route-menu) {
+    animation: route-menu-curtain-in 680ms cubic-bezier(.55, 0, .1, 1) both;
+  }
+
+  html[data-menu-transition='closing']::view-transition-old(route-menu) {
+    animation: route-menu-curtain-out 680ms cubic-bezier(.55, 0, .1, 1) both;
+  }
+
+  ::view-transition-group(menu-toggle) {
+    z-index: 1001;
+    animation-duration: 320ms;
+  }
+
+  ::view-transition-old(menu-toggle),
+  ::view-transition-new(menu-toggle) {
+    mix-blend-mode: normal;
+  }
+
+  html[data-menu-transition]::view-transition-old(menu-toggle) {
+    animation: menu-toggle-out 220ms ease-in both;
+  }
+
+  html[data-menu-transition]::view-transition-new(menu-toggle) {
+    animation: menu-toggle-in 300ms 70ms cubic-bezier(.16, 1, .3, 1) both;
+  }
+
+  @keyframes route-menu-curtain-in {
+    from { clip-path: inset(100% 0 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+
+  @keyframes route-menu-curtain-out {
+    from { clip-path: inset(0 0 0 0); }
+    to { clip-path: inset(100% 0 0 0); }
+  }
+
+  @keyframes menu-toggle-out {
+    to { opacity: 0; transform: scale(0.76) rotate(-10deg); }
+  }
+
+  @keyframes menu-toggle-in {
+    from { opacity: 0; transform: scale(0.76) rotate(10deg); }
+  }
+
+  @media (max-width: 980px) {
+    .route-menu__routes { min-height: min(58vh, 500px); }
+    .route-menu__route { width: 220px; }
+  }
+
+  @media (max-width: 720px) {
+    .route-menu__content { width: calc(100% - 36px); padding: 10px 0 24px; }
+    .route-menu__brand small { display: none; }
+    .route-menu__routes { min-height: 440px; }
+    .route-menu__route { width: 160px; height: 160px; }
+    .route-menu__route[data-stage-offset='-2'] { transform: translate(-50%, -50%) translateX(-74vw) scale(0.68); }
+    .route-menu__route[data-stage-offset='-1'] { transform: translate(-50%, -50%) translateX(-39vw) scale(0.82); }
+    .route-menu__route[data-stage-offset='1'] { transform: translate(-50%, -50%) translateX(39vw) scale(0.82); }
+    .route-menu__route[data-stage-offset='2'] { transform: translate(-50%, -50%) translateX(74vw) scale(0.68); }
+    .route-menu__route-title[data-title-size='short'] { font-size: 38px; }
+    .route-menu__route-title[data-title-size='medium'] { font-size: 32px; }
+    .route-menu__route-title[data-title-size='long'] { font-size: 22px; }
+    .route-menu__footer { align-items: flex-end; }
+    .route-menu__github { padding-bottom: 2px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu-trigger__line,
+    .route-menu__route { transition-duration: 0.01ms !important; }
+    html[data-menu-transition]::view-transition-old(*),
+    html[data-menu-transition]::view-transition-new(*) { animation: none !important; }
+  }
+</style>

@@ -1,0 +1,187 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+}
+
+const {
+  title,
+  description,
+  image = '/images/hero-world.png',
+} = Astro.props;
+const pageTitle = title === 'Loom Studio' ? title : title + ' · Loom Studio';
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#82919b" data-theme-color />
+    <script is:inline>
+      try {
+        const pendingTransition = sessionStorage.getItem('loom-site-route-transition');
+        if (pendingTransition) {
+          const transition = JSON.parse(pendingTransition);
+          if (
+            transition.pathname === window.location.pathname
+            && Date.now() - transition.createdAt < 5000
+            && transition.direction === 'curtain'
+          ) {
+            document.documentElement.dataset.routeTransition = transition.direction;
+          }
+          sessionStorage.removeItem('loom-site-route-transition');
+        }
+
+        const savedTheme = localStorage.getItem('loom-site-theme');
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+          document.documentElement.dataset.theme = savedTheme;
+          document.documentElement.style.colorScheme = savedTheme;
+          document.querySelector('[data-theme-color]')?.setAttribute('content', savedTheme === 'dark' ? '#252b31' : '#82919b');
+        }
+      } catch {}
+    </script>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={image} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/png" href="/brand/loom-logo.png" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <slot />
+    <div
+      class="page-scrollbar"
+      role="scrollbar"
+      aria-label="页面滚动"
+      aria-orientation="vertical"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+      tabindex="0"
+      data-page-scrollbar
+      hidden
+    ></div>
+    <script>
+      const routeTransitionKey = 'loom-site-route-transition';
+      document.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (!(event.target instanceof Element)) return;
+
+        const link = event.target.closest('a[href]');
+        if (!(link instanceof HTMLAnchorElement) || link.hasAttribute('download')) return;
+        if (link.target && link.target !== '_self') return;
+
+        const destination = new URL(link.href, window.location.href);
+        if (destination.origin !== window.location.origin) return;
+        if (
+          destination.pathname === window.location.pathname
+          && destination.search === window.location.search
+        ) return;
+
+        const direction = 'curtain';
+        document.documentElement.dataset.routeTransition = direction;
+        try {
+          sessionStorage.setItem(routeTransitionKey, JSON.stringify({
+            direction,
+            pathname: destination.pathname,
+            createdAt: Date.now(),
+          }));
+        } catch {}
+      }, { capture: true });
+
+      window.addEventListener('pageshow', () => {
+        window.setTimeout(() => {
+          delete document.documentElement.dataset.routeTransition;
+        }, 900);
+      }, { once: true });
+
+      const pageScrollbar = document.querySelector<HTMLElement>('[data-page-scrollbar]');
+      if (pageScrollbar) {
+        let frame = 0;
+        let thumbHeight = 0;
+        let maxTravel = 0;
+        let maxScroll = 0;
+        let dragStartY = 0;
+        let dragStartScroll = 0;
+        let dragging = false;
+
+        const updateScrollbar = () => {
+          frame = 0;
+          const viewportHeight = window.innerHeight;
+          const documentHeight = document.documentElement.scrollHeight;
+          maxScroll = Math.max(0, documentHeight - viewportHeight);
+          pageScrollbar.hidden = maxScroll < 1;
+          if (pageScrollbar.hidden) return;
+
+          const trackHeight = Math.max(0, viewportHeight - 8);
+          thumbHeight = Math.max(48, trackHeight * viewportHeight / documentHeight);
+          maxTravel = Math.max(0, trackHeight - thumbHeight);
+          const progress = maxScroll ? window.scrollY / maxScroll : 0;
+          pageScrollbar.style.height = `${thumbHeight}px`;
+          pageScrollbar.style.transform = `translateY(${4 + maxTravel * progress}px)`;
+          pageScrollbar.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
+        };
+
+        const requestScrollbarUpdate = () => {
+          if (!frame) frame = window.requestAnimationFrame(updateScrollbar);
+        };
+
+        const stopDragging = () => {
+          if (!dragging) return;
+          dragging = false;
+          delete document.documentElement.dataset.scrollbarDragging;
+        };
+
+        pageScrollbar.addEventListener('pointerdown', (event) => {
+          dragging = true;
+          dragStartY = event.clientY;
+          dragStartScroll = window.scrollY;
+          document.documentElement.dataset.scrollbarDragging = '';
+          pageScrollbar.setPointerCapture(event.pointerId);
+          event.preventDefault();
+        });
+
+        pageScrollbar.addEventListener('pointermove', (event) => {
+          if (!dragging || !maxTravel) return;
+          const nextScroll = dragStartScroll + (event.clientY - dragStartY) * maxScroll / maxTravel;
+          window.scrollTo(0, Math.min(maxScroll, Math.max(0, nextScroll)));
+        });
+
+        pageScrollbar.addEventListener('pointerup', stopDragging);
+        pageScrollbar.addEventListener('pointercancel', stopDragging);
+        pageScrollbar.addEventListener('keydown', (event) => {
+          const movements: Record<string, number> = {
+            ArrowUp: -48,
+            ArrowDown: 48,
+            PageUp: -window.innerHeight * 0.85,
+            PageDown: window.innerHeight * 0.85,
+            Home: -window.scrollY,
+            End: maxScroll - window.scrollY,
+          };
+          const movement = movements[event.key];
+          if (movement === undefined) return;
+          window.scrollBy(0, movement);
+          event.preventDefault();
+        });
+
+        const resizeObserver = new ResizeObserver(requestScrollbarUpdate);
+        resizeObserver.observe(document.body);
+        window.addEventListener('scroll', requestScrollbarUpdate, { passive: true });
+        window.addEventListener('resize', requestScrollbarUpdate);
+        window.addEventListener('pagehide', () => {
+          window.cancelAnimationFrame(frame);
+          resizeObserver.disconnect();
+          window.removeEventListener('scroll', requestScrollbarUpdate);
+          window.removeEventListener('resize', requestScrollbarUpdate);
+        }, { once: true });
+        updateScrollbar();
+      }
+    </script>
+  </body>
+</html>

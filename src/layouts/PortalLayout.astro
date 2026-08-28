@@ -1,0 +1,127 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow: string;
+  headline: string;
+  intro: string;
+  marker: string;
+}
+
+const { title, description, eyebrow, headline, intro, marker } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <SiteHeader />
+  <main class="portal-page">
+    <section class="portal-hero">
+      <div class="container portal-hero__inner">
+        <p class="eyebrow">{eyebrow}</p>
+        <div class="portal-hero__grid">
+          <div>
+            <small>{marker}</small>
+            <h1>{headline}</h1>
+          </div>
+          <p>{intro}</p>
+        </div>
+      </div>
+    </section>
+    <div class="portal-content">
+      <slot />
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style is:global>
+  .portal-page {
+    min-height: 100vh;
+    padding-top: var(--loom-site-header-height);
+    background: var(--loom-site-bg);
+  }
+  .portal-hero {
+    padding: clamp(92px, 13vw, 170px) 0 clamp(74px, 10vw, 124px);
+  }
+  .portal-hero__inner {
+    display: grid;
+    gap: 28px;
+  }
+  .portal-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    align-items: end;
+    gap: clamp(48px, 10vw, 150px);
+  }
+  .portal-hero__grid small {
+    display: block;
+    margin-bottom: 18px;
+    color: var(--loom-site-text-subtle);
+    font: 9px var(--loom-site-font-mono);
+    letter-spacing: 0.18em;
+  }
+  .portal-hero h1 {
+    max-width: 760px;
+    margin: 0;
+    font: 590 clamp(46px, 6.8vw, 84px)/1.02 var(--loom-site-font-display);
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+  .portal-hero__grid > p {
+    margin: 0 0 6px;
+    color: var(--loom-site-text-muted);
+    font-size: 16px;
+    line-height: 1.9;
+    text-wrap: pretty;
+  }
+  .portal-content {
+    padding-bottom: 120px;
+  }
+  .portal-section {
+    padding: 72px 0;
+  }
+  .portal-section--soft { background: transparent; }
+  .portal-section__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 440px);
+    align-items: end;
+    gap: 48px;
+    margin-bottom: 44px;
+  }
+  .portal-section__heading small {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--loom-site-text-subtle);
+    font: 9px var(--loom-site-font-mono);
+    letter-spacing: 0.16em;
+  }
+  .portal-section__heading h2 {
+    margin: 0;
+    font: 600 clamp(28px, 4vw, 46px)/1.15 var(--loom-site-font-display);
+    letter-spacing: -0.025em;
+  }
+  .portal-section__heading p {
+    margin: 0;
+    color: var(--loom-site-text-muted);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .portal-tag {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    color: var(--loom-site-text-subtle);
+    font: 8px var(--loom-site-font-mono);
+    letter-spacing: 0.1em;
+  }
+  @media (max-width: 760px) {
+    .portal-hero__grid,
+    .portal-section__heading { grid-template-columns: 1fr; gap: 28px; }
+    .portal-hero { padding-top: 76px; }
+    .portal-content { padding-bottom: 72px; }
+    .portal-section { padding: 54px 0; }
+  }
+</style>

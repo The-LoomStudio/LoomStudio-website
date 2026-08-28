@@ -1,0 +1,86 @@
+---
+interface Props {
+  easterEgg?: boolean;
+}
+
+const { easterEgg = false } = Astro.props;
+---
+
+<footer class:list={['footer', { 'footer--sky': easterEgg, 'footer--solid': !easterEgg }]}>
+  <div class="container footer__inner">
+    <div>
+      {easterEgg ? (
+        <button class="footer__mark" type="button" aria-label="触发樱花彩蛋" aria-pressed="false" data-sakura-trigger>
+          <img src="/brand/loom-logo.png" alt="" width="34" height="34" />
+        </button>
+      ) : (
+        <img src="/brand/loom-logo.png" alt="" width="34" height="34" />
+      )}
+      <p>为深度长篇 AI 互动叙事而生。</p>
+    </div>
+    <div class="footer__links">
+      <a href="/showcase">作品展厅</a>
+      <a href="/marketplace">Marketplace</a>
+      <a href="/docs">文档</a>
+      <a href="/download">下载</a>
+      <a href="https://github.com/shiyue137mh-netizen/LoomStudio" target="_blank" rel="noreferrer">源码</a>
+      <span>Cloudflare deployment pending</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: 42px 0 48px;
+    background: transparent;
+  }
+  .footer--solid { background: var(--loom-site-bg-soft); }
+  :global(html[data-sky-text='dark']) .footer--sky {
+    --loom-site-text: #26343d;
+    --loom-site-text-muted: #3d4c55;
+    --loom-site-text-subtle: #53636c;
+  }
+  .footer__inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+  }
+  .footer img { width: 34px; height: 34px; opacity: 0.82; }
+  .footer__mark {
+    width: 34px;
+    height: 34px;
+    display: block;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    color: inherit;
+    background: none;
+    box-shadow: none;
+    cursor: pointer;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+  .footer__mark:hover { transform: rotate(-8deg) scale(1.08); }
+  .footer__mark[aria-pressed='true'] { transform: rotate(8deg) scale(1.08); }
+  .footer__mark:disabled { cursor: default; opacity: 0.5; transform: none; }
+  .footer p {
+    margin: 14px 0 0;
+    color: var(--loom-site-text-muted);
+    font-family: var(--loom-site-font-display);
+  }
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px 22px;
+    color: var(--loom-site-text-subtle);
+    font-size: 12px;
+  }
+  .footer__links a:hover { color: var(--loom-site-text); }
+  @media (max-width: 680px) {
+    .footer__inner { align-items: flex-start; flex-direction: column; }
+    .footer__links { justify-content: flex-start; }
+  }
+</style>

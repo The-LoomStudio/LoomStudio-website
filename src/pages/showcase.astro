@@ -1,0 +1,105 @@
+---
+import PortalLayout from '../layouts/PortalLayout.astro';
+import { BookOpen, Compass, GitBranch } from '@lucide/astro';
+
+const worlds = [
+  {
+    chapter: 'WORLD / 01',
+    title: '失落航线',
+    copy: '一段从海雾边缘开始的长篇航行。示例区域用于展示世界线、章节进度与角色关系如何在作品条目中被表达。',
+    meta: '长篇冒险 · 示例作品',
+  },
+  {
+    chapter: 'WORLD / 02',
+    title: '银庭协议',
+    copy: '技术秩序与人物选择相互纠缠的叙事实验。未来可在这里展示使用的模板、扩展和公开设定。',
+    meta: '技术幻想 · 示例作品',
+  },
+  {
+    chapter: 'WORLD / 03',
+    title: '潮汐之后',
+    copy: '以一次无法撤回的选择为起点，演示分支叙事并不等于把所有路径同时铺在读者面前。',
+    meta: '世界线叙事 · 示例作品',
+  },
+];
+---
+
+<PortalLayout
+  title="作品展厅"
+  description="Loom Studio 作品展厅草稿：展示长篇互动叙事、世界线与创作结构。"
+  eyebrow="Stories made with Loom Studio"
+  marker="PAGE / 01 · CONCEPT SHOWCASE"
+  headline="先看见世界 再看见工具"
+  intro="作品展厅不是功能截图的另一种排列。它应该让访问者先感受到角色、选择和旅程，再在需要时看见支撑这些故事的结构。当前条目均为页面示例。"
+>
+  <section class="portal-section portal-section--soft">
+    <div class="container showcase-feature">
+      <div class="showcase-feature__visual" aria-hidden="true">
+        <span>WORLDLINE</span>
+        <b>00</b>
+        <i></i>
+      </div>
+      <div class="showcase-feature__copy">
+        <span class="portal-tag">FEATURED CONCEPT</span>
+        <p class="eyebrow">A journey beyond the transcript</p>
+        <h2>故事不是一次会话<br />而是一段留下路径的旅程</h2>
+        <p>这一块为未来的重点作品、互动演示或公开视频保留。草稿阶段只使用纯色构图，避免抢走内容本身的注意力。</p>
+        <div class="showcase-feature__facts">
+          <span><BookOpen size={15} stroke-width={1.6} /> 长篇章节</span>
+          <span><GitBranch size={15} stroke-width={1.6} /> 可追踪分支</span>
+          <span><Compass size={15} stroke-width={1.6} /> 世界状态</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="portal-section">
+    <div class="container">
+      <div class="portal-section__heading">
+        <div><small>GALLERY / WORLDS</small><h2>概念作品墙</h2></div>
+        <p>这些名称与简介只承担布局占位，不代表已发布作品。未来可以替换为真实创作者内容而不改变页面结构。</p>
+      </div>
+      <div class="world-grid">
+        {worlds.map((world, index) => (
+          <article class:list={['world-card', { 'world-card--wide': index === 0 }]}>
+            <div class="world-card__top"><span>{world.chapter}</span><b>CONCEPT</b></div>
+            <div class="world-card__mark" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
+            <div>
+              <h3>{world.title}</h3>
+              <p>{world.copy}</p>
+              <small>{world.meta}</small>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</PortalLayout>
+
+<style>
+  .showcase-feature { min-height: 540px; display: grid; grid-template-columns: .8fr 1.2fr; }
+  .showcase-feature__visual { position: relative; display: flex; min-height: 440px; flex-direction: column; justify-content: space-between; padding: 34px 34px 34px 0; color: var(--loom-site-text-subtle); }
+  .showcase-feature__visual span { font: 9px var(--loom-site-font-mono); letter-spacing: .18em; }
+  .showcase-feature__visual b { font: 500 clamp(96px, 15vw, 190px)/.8 var(--loom-site-font-display); letter-spacing: -.08em; }
+  .showcase-feature__visual i { display: none; }
+  .showcase-feature__copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(34px, 6vw, 76px); }
+  .showcase-feature__copy .eyebrow { margin: 30px 0 16px; }
+  .showcase-feature h2 { margin: 0; font: 590 clamp(30px, 4.5vw, 54px)/1.18 var(--loom-site-font-display); letter-spacing: -.035em; }
+  .showcase-feature__copy > p:last-of-type { max-width: 600px; margin: 28px 0 0; color: var(--loom-site-text-muted); font-size: 14px; line-height: 1.85; }
+  .showcase-feature__facts { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 42px; color: var(--loom-site-text-subtle); font-size: 11px; }
+  .showcase-feature__facts span { display: inline-flex; align-items: center; gap: 7px; }
+  .world-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .world-card { min-height: 360px; display: flex; flex-direction: column; justify-content: space-between; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
+  .world-card--wide { grid-column: 1 / -1; min-height: 400px; }
+  .world-card__top { display: flex; justify-content: space-between; color: var(--loom-site-text-subtle); font: 8px var(--loom-site-font-mono); letter-spacing: .14em; }
+  .world-card__mark { align-self: flex-end; color: var(--loom-site-surface-raised); font: 500 clamp(76px, 10vw, 128px)/1 var(--loom-site-font-display); }
+  .world-card h3 { margin: 0 0 14px; font-size: 28px; }
+  .world-card p { max-width: 640px; margin: 0; color: var(--loom-site-text-muted); font-size: 13px; line-height: 1.8; }
+  .world-card small { display: block; margin-top: 24px; color: var(--loom-site-text-subtle); font-size: 10px; }
+  @media (max-width: 760px) {
+    .showcase-feature { grid-template-columns: 1fr; }
+    .showcase-feature__visual { min-height: 310px; }
+    .world-grid { grid-template-columns: 1fr; }
+    .world-card--wide { grid-column: auto; }
+  }
+</style>

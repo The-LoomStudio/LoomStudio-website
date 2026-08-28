@@ -1,0 +1,253 @@
+---
+import { Send } from '@lucide/astro';
+---
+
+<div class="studio" aria-label="Loom Studio 产品界面示意">
+  <div class="studio__chrome">
+    <div class="traffic"><i></i><i></i><i></i></div>
+    <span>loom://workspace/the-silver-sea</span>
+    <b>TRACE READY</b>
+  </div>
+  <div class="studio__body">
+    <aside class="rail">
+      <img src="/brand/loom-logo.png" alt="" />
+      <button class="rail__active" aria-label="叙事时间线">N</button>
+      <button aria-label="角色">C</button>
+      <button aria-label="智能体">A</button>
+      <button aria-label="提示词资源">P</button>
+    </aside>
+    <section class="panel">
+      <header><span>NARRATIVE</span><b>银海纪行</b></header>
+      <div class="tree">
+        <div class="tree__item tree__item--active"><i></i><span>主世界线</span><small>24 nodes</small></div>
+        <div class="tree__item"><i></i><span>雾港分歧</span><small>07</small></div>
+        <div class="tree__item"><i></i><span>旧塔之前</span><small>12</small></div>
+      </div>
+      <div class="panel__caption">PROMPT SOURCES</div>
+      <div class="resource"><span>SETTING</span><b>银海世界观</b><i>ON</i></div>
+      <div class="resource"><span>PRESET</span><b>长篇叙事编排</b><i>ON</i></div>
+    </section>
+    <main class="timeline">
+      <header>
+        <div><small>CHAPTER 08</small><b>潮声抵达塔底</b></div>
+        <span>2,841 字</span>
+      </header>
+      <article>
+        <p>塔底没有门，只有一道被潮水反复擦亮的银色刻痕。伊芙伸出手时，远处的钟声恰好穿过雾层，像有人从另一个故事里轻轻敲了一下桌面。</p>
+        <p>她记得这里。不是记得这座塔，而是记得一种尚未发生过的告别。</p>
+        <blockquote>“世界线不会替我们选择。它只会记住，我们曾经如何选择。”</blockquote>
+        <p>灯火沿着石阶一盏盏亮起。身后的海面随之分裂成无数细线，每一条都通向一个仍未命名的清晨。</p>
+      </article>
+      <div class="composer"><span>继续这个世界线…</span><button aria-label="发送"><Send size={13} stroke-width={1.8} /></button></div>
+    </main>
+    <aside class="trace">
+      <header><span>BUILD TRACE</span><i></i></header>
+      <div class="trace__metric"><span>Context</span><b>18.2k</b></div>
+      <div class="trace__flow">
+        <div><i></i><span>global.setting</span><b>active</b></div>
+        <div><i></i><span>timeline.history</span><b>active</b></div>
+        <div><i></i><span>character.card</span><b>active</b></div>
+        <div class="muted"><i></i><span>memory.echo</span><b>skipped</b></div>
+      </div>
+      <pre><code>zone: narrative.history
+slot: timeline.main
+revision: 4f98c1
+trace: deterministic</code></pre>
+    </aside>
+  </div>
+</div>
+
+<style>
+  .studio {
+    overflow: hidden;
+    border-radius: 24px;
+    padding: 8px;
+    color: #dce4ef;
+    background: #0c1016;
+    box-shadow: none;
+    font-size: 11px;
+  }
+  .studio__chrome {
+    height: 38px;
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: center;
+    border-radius: 14px 14px 8px 8px;
+    margin-bottom: 6px;
+    padding: 0 14px;
+    color: #768294;
+    background: #1b212b;
+    font-family: var(--loom-site-font-mono);
+  }
+  .studio__chrome > span { text-align: center; }
+  .studio__chrome > b { color: #96b7c9; font-size: 9px; letter-spacing: 0.1em; }
+  .traffic { display: flex; gap: 6px; }
+  .traffic i { width: 7px; height: 7px; border-radius: 50%; background: #485363; }
+  .traffic i:first-child { background: #a7858b; }
+  .traffic i:nth-child(2) { background: #b4a782; }
+  .studio__body {
+    min-height: 500px;
+    display: grid;
+    grid-template-columns: 46px 190px minmax(320px, 1fr) 210px;
+    gap: 6px;
+  }
+  .rail {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    border-radius: 12px;
+    padding: 12px 0;
+    background: #0c1016;
+  }
+  .rail img { width: 25px; height: 25px; margin-bottom: 12px; opacity: 0.86; }
+  .rail button {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 8px;
+    color: #657184;
+    background: transparent;
+    font: 600 9px var(--loom-site-font-mono);
+  }
+  .rail .rail__active { color: #dce8ef; background: #28333f; }
+  .panel { overflow: hidden; border-radius: 12px; background: #151a22; }
+  .panel header, .timeline header, .trace header {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+  }
+  .panel header span, .panel__caption, .trace header span {
+    color: #6c7889;
+    font: 9px var(--loom-site-font-mono);
+    letter-spacing: 0.12em;
+  }
+  .panel header b { font-weight: 580; }
+  .tree { padding: 10px 8px 16px; }
+  .tree__item {
+    display: grid;
+    grid-template-columns: 9px 1fr auto;
+    align-items: center;
+    gap: 7px;
+    border-radius: 6px;
+    padding: 8px;
+    color: #8591a2;
+  }
+  .tree__item i { width: 5px; height: 5px; border-radius: 50%; background: #515d6d; }
+  .tree__item small { color: #505b6a; }
+  .tree__item--active { color: #e1e7ef; background: #232b36; }
+  .tree__item--active i { background: #a8c5d5; }
+  .panel__caption { padding: 14px 14px 8px; }
+  .resource {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 8px;
+    margin: 4px 8px;
+    border-radius: 10px;
+    padding: 9px;
+    background: #202732;
+  }
+  .resource span { grid-column: 1 / -1; color: #687487; font: 8px var(--loom-site-font-mono); }
+  .resource b { font-weight: 520; }
+  .resource i { color: #93baa7; font: 8px var(--loom-site-font-mono); }
+  .timeline {
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #171d26;
+  }
+  .timeline header { padding-inline: 26px; }
+  .timeline header div { display: grid; gap: 3px; }
+  .timeline header small { color: #6d798a; font: 8px var(--loom-site-font-mono); letter-spacing: 0.14em; }
+  .timeline header b { font: 600 13px var(--loom-site-font-display); }
+  .timeline header > span { color: #687486; }
+  .timeline article {
+    max-width: 550px;
+    margin: 0 auto;
+    padding: 42px 44px 24px;
+    color: #bdc6d2;
+    font: 14px/1.95 var(--loom-site-font-display);
+  }
+  .timeline p { margin: 0 0 18px; }
+  .timeline blockquote {
+    margin: 28px 0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #e5ebf1;
+    background: #222a35;
+    font-style: italic;
+  }
+  .composer {
+    height: 46px;
+    max-width: 550px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto 24px;
+    border-radius: 12px;
+    padding: 0 7px 0 14px;
+    color: #667285;
+    background: #222a35;
+  }
+  .composer button {
+    width: 31px;
+    height: 31px;
+    border: 0;
+    border-radius: 8px;
+    color: #10161d;
+    background: #bfd0da;
+  }
+  .trace { overflow: hidden; border-radius: 12px; background: #131820; }
+  .trace header i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #95bea9;
+    box-shadow: none;
+  }
+  .trace__metric { display: flex; align-items: end; justify-content: space-between; padding: 18px 14px; }
+  .trace__metric span { color: #748093; }
+  .trace__metric b { color: #d9e2eb; font: 20px var(--loom-site-font-mono); }
+  .trace__flow { padding: 6px 9px; }
+  .trace__flow div {
+    display: grid;
+    grid-template-columns: 8px 1fr auto;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 5px;
+    border-radius: 7px;
+    color: #a8b2c0;
+    background: #1a2029;
+    font-family: var(--loom-site-font-mono);
+    font-size: 9px;
+  }
+  .trace__flow i { width: 4px; height: 4px; border-radius: 50%; background: #9ac3ad; }
+  .trace__flow b { color: #799785; font-weight: 500; }
+  .trace__flow .muted { color: #596474; }
+  .trace__flow .muted i { background: #596474; }
+  .trace__flow .muted b { color: #596474; }
+  .trace pre {
+    margin: 8px;
+    border-radius: 8px;
+    padding: 12px;
+    color: #718095;
+    background: #0d1117;
+    font: 9px/1.8 var(--loom-site-font-mono);
+    white-space: pre-wrap;
+  }
+  @media (max-width: 980px) {
+    .studio__body { grid-template-columns: 42px 170px 1fr; }
+    .trace { display: none; }
+  }
+  @media (max-width: 680px) {
+    .studio__chrome { grid-template-columns: 70px 1fr; }
+    .studio__chrome > b { display: none; }
+    .studio__body { min-height: 440px; grid-template-columns: 38px 1fr; }
+    .panel { display: none; }
+    .timeline article { padding: 34px 24px 18px; font-size: 13px; }
+    .timeline header { padding-inline: 18px; }
+    .composer { margin-inline: 18px; }
+  }
+</style>

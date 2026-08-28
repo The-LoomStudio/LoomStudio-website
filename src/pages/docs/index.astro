@@ -1,0 +1,109 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { ArrowRight } from '@lucide/astro';
+
+const cards = [
+  { href: '/docs/getting-started', tag: 'START', title: '快速开始', copy: '了解当前站点与桌面应用的边界，建立 Loom Studio 的第一张概念地图。' },
+  { href: '/docs/concepts/narrative-timeline', tag: 'STORY', title: 'Narrative Timeline', copy: '为什么剧情正文不应该只是聊天记录，以及世界线如何保持独立。' },
+  { href: '/docs/concepts/agent-sessions', tag: 'WORK', title: 'Agent Session', copy: 'Agent 的推演、工具和工作历史如何服务于故事，却不占有故事。' },
+  { href: '/docs/concepts/prompt-build', tag: 'CONTEXT', title: 'Prompt Build', copy: 'Structure、Source、Activation 与 Trace 如何构成可解释的上下文。' },
+];
+const overviewHeadings = [
+  { depth: 2, slug: '从故事开始', text: '从故事开始' },
+  { depth: 2, slug: '最小概念图', text: '最小概念图' },
+  { depth: 2, slug: '当前建设状态', text: '当前建设状态' },
+];
+---
+
+<DocsLayout
+  frontmatter={{ title: '文档概览', description: '从 Narrative、Agent Session 与 Prompt Build 三条主线，理解 Loom Studio 为什么不是另一个聊天前端。' }}
+  headings={overviewHeadings}
+>
+  <section class="docs-intro">
+    <h2 id="从故事开始">从故事开始</h2>
+    <p>Loom Studio 是 AI Native 时代的桌面对话扮演与智能体开发框架。它的第一方 AIRP 体验面向深度长篇互动叙事：故事可以持续生长，Agent 可以独立工作，上下文构建可以被检查。</p>
+    <blockquote data-callout="boundary">当前公开文档只描述适合对外理解的产品概念。产品仓库中的 Workbench、Archive 与内部 Architecture 不会自动发布到这里。</blockquote>
+  </section>
+
+  <section class="docs-card-grid">
+    {cards.map((card) => (
+      <a href={card.href}>
+        <span>{card.tag}</span>
+        <h3>{card.title}</h3>
+        <p>{card.copy}</p>
+        <ArrowRight class="card-arrow" size={17} stroke-width={1.8} />
+      </a>
+    ))}
+  </section>
+
+  <h2 id="最小概念图">最小概念图</h2>
+  <pre><code>Narrative Timeline
+  只保存经过受控提交的剧情正文
+        ↕ 关联，但不共根
+Agent Session
+  保存消息、推演、工具与工作历史
+        ↓ 构造本轮输入
+Prompt Build
+  选择 Source → 放入 Zone / Slot → Activation → Trace
+        ↓ 编译后的消息
+Provider</code></pre>
+
+  <h2 id="当前建设状态">当前建设状态</h2>
+  <table>
+    <thead><tr><th>区域</th><th>当前状态</th><th>边界</th></tr></thead>
+    <tbody>
+      <tr><td>产品发布页</td><td>首版基建</td><td>静态展示，不接真实工作区</td></tr>
+      <tr><td>公开文档</td><td>首批概念页</td><td>独立维护，不自动公开内部文档</td></tr>
+      <tr><td>下载与 Changelog</td><td>后续阶段</td><td>安装包仍由 GitHub Releases 承载</td></tr>
+      <tr><td>Cloudflare Pages</td><td>暂缓</td><td>本地确认后再配置</td></tr>
+    </tbody>
+  </table>
+</DocsLayout>
+
+<style>
+  .docs-card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 36px 0 58px;
+  }
+  .docs-card-grid a {
+    position: relative;
+    min-height: 190px;
+    display: grid;
+    align-content: start;
+    border-radius: 18px;
+    padding: 24px;
+    background: var(--loom-site-surface);
+    transition: 160ms ease;
+  }
+  .docs-card-grid a:hover {
+    background: var(--loom-site-surface-raised);
+    transform: translateY(-2px);
+  }
+  .docs-card-grid span {
+    color: var(--loom-site-accent);
+    font: 9px var(--loom-site-font-mono);
+    letter-spacing: 0.14em;
+  }
+  .docs-card-grid h3 {
+    margin: 28px 0 10px;
+    color: var(--loom-site-text);
+    font: 580 20px var(--loom-site-font-display);
+  }
+  .docs-card-grid p {
+    margin: 0;
+    color: var(--loom-site-text-muted);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .docs-card-grid :global(.card-arrow) {
+    position: absolute;
+    right: 20px;
+    bottom: 16px;
+    color: var(--loom-site-text-subtle);
+  }
+  @media (max-width: 620px) {
+    .docs-card-grid { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,737 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { ArrowUpRight } from '@lucide/astro';
+
+interface Props {
+  frontmatter: {
+    title: string;
+    description?: string;
+  };
+  headings?: Array<{ depth: number; slug: string; text: string }>;
+}
+
+const { frontmatter, headings = [] } = Astro.props;
+const path = Astro.url.pathname;
+const groups = [
+  {
+    label: '开始',
+    links: [
+      { href: '/docs', label: '文档概览' },
+      { href: '/docs/getting-started', label: '快速开始' },
+    ],
+  },
+  {
+    label: '核心概念',
+    links: [
+      { href: '/docs/concepts/narrative-timeline', label: 'Narrative Timeline' },
+      { href: '/docs/concepts/agent-sessions', label: 'Agent Session' },
+      { href: '/docs/concepts/prompt-build', label: 'Prompt Build' },
+      { href: '/docs/concepts/local-first', label: '本地数据边界' },
+    ],
+  },
+];
+const documents = groups.flatMap((group) => group.links.map((link) => ({ ...link, group: group.label })));
+const currentDocumentIndex = documents.findIndex((document) => document.href === path);
+const pageHeadings = headings.filter((heading) => heading.depth === 2);
+---
+
+<BaseLayout title={frontmatter.title} description={frontmatter.description ?? 'Loom Studio 公开文档'}>
+  <SiteHeader />
+  <div class="docs-shell">
+    <aside class="docs-nav" aria-label="文档导航">
+      <div class="docs-nav__inner">
+        <p class="docs-nav__title">DOCUMENTATION</p>
+        <div class="docs-nav__groups">
+          {groups.map((group) => {
+            const active = group.links.some((link) => path === link.href);
+            return (
+              <details class:list={['docs-nav__group', { active }]} open>
+                <summary>{group.label}</summary>
+                <div class="docs-nav__links">
+                  {group.links.map((link) => (
+                    <a
+                      class:list={['docs-nav__link', { active: path === link.href }]}
+                      href={link.href}
+                      aria-current={path === link.href ? 'page' : undefined}
+                      data-doc-link={link.href}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              </details>
+            );
+          })}
+        </div>
+        <div class="docs-nav__status">
+          <i></i>
+          <div><b>Foundation v0.1</b><span>公开文档正在建立</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="docs-main" data-docs-reader data-documents={JSON.stringify(documents)}>
+      <div class="docs-breadcrumb"><a href="/docs">文档</a><span>/</span><b data-doc-breadcrumb>{frontmatter.title}</b></div>
+      <article class="docs-article" data-doc-url={path} data-doc-title={frontmatter.title}>
+        <header>
+          <p class="eyebrow">Loom Studio Manual</p>
+          <h1>{frontmatter.title}</h1>
+          {frontmatter.description && <p class="docs-lead">{frontmatter.description}</p>}
+        </header>
+        <div class="markdown"><slot /></div>
+      </article>
+      <div
+        class="docs-stream-status"
+        data-docs-stream-status
+        data-state={currentDocumentIndex < documents.length - 1 ? 'idle' : 'end'}
+        role="status"
+        aria-live="polite"
+      >
+        <i aria-hidden="true"></i>
+        <span>{currentDocumentIndex < documents.length - 1 ? '继续向下阅读' : '已到达公开文档末尾'}</span>
+        <button type="button" data-docs-stream-retry hidden>重新加载</button>
+      </div>
+    </main>
+
+    <aside class="docs-toc" aria-label="本页目录">
+      <div>
+        <p data-docs-toc-title>本页内容</p>
+        {pageHeadings.length > 0 && (
+          <>
+            <nav class="docs-toc__list" aria-label="章节阅读进度" data-docs-toc>
+              {pageHeadings.map((heading) => (
+                <a href={'#' + heading.slug} data-toc-link={heading.slug}>{heading.text}</a>
+              ))}
+            </nav>
+            <div class="docs-toc__progress">
+              <span>READING</span>
+              <b data-reading-progress>0%</b>
+            </div>
+          </>
+        )}
+        <a class="docs-toc__github" href="https://github.com/shiyue137mh-netizen/LoomStudio" target="_blank" rel="noreferrer">在 GitHub 查看 <ArrowUpRight size={13} stroke-width={1.8} /></a>
+      </div>
+    </aside>
+  </div>
+  <SiteFooter />
+  <script>
+    type DocumentEntry = { href: string; label: string; group: string };
+
+    const reader = document.querySelector<HTMLElement>('[data-docs-reader]');
+    const streamStatus = document.querySelector<HTMLElement>('[data-docs-stream-status]');
+    const retryButton = document.querySelector<HTMLButtonElement>('[data-docs-stream-retry]');
+    const toc = document.querySelector<HTMLElement>('[data-docs-toc]');
+    const tocTitle = document.querySelector<HTMLElement>('[data-docs-toc-title]');
+    const progressLabel = document.querySelector<HTMLElement>('[data-reading-progress]');
+    const breadcrumb = document.querySelector<HTMLElement>('[data-doc-breadcrumb]');
+    const documents = JSON.parse(reader?.dataset.documents ?? '[]') as DocumentEntry[];
+    const normalizePath = (pathname: string) => pathname.replace(/\/$/, '') || '/';
+    const initialDocumentIndex = documents.findIndex((document) => normalizePath(document.href) === normalizePath(window.location.pathname));
+    let previousDocumentIndex = initialDocumentIndex - 1;
+    let nextDocumentIndex = initialDocumentIndex + 1;
+    let activeArticle: HTMLElement | undefined;
+    let loadingPreviousDocument = false;
+    let loadingNextDocument = false;
+    let previousRetryAt = 0;
+    let readingFrame = 0;
+
+    const documentKey = (href: string) => href
+      .replace(/^\/docs\/?/, '')
+      .replace(/[^a-z0-9]+/gi, '-')
+      .replace(/^-|-$/g, '') || 'overview';
+
+    const enhanceArticle = (article: HTMLElement, document: DocumentEntry, appended = false) => {
+      article.dataset.docUrl = document.href;
+      article.dataset.docTitle = document.label;
+      if (appended) article.classList.add('docs-article--continued');
+
+      article.querySelectorAll<HTMLElement>('.markdown h2[id], .markdown h3[id]').forEach((heading) => {
+        const canonicalId = heading.dataset.canonicalId ?? heading.id;
+        heading.dataset.canonicalId = canonicalId;
+        if (appended) heading.id = `${documentKey(document.href)}--${canonicalId}`;
+        if (heading.querySelector('.heading-anchor')) return;
+
+        const label = heading.textContent?.trim() ?? '本章节';
+        const anchor = window.document.createElement('a');
+        anchor.className = 'heading-anchor';
+        anchor.href = `#${heading.id}`;
+        anchor.setAttribute('aria-label', `复制“${label}”章节链接`);
+        anchor.title = '复制章节链接';
+        anchor.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+        anchor.addEventListener('click', (event) => {
+          event.preventDefault();
+          heading.scrollIntoView({ block: 'start' });
+          const canonicalUrl = new URL(`${document.href}#${canonicalId}`, window.location.origin).href;
+          history.replaceState(null, '', canonicalUrl);
+          navigator.clipboard?.writeText(canonicalUrl).then(() => {
+            anchor.title = '链接已复制';
+            window.setTimeout(() => { anchor.title = '复制章节链接'; }, 1200);
+          }).catch(() => {});
+        });
+        heading.append(anchor);
+      });
+    };
+
+    const renderToc = (article: HTMLElement) => {
+      if (!toc) return;
+      toc.replaceChildren();
+      const headings = Array.from(article.querySelectorAll<HTMLElement>('.markdown h2[id]'));
+      for (const heading of headings) {
+        const link = window.document.createElement('a');
+        link.href = `#${heading.id}`;
+        link.dataset.tocLink = heading.id;
+        link.textContent = heading.childNodes[0]?.textContent?.trim() || heading.textContent?.trim() || '章节';
+        toc.append(link);
+      }
+      toc.hidden = headings.length === 0;
+      if (tocTitle) tocTitle.textContent = `本页内容 · ${article.dataset.docTitle ?? ''}`;
+    };
+
+    const syncDocumentNavigation = (article: HTMLElement) => {
+      const documentUrl = article.dataset.docUrl;
+      if (!documentUrl) return;
+      document.querySelectorAll<HTMLAnchorElement>('[data-doc-link]').forEach((link) => {
+        const active = normalizePath(link.dataset.docLink ?? '') === normalizePath(documentUrl);
+        link.classList.toggle('active', active);
+        if (active) {
+          link.setAttribute('aria-current', 'page');
+          const group = link.closest<HTMLDetailsElement>('.docs-nav__group');
+          if (group) {
+            group.open = true;
+            group.classList.add('active');
+          }
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+      document.querySelectorAll<HTMLDetailsElement>('.docs-nav__group').forEach((group) => {
+        group.classList.toggle('active', Boolean(group.querySelector('a.active')));
+      });
+      if (breadcrumb) breadcrumb.textContent = article.dataset.docTitle ?? '';
+      document.title = `${article.dataset.docTitle ?? '文档'} · Loom Studio`;
+      if (normalizePath(window.location.pathname) !== normalizePath(documentUrl)) {
+        history.replaceState(null, '', documentUrl);
+      }
+    };
+
+    const ensureActiveNavigationGroup = (article: HTMLElement) => {
+      const documentUrl = article.dataset.docUrl;
+      if (!documentUrl) return;
+      const activeLink = document.querySelector<HTMLAnchorElement>(`[data-doc-link="${CSS.escape(documentUrl)}"]`);
+      const group = activeLink?.closest<HTMLDetailsElement>('.docs-nav__group');
+      if (group && !group.open) group.open = true;
+    };
+
+    const updateReadingProgress = () => {
+      readingFrame = 0;
+      const articles = Array.from(document.querySelectorAll<HTMLElement>('.docs-article'));
+      if (articles.length === 0) return;
+      const headerOffset = 104;
+      let currentArticle = articles[0];
+      for (const article of articles) {
+        if (article.getBoundingClientRect().top <= headerOffset + 80) currentArticle = article;
+      }
+      ensureActiveNavigationGroup(currentArticle);
+      if (currentArticle !== activeArticle) {
+        activeArticle = currentArticle;
+        renderToc(currentArticle);
+        syncDocumentNavigation(currentArticle);
+      }
+
+      const articleTop = currentArticle.getBoundingClientRect().top + window.scrollY;
+      const readableDistance = Math.max(1, currentArticle.offsetHeight - window.innerHeight * 0.55);
+      const progress = Math.min(1, Math.max(0, (window.scrollY + headerOffset - articleTop) / readableDistance));
+      toc?.style.setProperty('--reading-progress', String(progress));
+      if (progressLabel) progressLabel.textContent = `${Math.round(progress * 100)}%`;
+
+      const sectionHeadings = Array.from(currentArticle.querySelectorAll<HTMLElement>('.markdown h2[id]'));
+      let activeHeading = sectionHeadings[0]?.id;
+      for (const heading of sectionHeadings) {
+        if (heading.getBoundingClientRect().top <= headerOffset) activeHeading = heading.id;
+      }
+      toc?.querySelectorAll<HTMLAnchorElement>('[data-toc-link]').forEach((link) => {
+        const active = link.dataset.tocLink === activeHeading;
+        link.classList.toggle('active', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+
+      if (previousDocumentIndex >= 0 && window.scrollY < window.innerHeight * 0.75) {
+        loadPreviousDocument();
+      }
+    };
+
+    const setStreamState = (state: 'idle' | 'loading' | 'error' | 'end', label: string) => {
+      if (!streamStatus) return;
+      streamStatus.dataset.state = state;
+      const text = streamStatus.querySelector('span');
+      if (text) text.textContent = label;
+      if (retryButton) retryButton.hidden = state !== 'error';
+    };
+
+    const fetchDocumentArticle = async (entry: DocumentEntry) => {
+      const response = await fetch(entry.href, { headers: { Accept: 'text/html' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const parsed = new DOMParser().parseFromString(await response.text(), 'text/html');
+      const article = parsed.querySelector<HTMLElement>('.docs-article');
+      if (!article) throw new Error('Document article not found');
+
+      // ponytail: 连续阅读会采用目标页面的样式，但不会执行目标页面私有脚本；交互示例应放入共享文档组件。
+      parsed.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]').forEach((stylesheet) => {
+        const href = new URL(stylesheet.href, response.url).href;
+        if (document.head.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return;
+        const link = window.document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        window.document.head.append(link);
+      });
+
+      article.querySelector('.docs-pagination')?.remove();
+      enhanceArticle(article, entry, true);
+      return article;
+    };
+
+    const loadPreviousDocument = async () => {
+      if (!reader || loadingPreviousDocument || previousDocumentIndex < 0 || Date.now() < previousRetryAt) return;
+      const firstArticle = reader.querySelector<HTMLElement>('.docs-article');
+      if (!firstArticle) return;
+
+      loadingPreviousDocument = true;
+      const previousDocument = documents[previousDocumentIndex];
+      try {
+        const previousArticle = await fetchDocumentArticle(previousDocument);
+        const anchorTop = firstArticle.getBoundingClientRect().top;
+        reader.style.setProperty('overflow-anchor', 'none');
+        previousArticle.classList.remove('docs-article--continued');
+        firstArticle.classList.add('docs-article--continued');
+        reader.insertBefore(previousArticle, firstArticle);
+        window.scrollBy(0, firstArticle.getBoundingClientRect().top - anchorTop);
+        previousDocumentIndex -= 1;
+        previousRetryAt = 0;
+        requestReadingUpdate();
+        window.requestAnimationFrame(() => reader.style.removeProperty('overflow-anchor'));
+      } catch {
+        previousRetryAt = Date.now() + 5000;
+      } finally {
+        loadingPreviousDocument = false;
+      }
+    };
+
+    const loadNextDocument = async () => {
+      if (!reader || !streamStatus || loadingNextDocument || nextDocumentIndex < 0) return;
+      if (nextDocumentIndex >= documents.length) {
+        setStreamState('end', '已到达公开文档末尾');
+        return;
+      }
+
+      loadingNextDocument = true;
+      const nextDocument = documents[nextDocumentIndex];
+      setStreamState('loading', `正在载入 ${nextDocument.label}`);
+      try {
+        const nextArticle = await fetchDocumentArticle(nextDocument);
+        reader.insertBefore(nextArticle, streamStatus);
+        nextDocumentIndex += 1;
+        setStreamState(nextDocumentIndex < documents.length ? 'idle' : 'end', nextDocumentIndex < documents.length ? '继续向下阅读' : '已到达公开文档末尾');
+        requestReadingUpdate();
+        window.requestAnimationFrame(() => {
+          if (nextDocumentIndex < documents.length && streamStatus.getBoundingClientRect().top < window.innerHeight + 600) {
+            loadNextDocument();
+          }
+        });
+      } catch {
+        setStreamState('error', `${nextDocument.label} 载入失败`);
+      } finally {
+        loadingNextDocument = false;
+      }
+    };
+
+    const requestReadingUpdate = () => {
+      if (!readingFrame) readingFrame = window.requestAnimationFrame(updateReadingProgress);
+    };
+
+    const currentDocument = documents.find((document) => normalizePath(document.href) === normalizePath(window.location.pathname));
+    const initialArticle = document.querySelector<HTMLElement>('.docs-article');
+    if (initialArticle && currentDocument) enhanceArticle(initialArticle, currentDocument);
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return;
+      const link = event.target.closest<HTMLAnchorElement>('[data-doc-link]');
+      if (!link) return;
+      const loadedArticle = Array.from(document.querySelectorAll<HTMLElement>('.docs-article'))
+        .find((article) => normalizePath(article.dataset.docUrl ?? '') === normalizePath(link.dataset.docLink ?? ''));
+      if (!loadedArticle) return;
+      event.preventDefault();
+      loadedArticle.scrollIntoView({ block: 'start' });
+    });
+
+    const streamObserver = streamStatus && 'IntersectionObserver' in window
+      ? new IntersectionObserver((entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) loadNextDocument();
+        }, { rootMargin: '0px 0px 600px 0px' })
+      : undefined;
+    if (streamStatus && nextDocumentIndex >= 0 && nextDocumentIndex < documents.length) streamObserver?.observe(streamStatus);
+    retryButton?.addEventListener('click', loadNextDocument);
+
+    window.addEventListener('scroll', requestReadingUpdate, { passive: true });
+    window.addEventListener('resize', requestReadingUpdate);
+    window.addEventListener('pagehide', () => {
+      window.cancelAnimationFrame(readingFrame);
+      streamObserver?.disconnect();
+      window.removeEventListener('scroll', requestReadingUpdate);
+      window.removeEventListener('resize', requestReadingUpdate);
+    }, { once: true });
+    updateReadingProgress();
+  </script>
+</BaseLayout>
+
+<style is:global>
+  .docs-shell {
+    min-height: calc(100vh - var(--loom-site-header-height));
+    display: grid;
+    grid-template-columns: minmax(200px, 250px) minmax(0, 780px) minmax(170px, 220px);
+    justify-content: center;
+    padding-top: var(--loom-site-header-height);
+    background: var(--loom-site-bg);
+  }
+  .docs-nav {
+    background: var(--loom-site-bg-soft);
+  }
+  .docs-nav__inner {
+    position: sticky;
+    top: var(--loom-site-header-height);
+    max-height: calc(100vh - var(--loom-site-header-height));
+    overflow-y: auto;
+    padding: 34px 26px;
+  }
+  .docs-nav__title {
+    margin: 0 0 30px;
+    color: var(--loom-site-text-subtle);
+    font: 10px var(--loom-site-font-mono);
+    letter-spacing: 0.16em;
+  }
+  .docs-nav__groups {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .docs-nav__group summary {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    color: var(--loom-site-text-subtle);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 680;
+    letter-spacing: 0.04em;
+    list-style: none;
+    user-select: none;
+    transition: color 160ms ease;
+  }
+  .docs-nav__group summary::-webkit-details-marker { display: none; }
+  .docs-nav__group summary:hover,
+  .docs-nav__group.active summary { color: var(--loom-site-text); }
+  .docs-nav__links {
+    display: grid;
+    gap: 3px;
+    margin: 2px 0 10px;
+  }
+  .docs-nav__link {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 6px 14px;
+    color: var(--loom-site-text-muted);
+    font-size: 12px;
+    transition: color 160ms ease, background 160ms ease;
+  }
+  .docs-nav__link:hover,
+  .docs-nav__link.active {
+    color: var(--loom-site-text);
+    background: var(--loom-site-surface-raised);
+  }
+  .docs-nav__status {
+    display: flex;
+    gap: 10px;
+    border-radius: 12px;
+    padding: 12px;
+    background: var(--loom-site-surface);
+  }
+  .docs-nav__status i {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: var(--loom-site-success);
+    box-shadow: none;
+  }
+  .docs-nav__status div { display: grid; gap: 4px; }
+  .docs-nav__status b { font-size: 11px; }
+  .docs-nav__status span { color: var(--loom-site-text-subtle); font-size: 10px; }
+  .docs-main { min-width: 0; padding: 34px 54px 100px; }
+  .docs-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 54px;
+    color: var(--loom-site-text-subtle);
+    font: 11px var(--loom-site-font-mono);
+  }
+  .docs-breadcrumb a:hover { color: var(--loom-site-text); }
+  .docs-breadcrumb b { color: var(--loom-site-text-muted); font-weight: 500; }
+  .docs-article { max-width: 680px; scroll-margin-top: calc(var(--loom-site-header-height) + 26px); }
+  .docs-article--continued {
+    margin-top: 116px;
+    padding-top: 84px;
+  }
+  .docs-article > header {
+    margin-bottom: 40px;
+    padding-bottom: 18px;
+  }
+  .docs-article h1 {
+    margin: 0;
+    font: 650 clamp(34px, 5vw, 50px)/1.12 var(--loom-site-font-display);
+    letter-spacing: -0.03em;
+  }
+  .docs-lead {
+    max-width: 620px;
+    margin: 20px 0 0;
+    color: var(--loom-site-text-muted);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .markdown { color: var(--loom-site-text-muted); font-size: 15px; line-height: 1.85; }
+  .markdown h2, .markdown h3 {
+    position: relative;
+    scroll-margin-top: calc(var(--loom-site-header-height) + 30px);
+    color: var(--loom-site-text);
+    font-family: var(--loom-site-font-display);
+    letter-spacing: -0.015em;
+  }
+  .markdown h2 { margin: 58px 0 18px; font-size: 27px; }
+  .markdown h3 { margin: 34px 0 12px; font-size: 20px; }
+  .heading-anchor {
+    position: absolute;
+    top: 50%;
+    left: -30px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    color: var(--loom-site-text-subtle);
+    opacity: 0;
+    transform: translateY(-50%);
+    transition: opacity 160ms ease, color 160ms ease, background 160ms ease;
+  }
+  .heading-anchor svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .markdown h2:hover .heading-anchor,
+  .markdown h3:hover .heading-anchor,
+  .heading-anchor:focus-visible { opacity: 1; }
+  .heading-anchor:hover { color: var(--loom-site-text); background: var(--loom-site-surface); }
+  .markdown p { margin: 0 0 20px; }
+  .markdown a {
+    color: var(--loom-site-accent-strong);
+    text-decoration: underline;
+    text-decoration-color: var(--loom-site-border-strong);
+    text-underline-offset: 4px;
+  }
+  .markdown strong { color: var(--loom-site-text); }
+  .markdown ul, .markdown ol { margin: 0 0 24px; padding-left: 24px; }
+  .markdown li { margin: 8px 0; padding-left: 4px; }
+  .markdown blockquote {
+    --docs-callout-accent: var(--loom-site-accent);
+    margin: 30px 0;
+    border-radius: 14px;
+    padding: 18px 20px;
+    color: var(--loom-site-text-muted);
+    background: var(--loom-site-surface);
+  }
+  .markdown blockquote::before {
+    content: 'NOTE';
+    display: block;
+    margin-bottom: 9px;
+    color: var(--docs-callout-accent);
+    font: 9px var(--loom-site-font-mono);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+  .markdown blockquote[data-callout='tip'] { --docs-callout-accent: var(--loom-site-success); }
+  .markdown blockquote[data-callout='tip']::before { content: 'TIP'; }
+  .markdown blockquote[data-callout='warning'] { --docs-callout-accent: var(--loom-site-danger); }
+  .markdown blockquote[data-callout='warning']::before { content: 'WARNING'; }
+  .markdown blockquote[data-callout='boundary'] { --docs-callout-accent: var(--loom-site-silver); }
+  .markdown blockquote[data-callout='boundary']::before { content: 'BOUNDARY'; }
+  .markdown blockquote > :last-child { margin-bottom: 0; }
+  .markdown code {
+    border-radius: 5px;
+    padding: 2px 6px;
+    color: var(--loom-site-silver);
+    background: var(--loom-site-surface-raised);
+    font: 0.88em var(--loom-site-font-mono);
+  }
+  .markdown pre {
+    overflow-x: auto;
+    margin: 28px 0;
+    border-radius: 16px;
+    padding: 20px;
+    background: var(--loom-site-bg-soft);
+    box-shadow: none;
+  }
+  .markdown pre code {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .markdown table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+    margin: 28px 0;
+    font-size: 13px;
+  }
+  .markdown th, .markdown td {
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: top;
+    background: var(--loom-site-surface);
+  }
+  .markdown th { color: var(--loom-site-text); background: var(--loom-site-surface-raised); }
+  .markdown tr > :first-child { border-radius: 10px 0 0 10px; }
+  .markdown tr > :last-child { border-radius: 0 10px 10px 0; }
+  .markdown hr { height: 8px; border: 0; border-radius: 999px; margin: 50px 0; background: var(--loom-site-surface); }
+  .docs-stream-status {
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    max-width: 680px;
+    color: var(--loom-site-text-subtle);
+    font: 9px var(--loom-site-font-mono);
+    letter-spacing: 0.12em;
+  }
+  .docs-stream-status i {
+    width: 18px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--loom-site-border-strong);
+  }
+  .docs-stream-status[data-state='loading'] i {
+    background: var(--loom-site-accent-strong);
+    animation: docs-stream-loading 720ms ease-in-out infinite alternate;
+  }
+  .docs-stream-status[data-state='end'] { opacity: 0.62; }
+  .docs-stream-status[data-state='error'] { color: var(--loom-site-danger); }
+  .docs-stream-status button {
+    border: 0;
+    border-radius: 7px;
+    padding: 6px 9px;
+    color: var(--loom-site-text);
+    background: var(--loom-site-surface-raised);
+    cursor: pointer;
+  }
+  @keyframes docs-stream-loading {
+    from { transform: scaleX(0.45); }
+    to { transform: scaleX(1.15); }
+  }
+  .docs-toc { background: var(--loom-site-bg); }
+  .docs-toc > div {
+    position: sticky;
+    top: var(--loom-site-header-height);
+    display: grid;
+    gap: 5px;
+    padding: 40px 24px;
+  }
+  .docs-toc p {
+    margin: 0 0 12px;
+    color: var(--loom-site-text-subtle);
+    font: 10px var(--loom-site-font-mono);
+    letter-spacing: 0.12em;
+  }
+  .docs-toc__list {
+    --reading-progress: 0;
+    position: relative;
+    display: grid;
+    gap: 3px;
+    margin-bottom: 15px;
+    padding-left: 17px;
+  }
+  .docs-toc__list::before,
+  .docs-toc__list::after {
+    content: '';
+    position: absolute;
+    top: 9px;
+    bottom: 9px;
+    left: 3px;
+    width: 1px;
+    transform-origin: top;
+  }
+  .docs-toc__list::before { background: var(--loom-site-border-strong); }
+  .docs-toc__list::after {
+    background: var(--loom-site-accent-strong);
+    transform: scaleY(var(--reading-progress));
+  }
+  .docs-toc a {
+    position: relative;
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: var(--loom-site-text-subtle);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .docs-toc a:hover, .docs-toc a.active { color: var(--loom-site-text); background: var(--loom-site-accent-soft); }
+  .docs-toc__progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 4px 17px;
+    color: var(--loom-site-text-subtle);
+    font: 8px var(--loom-site-font-mono);
+    letter-spacing: 0.12em;
+  }
+  .docs-toc__progress b { color: var(--loom-site-text-muted); font-weight: 600; }
+  .docs-toc .docs-toc__github {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    margin-top: 22px;
+    padding-left: 0;
+    color: var(--loom-site-text-muted);
+  }
+  @media (max-width: 1040px) {
+    .docs-shell { grid-template-columns: 220px minmax(0, 760px); }
+    .docs-toc { display: none; }
+  }
+  @media (max-width: 760px) {
+    .docs-shell { display: block; }
+    .docs-nav { background: var(--loom-site-bg-soft); }
+    .docs-nav__inner {
+      position: static;
+      max-height: none;
+      padding: 20px 14px 12px;
+    }
+    .docs-nav__title { margin-bottom: 14px; }
+    .docs-nav__groups { margin-bottom: 0; }
+    .docs-nav__status { display: none; }
+    .docs-main { padding: 30px 20px 76px; }
+    .docs-breadcrumb { margin-bottom: 38px; }
+    .heading-anchor { position: static; display: inline-grid; margin-left: 7px; opacity: 0.56; transform: none; vertical-align: middle; }
+    .docs-article--continued { margin-top: 82px; padding-top: 56px; }
+  }
+</style>
