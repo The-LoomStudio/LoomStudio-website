@@ -271,6 +271,12 @@ const stageOffset = (index: number) => {
           stageRoute(routeIndex);
           return;
         }
+        
+        if (sameDocument) {
+          transitionMenu(false);
+          return;
+        }
+
         const routeTransitionKey = 'loom-site-route-transition';
         try {
           sessionStorage.setItem(routeTransitionKey, JSON.stringify({
@@ -280,9 +286,7 @@ const stageOffset = (index: number) => {
           }));
         } catch {}
 
-        transitionMenu(false, () => {
-          window.location.assign(destination.href);
-        });
+        window.location.assign(destination.href);
       });
     });
   }

@@ -198,7 +198,7 @@ html[data-route-transition='curtain']::view-transition-new(root) {
 }
 
 @keyframes loom-route-curtain-in {
-  from { clip-path: inset(100% 0 0 0); }
+  from { clip-path: inset(0 0 100% 0); }
   to { clip-path: inset(0 0 0 0); }
 }
 
