@@ -43,8 +43,7 @@ const features = [
       <div class="container hero__content">
         <div class="hero__copy">
           <div class="hero__copy-main">
-            <p class="eyebrow">深度互动叙事工作台 · 编织世界，分支故事</p>
-            <h1><span>让故事长成一条</span><em>真正的世界线</em></h1>
+            <h1><span>编织世界</span><em>交织故事</em></h1>
             <p class="hero__lead">Loom Studio 是为深度长篇 AI 互动叙事打造的桌面工作台。它把剧情正文、Agent 工作过程与 Prompt 构建拆开，让每一次选择都可以继续、分支、回望。</p>
             <div class="hero__actions">
               <a class="button button--primary" href="/docs">开始阅读文档 <ArrowRight size={16} stroke-width={1.8} /></a>
@@ -53,9 +52,7 @@ const features = [
             <div class="hero__banner">
               <img src="/brand/banner.png" alt="Loom Studio" width="240" height="180" loading="eager" decoding="async" />
             </div>
-            <div class="hero__signal"><i></i><span>FOUNDATION BUILD</span><b>本地优先 · 静态网站</b></div>
           </div>
-          <p class="hero__vertical" aria-hidden="true"><span>让故事长成世界线</span><small>WORLDLINE / 00</small></p>
         </div>
       </div>
       <a class="hero__scroll" href="#story"><span>向下滚动探索</span><i></i></a>
@@ -163,11 +160,12 @@ const features = [
 <style>
   .hero {
     position: relative;
-    min-height: max(780px, 100svh);
-    display: grid;
+    min-height: max(800px, 100svh);
+    display: flex;
     align-items: center;
     overflow: hidden;
-    padding-top: var(--loom-site-header-height);
+    padding-top: calc(var(--loom-site-header-height) + 40px);
+    padding-bottom: 60px;
     background: transparent;
   }
   .hero__sky-fade {
@@ -188,52 +186,36 @@ const features = [
   .hero__sections {
     position: absolute;
     z-index: 2;
-    top: calc(var(--loom-site-header-height) + 22px);
+    top: calc(var(--loom-site-header-height) + 24px);
     left: 50%;
     width: min(calc(100% - 40px), var(--loom-site-max-width));
     display: flex;
     align-items: center;
     gap: 22px;
     color: var(--loom-site-text-subtle);
-    font: 9px var(--loom-site-font-mono);
+    font: 10px var(--loom-site-font-mono);
     letter-spacing: 0.14em;
     transform: translateX(-50%);
   }
   .hero__sections span { opacity: 0.62; letter-spacing: 0.2em; }
   .hero__sections a { transition: color 160ms ease; }
   .hero__sections a:hover { color: var(--loom-site-text); }
-  .hero__content { display: flex; align-items: center; }
+  .hero__content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 36px;
+  }
   .hero__copy {
     position: relative;
     z-index: 1;
-    width: min(790px, 100%);
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 34px;
-    border-radius: 30px;
-    padding: 42px;
+    max-width: 720px;
     background: transparent;
-  }
-  .hero__banner {
-    margin-top: 36px;
-    margin-bottom: 24px;
-    display: inline-block;
-  }
-  .hero__banner img {
-    display: block;
-    width: clamp(210px, 25vw, 270px);
-    height: auto;
-    filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.1));
-    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), filter 300ms ease;
-  }
-  .hero__banner img:hover {
-    transform: translateY(-2px) scale(1.02);
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.18));
   }
   .hero h1 {
     margin: 0;
-    font: 560 clamp(50px, 5.45vw, 70px)/1.08 var(--loom-site-font-display);
-    letter-spacing: -0.038em;
+    font: 560 clamp(54px, 6vw, 76px)/1.06 var(--loom-site-font-display);
+    letter-spacing: -0.04em;
     text-wrap: balance;
     text-shadow: none;
   }
@@ -244,54 +226,33 @@ const features = [
   }
   .hero__lead {
     max-width: 610px;
-    margin: 30px 0 0;
+    margin: 28px 0 0;
     color: var(--loom-site-text-muted);
     font-size: 17px;
     line-height: 1.85;
     text-wrap: pretty;
   }
-  .hero__vertical {
+  .hero__actions {
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    margin: 0;
-    padding-left: 2px;
-    color: var(--loom-site-text-muted);
-    writing-mode: vertical-rl;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 36px;
   }
-  .hero__vertical span {
-    font: 440 13px/1.8 var(--loom-site-font-display);
-    letter-spacing: 0.28em;
+  .hero__banner {
+    margin-top: 40px;
+    margin-bottom: 12px;
+    display: inline-block;
   }
-  .hero__vertical small {
-    color: var(--loom-site-text-subtle);
-    font: 8px var(--loom-site-font-mono);
-    letter-spacing: 0.18em;
+  .hero__banner img {
+    display: block;
+    width: clamp(210px, 24vw, 260px);
+    height: auto;
+    filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.1));
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), filter 300ms ease;
   }
-  .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
-  .hero__signal {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-top: 42px;
-    color: var(--loom-site-text-subtle);
-    font: 9px var(--loom-site-font-mono);
-    letter-spacing: 0.12em;
-  }
-  .hero__signal i {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--loom-site-success);
-    box-shadow: none;
-  }
-  .hero__signal b {
-    border-left: 1px solid var(--loom-site-border);
-    margin-left: 5px;
-    padding-left: 14px;
-    color: var(--loom-site-text-subtle);
-    font-weight: 500;
-    letter-spacing: 0;
+  .hero__banner img:hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.18));
   }
   .hero__scroll {
     position: absolute;
