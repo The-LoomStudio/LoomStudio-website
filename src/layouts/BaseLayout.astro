@@ -10,9 +10,11 @@ interface Props {
 const {
   title,
   description,
-  image = '/images/hero-world.png',
+  image = '/brand/banner.png',
 } = Astro.props;
-const pageTitle = title === 'Loom Studio' ? title : title + ' · Loom Studio';
+const pageTitle = title === 'Loom Studio'
+  ? 'Loom Studio · 官方发布与文档门户'
+  : `${title} · Loom Studio 门户`;
 ---
 
 <!doctype html>
@@ -49,8 +51,14 @@ const pageTitle = title === 'Loom Studio' ? title : title + ' · Loom Studio';
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:image" content={image} />
+    <meta property="og:site_name" content="Loom Studio 官方门户" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/png" href="/brand/loom-logo.png" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="/brand/website_logo.png" />
+    <link rel="apple-touch-icon" href="/brand/website_logo.png" />
     <title>{pageTitle}</title>
   </head>
   <body>
