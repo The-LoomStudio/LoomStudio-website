@@ -330,19 +330,50 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     const initialArticle = document.querySelector<HTMLElement>('.docs-article');
     if (initialArticle && currentDocument) enhanceArticle(initialArticle, currentDocument);
 
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', async (event) => {
       if (!(event.target instanceof Element)) return;
       const link = event.target.closest<HTMLAnchorElement>('[data-doc-link]');
       if (!link) return;
+
+      const targetPath = normalizePath(link.dataset.docLink ?? link.pathname);
       const loadedArticle = Array.from(document.querySelectorAll<HTMLElement>('.docs-article'))
-        .find((article) => normalizePath(article.dataset.docUrl ?? '') === normalizePath(link.dataset.docLink ?? ''));
-      if (!loadedArticle) return;
-      event.preventDefault();
-      const rect = loadedArticle.getBoundingClientRect();
-      window.scrollTo({
-        top: window.scrollY + rect.top - 84,
-        behavior: 'smooth',
-      });
+        .find((article) => normalizePath(article.dataset.docUrl ?? '') === targetPath);
+
+      if (loadedArticle) {
+        event.preventDefault();
+        const rect = loadedArticle.getBoundingClientRect();
+        window.scrollTo({
+          top: window.scrollY + rect.top - 84,
+          behavior: 'smooth',
+        });
+        history.pushState(null, '', link.href);
+        syncDocumentNavigation(loadedArticle);
+        return;
+      }
+
+      const targetDocIndex = documents.findIndex((doc) => normalizePath(doc.href) === targetPath);
+      if (targetDocIndex >= 0 && reader && streamStatus) {
+        event.preventDefault();
+        const targetDoc = documents[targetDocIndex];
+        try {
+          setStreamState('loading', `正在载入 ${targetDoc.label}`);
+          const newArticle = await fetchDocumentArticle(targetDoc);
+          reader.insertBefore(newArticle, streamStatus);
+          nextDocumentIndex = Math.max(nextDocumentIndex, targetDocIndex + 1);
+          setStreamState(nextDocumentIndex < documents.length ? 'idle' : 'end', nextDocumentIndex < documents.length ? '继续向下阅读' : '已到达公开文档末尾');
+          requestReadingUpdate();
+
+          const rect = newArticle.getBoundingClientRect();
+          window.scrollTo({
+            top: window.scrollY + rect.top - 84,
+            behavior: 'smooth',
+          });
+          history.pushState(null, '', link.href);
+          syncDocumentNavigation(newArticle);
+        } catch {
+          window.location.assign(link.href);
+        }
+      }
     });
 
     const streamObserver = streamStatus && 'IntersectionObserver' in window

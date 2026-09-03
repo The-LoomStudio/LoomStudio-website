@@ -95,6 +95,23 @@ const pageTitle = title === 'Loom Studio'
           && destination.search === window.location.search
         ) return;
 
+        const getMajorArea = (pathname: string) => {
+          const clean = pathname.replace(/\/$/, '') || '/';
+          if (clean === '/') return 'home';
+          if (clean.startsWith('/docs')) return 'docs';
+          if (clean.startsWith('/showcase')) return 'showcase';
+          if (clean.startsWith('/marketplace')) return 'marketplace';
+          if (clean.startsWith('/download')) return 'download';
+          return clean;
+        };
+
+        const currentArea = getMajorArea(window.location.pathname);
+        const targetArea = getMajorArea(destination.pathname);
+
+        // 仅在跨越主要功能区（例如：发布页 ↔ 文档页 ↔ 展厅）时触发全屏拉帘转场
+        // 功能区内部（如文档与文档之间的切换）绝不使用拉帘，保持平滑自然滚动
+        if (currentArea === targetArea) return;
+
         const direction = 'curtain';
         document.documentElement.dataset.routeTransition = direction;
         try {
