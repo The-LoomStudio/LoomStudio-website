@@ -10,23 +10,23 @@ import { ArrowRight } from '@lucide/astro';
 const features = [
   {
     index: '01',
-    title: 'Narrative 不是聊天记录',
-    copy: '受控提交的剧情正文进入独立 Narrative Timeline。长篇章节、世界线与回退不再被一次次 Provider 对话淹没。',
+    title: '独立的剧情正文',
+    copy: '正文只保留确认的情节发展，模型的草稿与推演归于后台，不再侵扰阅读',
   },
   {
     index: '02',
-    title: 'Agent 有自己的工作空间',
-    copy: 'Agent Session 保存推演、工具调用与工作过程；它可以服务于剧情，却不与正文共根，也不会假装每一步思考都是故事。',
+    title: '幕后推演空间',
+    copy: '为 Agent 提供专属的工作历史，推演与逻辑校验独立发生，服务于故事，却不干扰故事',
   },
   {
     index: '03',
-    title: '看见 Prompt 如何成为 Prompt',
-    copy: '资源、Zone、Slot、Activation 与 Trace 组成可检查的构建路径。复杂上下文不必继续藏在一个巨大文本框里。',
+    title: '清晰的构建路径',
+    copy: '角色设定、世界观规则与上下文如何装配，一览无余，提示词不再是不可解释的黑盒',
   },
 ];
 ---
 
-<BaseLayout title="Loom Studio" description="面向深度长篇 AI 互动叙事的桌面工作台：分离 Narrative、Agent Session 与 Prompt Build，让故事拥有真正的世界线。">
+<BaseLayout title="Loom Studio" description="专为长篇角色扮演与互动叙事打造的桌面工具：分离剧情正文、推演过程与提示词构建，让每一次选择都能延展成清晰的世界线">
   <IntroLoader />
   <SiteHeader />
   <SkyBackdrop />
@@ -46,7 +46,10 @@ const features = [
             <h1><span>编织世界</span><em>交织故事</em></h1>
             <span class="hero__chapter-tag" aria-hidden="true">00 / WORLDLINE</span>
           </div>
-          <p class="hero__lead">Loom Studio 是为深度长篇 AI 互动叙事打造的桌面工作台。它把剧情正文、Agent 工作过程与 Prompt 构建拆开，让每一次选择都可以继续、分支、回望。</p>
+          <p class="hero__lead">
+            专为长篇角色扮演与互动叙事打造的桌面工具<br />
+            分离剧情正文、推演过程与提示词构建，让每一次选择都能延展成清晰的世界线
+          </p>
           <div class="hero__actions">
             <a class="button button--primary" href="/docs">开始阅读文档 <ArrowRight size={16} stroke-width={1.8} /></a>
             <a class="button" href="#story">探索 Loom Studio</a>
@@ -62,9 +65,12 @@ const features = [
     <section class="manifesto" id="story">
       <div class="container manifesto__grid">
         <div class="manifesto__sticky" data-chapter="01 / NARRATIVE">
-          <p class="eyebrow">故事不是聊天记录</p>
-          <h2>长篇互动叙事<br />需要比聊天框更深的结构</h2>
-          <p>一次对话可以结束，但一个世界不会。Loom Studio 从第一天就把“故事写了什么”和“Agent 做了什么”视为两条互相关联、却彼此独立的时间线。</p>
+          <p class="eyebrow">Beyond the transcript</p>
+          <h2>长篇互动叙事<br />需要超越单列对话的结构</h2>
+          <p>
+            单列对话往往止于零碎问答，但一个世界应当能够持续延伸<br />
+            Loom Studio 将剧情正文与推演过程清晰分开，正文纯净连贯，分支随时可溯，让故事真正具备长篇沉浸的厚度
+          </p>
         </div>
         <div class="manifesto__features">
           {features.map((feature) => (
@@ -82,36 +88,42 @@ const features = [
       <div class="container">
         <div class="section-heading" data-chapter="02 / SYSTEM">
           <div>
-            <p class="eyebrow">经纬之间 · 深入工作台</p>
-            <h2>文学的表面<br />工程的骨架</h2>
+            <p class="eyebrow">Inside the studio</p>
+            <h2>秩序井然的<br />创作空间</h2>
           </div>
-          <p>桌面级高信息密度界面服务于长时间创作。Narrative、角色、Prompt Resource 与 Build Trace 在一个工作空间里彼此靠近，但保持清晰边界。</p>
+          <p>
+            桌面级高信息密度界面，服务于专注而持久的创作<br />
+            角色设定、正文时间线与后台推演各安其位，在保持视野开阔的同时，提供稳定可靠的掌控力
+          </p>
         </div>
         <div class="product__stage" data-parallax="0.04">
           <ProductPreview />
         </div>
         <div class="product__legend">
-          <div><span>01</span><b>Narrative Timeline</b><p>只保存经过受控提交的故事正文与世界线。</p></div>
-          <div><span>02</span><b>Agent Session</b><p>容纳推演、工具、工作历史与独立分支。</p></div>
-          <div><span>03</span><b>Prompt Build</b><p>以 Structure、Source、Activation 与 Trace 解释每轮上下文。</p></div>
+          <div><span>01</span><b>Narrative Timeline</b><p>只保存受控提交的故事正文与世界线</p></div>
+          <div><span>02</span><b>Agent Session</b><p>容纳推演、工具调用与独立工作分支</p></div>
+          <div><span>03</span><b>Prompt Build</b><p>以资源、激活与链路解释每轮上下文装配</p></div>
         </div>
       </div>
     </section>
 
     <section class="architecture" id="architecture">
       <div class="container architecture__inner" data-chapter="03 / ARCHITECTURE">
-        <p class="eyebrow">为深度而生，非浮华点缀</p>
-        <h2>故事向前走<br />系统在背后留下证据</h2>
+        <p class="eyebrow">Built for depth</p>
+        <h2>分层明确<br />始于长远</h2>
         <div class="architecture__flow">
-          <div><small>故事</small><b>Narrative Timeline</b><span>正文 · 分支 · 状态</span></div>
+          <div><small>STORY</small><b>剧情正文</b><span>呈现故事与分支</span></div>
           <i>↔</i>
-          <div><small>推演</small><b>Agent Session</b><span>步骤 · 工具 · Changeset</span></div>
+          <div><small>WORK</small><b>推演会话</b><span>负责逻辑推导与工具</span></div>
           <i>→</i>
-          <div><small>上下文</small><b>Prompt Build</b><span>资源 · 激活 · Trace</span></div>
+          <div><small>CONTEXT</small><b>提示词构建</b><span>负责资源装配与激活</span></div>
           <i>→</i>
-          <div><small>模型</small><b>Provider</b><span>只接收编译结果</span></div>
+          <div><small>MODEL</small><b>模型接入</b><span>只接收编译结果</span></div>
         </div>
-        <p class="architecture__note">Kernel 不理解小说，Provider 不决定正文，Prompt Builder 不推进 Agent。每层只做自己应该做的事。</p>
+        <p class="architecture__note">
+          正文专注于呈现，会话专注于推演，构建器专注于装配<br />
+          各层各司其职，让系统能够从容支撑起庞大的世界观与漫长的故事跨度
+        </p>
       </div>
     </section>
 
@@ -119,9 +131,12 @@ const features = [
       <div class="adventure__fade" aria-hidden="true"></div>
       <div class="container adventure__content">
         <div class="adventure__panel" data-chapter="04 / ADVENTURE">
-          <p class="eyebrow">Beyond the last page</p>
-          <h2>写到文本框之外</h2>
-          <p>让技术退到足够深的地方，让角色、世界与选择重新站到故事中央。最后留下的，不是一串对话，而是一段真正走过的旅程。</p>
+          <p class="eyebrow">Start your journey</p>
+          <h2>走出文本框的局限</h2>
+          <p>
+            将复杂的机制沉入底层，让角色、情境与选择重新回到舞台中央<br />
+            由此开始，编织一段真正完整、能够长久延续的故事
+          </p>
           <a class="button button--primary" href="/docs">进入公开文档 <ArrowRight size={16} stroke-width={1.8} /></a>
         </div>
       </div>
