@@ -161,11 +161,11 @@ const features = [
   .hero {
     position: relative;
     min-height: max(800px, 100svh);
-    display: flex;
+    display: grid;
     align-items: center;
     overflow: hidden;
-    padding-top: calc(var(--loom-site-header-height) + 40px);
-    padding-bottom: 60px;
+    padding-top: calc(var(--loom-site-header-height) + 36px);
+    padding-bottom: 72px;
     background: transparent;
   }
   .hero__sky-fade {
@@ -203,13 +203,12 @@ const features = [
   .hero__content {
     display: flex;
     align-items: center;
-    width: 100%;
-    margin-top: 36px;
+    margin-top: 40px;
   }
   .hero__copy {
     position: relative;
     z-index: 1;
-    max-width: 720px;
+    max-width: 740px;
     background: transparent;
   }
   .hero h1 {
