@@ -115,7 +115,7 @@
   .intro-loader[data-active] {
     visibility: visible;
     pointer-events: auto;
-    animation: intro-loader-exit 420ms cubic-bezier(.55, 0, .1, 1) 1.48s forwards;
+    animation: intro-loader-curtain-out 680ms cubic-bezier(.55, 0, .1, 1) 1.48s forwards;
   }
   .intro-loader canvas { display: block; }
   .intro-loader__meta {
@@ -128,8 +128,9 @@
   }
   .intro-loader__meta span { font-size: 12px; font-weight: 650; }
   .intro-loader__meta small { opacity: 0.62; font: 9px var(--loom-site-font-mono); }
-  @keyframes intro-loader-exit {
-    to { visibility: hidden; opacity: 0; transform: scale(1.035); }
+  @keyframes intro-loader-curtain-out {
+    0% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(100% 0 0 0); visibility: hidden; }
   }
   @media (prefers-reduced-motion: reduce) {
     .intro-loader { display: none; }
