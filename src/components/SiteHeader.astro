@@ -42,10 +42,12 @@ const stageOffset = (index: number) => {
     <i class="menu-trigger__line menu-trigger__line--bottom"></i>
   </button>
 
-  <button class="theme-toggle" type="button" aria-label="切换至暗色模式" aria-pressed="false" title="切换至暗色模式" data-theme-toggle>
-    <Sun class="theme-toggle__sun" size={23} stroke-width={1.8} aria-hidden="true" />
-    <Moon class="theme-toggle__moon" size={22} stroke-width={1.8} aria-hidden="true" />
-  </button>
+  {activeRoute !== 'home' && (
+    <button class="theme-toggle" type="button" aria-label="切换至暗色模式" aria-pressed="false" title="切换至暗色模式" data-theme-toggle>
+      <Sun class="theme-toggle__sun" size={23} stroke-width={1.8} aria-hidden="true" />
+      <Moon class="theme-toggle__moon" size={22} stroke-width={1.8} aria-hidden="true" />
+    </button>
+  )}
 </header>
 
 <div

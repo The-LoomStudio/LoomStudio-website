@@ -232,6 +232,13 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
       if (introSection) introSection.dataset.skyText = introTextTone;
       if (finalSection) finalSection.dataset.skyText = textTone;
       document.documentElement.dataset.skyText = textTone;
+
+      const isDarkSky = pair.from === 'night' || pair.from === 'sunset' || pair.to === 'night';
+      const dynamicTheme = isDarkSky ? 'dark' : 'light';
+      document.documentElement.dataset.theme = dynamicTheme;
+      document.documentElement.style.colorScheme = dynamicTheme;
+      document.querySelector('[data-theme-color]')?.setAttribute('content', dynamicTheme === 'dark' ? '#252b31' : '#82919b');
+
       syncSkyActivity();
     };
 

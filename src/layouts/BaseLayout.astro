@@ -38,11 +38,14 @@ const pageTitle = title === 'Loom Studio'
           sessionStorage.removeItem('loom-site-route-transition');
         }
 
-        const savedTheme = localStorage.getItem('loom-site-theme');
-        if (savedTheme === 'light' || savedTheme === 'dark') {
-          document.documentElement.dataset.theme = savedTheme;
-          document.documentElement.style.colorScheme = savedTheme;
-          document.querySelector('[data-theme-color]')?.setAttribute('content', savedTheme === 'dark' ? '#252b31' : '#82919b');
+        const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+        if (!isHomePage) {
+          const savedTheme = localStorage.getItem('loom-site-theme');
+          if (savedTheme === 'light' || savedTheme === 'dark') {
+            document.documentElement.dataset.theme = savedTheme;
+            document.documentElement.style.colorScheme = savedTheme;
+            document.querySelector('[data-theme-color]')?.setAttribute('content', savedTheme === 'dark' ? '#252b31' : '#82919b');
+          }
         }
       } catch {}
     </script>

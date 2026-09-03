@@ -137,12 +137,9 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     const documents = JSON.parse(reader?.dataset.documents ?? '[]') as DocumentEntry[];
     const normalizePath = (pathname: string) => pathname.replace(/\/$/, '') || '/';
     const initialDocumentIndex = documents.findIndex((document) => normalizePath(document.href) === normalizePath(window.location.pathname));
-    let previousDocumentIndex = initialDocumentIndex - 1;
     let nextDocumentIndex = initialDocumentIndex + 1;
     let activeArticle: HTMLElement | undefined;
-    let loadingPreviousDocument = false;
     let loadingNextDocument = false;
-    let previousRetryAt = 0;
     let readingFrame = 0;
 
     const documentKey = (href: string) => href
@@ -265,10 +262,6 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
         if (active) link.setAttribute('aria-current', 'location');
         else link.removeAttribute('aria-current');
       });
-
-      if (previousDocumentIndex >= 0 && window.scrollY < window.innerHeight * 0.75) {
-        loadPreviousDocument();
-      }
     };
 
     const setStreamState = (state: 'idle' | 'loading' | 'error' | 'end', label: string) => {
@@ -299,32 +292,6 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
       article.querySelector('.docs-pagination')?.remove();
       enhanceArticle(article, entry, true);
       return article;
-    };
-
-    const loadPreviousDocument = async () => {
-      if (!reader || loadingPreviousDocument || previousDocumentIndex < 0 || Date.now() < previousRetryAt) return;
-      const firstArticle = reader.querySelector<HTMLElement>('.docs-article');
-      if (!firstArticle) return;
-
-      loadingPreviousDocument = true;
-      const previousDocument = documents[previousDocumentIndex];
-      try {
-        const previousArticle = await fetchDocumentArticle(previousDocument);
-        const anchorTop = firstArticle.getBoundingClientRect().top;
-        reader.style.setProperty('overflow-anchor', 'none');
-        previousArticle.classList.remove('docs-article--continued');
-        firstArticle.classList.add('docs-article--continued');
-        reader.insertBefore(previousArticle, firstArticle);
-        window.scrollBy(0, firstArticle.getBoundingClientRect().top - anchorTop);
-        previousDocumentIndex -= 1;
-        previousRetryAt = 0;
-        requestReadingUpdate();
-        window.requestAnimationFrame(() => reader.style.removeProperty('overflow-anchor'));
-      } catch {
-        previousRetryAt = Date.now() + 5000;
-      } finally {
-        loadingPreviousDocument = false;
-      }
     };
 
     const loadNextDocument = async () => {
@@ -371,7 +338,11 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
         .find((article) => normalizePath(article.dataset.docUrl ?? '') === normalizePath(link.dataset.docLink ?? ''));
       if (!loadedArticle) return;
       event.preventDefault();
-      loadedArticle.scrollIntoView({ block: 'start' });
+      const rect = loadedArticle.getBoundingClientRect();
+      window.scrollTo({
+        top: window.scrollY + rect.top - 84,
+        behavior: 'smooth',
+      });
     });
 
     const streamObserver = streamStatus && 'IntersectionObserver' in window
