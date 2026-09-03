@@ -42,16 +42,17 @@ const features = [
       </nav>
       <div class="container hero__content">
         <div class="hero__copy">
-          <div class="hero__copy-main">
+          <div class="hero__heading-row">
             <h1><span>编织世界</span><em>交织故事</em></h1>
-            <p class="hero__lead">Loom Studio 是为深度长篇 AI 互动叙事打造的桌面工作台。它把剧情正文、Agent 工作过程与 Prompt 构建拆开，让每一次选择都可以继续、分支、回望。</p>
-            <div class="hero__actions">
-              <a class="button button--primary" href="/docs">开始阅读文档 <ArrowRight size={16} stroke-width={1.8} /></a>
-              <a class="button" href="#story">探索 Loom Studio</a>
-            </div>
-            <div class="hero__banner">
-              <img src="/brand/banner.png" alt="Loom Studio" width="240" height="180" loading="eager" decoding="async" />
-            </div>
+            <span class="hero__chapter-tag" aria-hidden="true">00 / WORLDLINE</span>
+          </div>
+          <p class="hero__lead">Loom Studio 是为深度长篇 AI 互动叙事打造的桌面工作台。它把剧情正文、Agent 工作过程与 Prompt 构建拆开，让每一次选择都可以继续、分支、回望。</p>
+          <div class="hero__actions">
+            <a class="button button--primary" href="/docs">开始阅读文档 <ArrowRight size={16} stroke-width={1.8} /></a>
+            <a class="button" href="#story">探索 Loom Studio</a>
+          </div>
+          <div class="hero__banner">
+            <img src="/brand/banner.png" alt="Loom Studio" width="240" height="180" loading="eager" decoding="async" />
           </div>
         </div>
       </div>
@@ -210,6 +211,21 @@ const features = [
     z-index: 1;
     max-width: 740px;
     background: transparent;
+  }
+  .hero__heading-row {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .hero__chapter-tag {
+    color: var(--loom-site-text-subtle);
+    font: 8px var(--loom-site-font-mono);
+    letter-spacing: 0.2em;
+    writing-mode: vertical-rl;
+    opacity: 0.7;
+    margin-top: 6px;
+    user-select: none;
+    pointer-events: none;
   }
   .hero h1 {
     margin: 0;
@@ -481,11 +497,8 @@ const features = [
     .hero { min-height: 900px; }
     .hero__sections { width: calc(100% - 28px); gap: 12px; font-size: 8px; letter-spacing: 0.08em; }
     .hero__sections span { display: none; }
-    .hero__copy { max-width: none; grid-template-columns: 1fr; padding: 28px; }
-    .hero__vertical { display: none; }
-    .hero h1 { font-size: clamp(44px, 13.5vw, 62px); }
-    .hero__lead { font-size: 15px; }
-    .hero__signal b { display: none; }
+    .hero__copy { max-width: none; padding: 12px 0; }
+    .hero__chapter-tag { display: none; }
     .manifesto, .product { padding-block: 110px; }
     .manifesto h2, .section-heading h2, .architecture h2 { font-size: 42px; }
     .manifesto__features article { min-height: auto; }
