@@ -1,31 +1,31 @@
 ---
 layout: ../../../layouts/DocsLayout.astro
 title: Agent Session
-description: Agent Session 是可持续的智能体工作空间，保存消息与运行事实，但不拥有 Narrative Timeline。
+description: 专属的智能体推演空间，记录交互历史与工作事实，但不越权占有正文世界线
 ---
 
-## 一个独立的工作空间
+## 独立的推演空间
 
-Agent Session 保存 Agent 与用户之间的消息路径，以及运行过程中产生的事实。它可以绑定一条 Narrative Timeline，为故事生成或编辑内容，但二者仍然保持不同的权威边界。
+Agent Session 记录用户与 Agent 之间的交互路径，以及推演过程中产生的工作事实。它可以与一条剧情世界线建立绑定，为故事构思、生成或润色内容，但二者保持清晰的权责边界
 
 Agent Session 可以容纳：
 
-- 用户与 Agent Message；
-- Tool Invocation 与 Tool Result；
-- Run、Step 与运行状态；
-- 与 Narrative 提交相关的 Changeset；
-- 只属于工作过程的备忘与观察。
+- 用户输入与 Agent 的交互消息
+- 工具调用与执行结果（Tool Calls & Results）
+- 思考步骤、推演草稿与运行状态
+- 与正文提交相关的版本标记
+- 仅属于工作过程的临时备忘与中间观察
 
-## 为什么不直接等于聊天
+## 为什么不直接等同于聊天记录
 
-Provider 的 messages[] 是一次调用的传输形状，不应该成为永久数据模型。Loom Studio 会从 Agent Session、Narrative、Setting 与 Prompt Resource 中选择本轮需要的内容，再编译成 Provider 能理解的消息。
+模型接口里的 `messages[]` 只是一次网络请求的传输外形，不该被当作核心的数据存储模型。Loom Studio 会在每轮推演前，从正文、设定与资源库中智能挑选所需上下文，动态编译为对应模型能够理解的格式
 
-因此，持久化历史不必永远绑定某一家 Provider，也不需要把每一条工具结果都无条件塞回未来上下文。
+因此，长期的剧情积累不必受限于某一家模型厂家的协议格式，也不会把每一次琐碎的工具返回都毫无节制地堆积到未来的提示词中
 
-## 与 Narrative 的提交关系
+## 提交至正文的秩序
 
-Agent 产生的文本只有在明确提交后才进入 Narrative Timeline。未指定 Narrative 目标时，本轮只更新 Agent Session；指定并确认目标时，相关 Agent Message 与 Narrative Node 可以在同一 Changeset 中留下关联证据。
+Agent 构思出的文本，唯有在创作者确认提交后，才会正式沉淀为 Narrative 剧情节点。未确认提交时，推演草稿仅保存在当前的会话中；确认后，故事向前迈进，推演过程与最终正文彼此呼应、脉络分明
 
-## 未来的工作模式
+## 丰富的工作形态
 
-不同 Preset 可以塑造不同工作方式：直接角色扮演、长篇续写、设定审查、章节修订或带工具的研究。AIRP 提供默认体验，但不会把唯一一种小说工作流写死进底层平台。
+不同的预设配置可以赋予 Agent 截然不同的工作方式：沉浸式角色扮演、剧情续写、世界观合理性推演、章节精修或是挂载外部检索工具。系统提供了高度包容的底层能力，从不把死板的工作流强加给创作者

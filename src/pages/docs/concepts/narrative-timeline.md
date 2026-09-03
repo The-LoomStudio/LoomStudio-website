@@ -1,39 +1,39 @@
 ---
 layout: ../../../layouts/DocsLayout.astro
 title: Narrative Timeline
-description: Narrative Timeline 是故事正文的权威世界线；它不是 Provider messages，也不是 Agent 工作历史的镜像。
+description: 剧情正文的权威世界线，独立于底层模型消息与后台推演历史
 ---
 
-## 它保存什么
+## 它记录什么
 
-Narrative Timeline 保存经过受控提交的剧情正文。一个很短的对白可以成为 Narrative Node，一段长篇章节也可以成为 Narrative Node；判断标准不是长度，而是它是否已经被确认进入故事世界。
+Narrative Timeline 记录经过确认提交的故事正文。一句简短的对白可以是一个剧情节点，一段厚重的长篇章节同样是一个剧情节点；判断的核心标准在于它是否已正式进入故事世界
 
 它通常包含：
 
-- Timeline 与 Branch；
-- 按顺序连接的 Narrative Node；
-- 与当前世界线关联的状态 Head；
-- 可追溯到 Agent Session、Run 或 Changeset 的来源信息。
+- 世界线与剧情分支（Timeline & Branch）
+- 依序生长的剧情节点（Narrative Node）
+- 与当前世界线关联的状态数据（State Head）
+- 可回溯至具体推演会话与操作记录的来源标识
 
-## 它不保存什么
+## 它不记录什么
 
-用户输入不会因为被发送就自动成为剧情正文。Agent 的推演、工具调用、失败尝试和 Provider 原始消息也不属于 Narrative Timeline。
+用户的即时输入不会因为被发送就草率成为正文。模型的内心独白、工具调用、失败重试与原始网络报文，同样不属于 Narrative Timeline
 
 ~~~text
-玩家输入
-  → Agent Session
-  → Agent 工作 / Provider 调用
-  → 候选正文
-  → 受控提交
-  → Narrative Timeline
+用户输入
+  → Agent 会话捕获
+  → 幕后推演 / 工具调用
+  → 产生候选正文
+  → 确认提交
+  → 沉淀至 Narrative Timeline
 ~~~
 
-## 世界线与回退
+## 分支与回溯
 
-Narrative Branch 让故事可以从旧节点产生新的方向。回退 Narrative 只改变剧情世界线及其关联状态，不会同时回退 Agent Session。
+剧情分支允许故事从任意节点展开全新的走向。回溯故事线只会改变当前的剧情走向与关联状态，绝不粗暴销毁后台的推演历史
 
-这是刻意设计的结果：Agent 可能仍记得旧世界线中的判断，系统应通过版本事实与 Context Projection 处理这些过时信息，而不是删除历史来制造“从未发生”的假象。
+这是深思熟虑的架构设计：创作者应当可以自由对比不同世界线的抉择，系统通过上下文投影来呈现对应的剧情，而不是简单抹除记录来伪造“从未发生”的假象
 
-## 为什么适合长篇
+## 为何长篇必须如此
 
-长篇互动叙事最怕三个东西混在一起：正文、操作历史和模型协议。Narrative Timeline 把正文单独保留下来，因此章节组织、分支、状态快照和未来的摘要策略都可以围绕故事本身演进。
+长篇叙事最忌讳三样东西搅在一起：正文文本、交互操作与模型通信协议。Narrative Timeline 将正文完整独立出来，使章节归档、多线发展、状态快照与长文摘要都能从容围绕故事本身持续生长

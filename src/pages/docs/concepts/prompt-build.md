@@ -1,39 +1,41 @@
 ---
 layout: ../../../layouts/DocsLayout.astro
 title: Prompt Build
-description: Prompt Build 把分散的故事、设定与运行事实编译成一次可解释、可追踪的模型输入。
+description: 将分散的故事正文、设定与运行时状态编译为清晰可查的模型输入
 ---
 
-## 四个关键词
+## 四个核心概念
 
-Prompt Build 可以先用四个概念理解：
+Prompt Build 可以通过四个概念建立理解：
 
-| 概念 | 作用 |
+| 概念 | 职责 |
 | --- | --- |
-| Structure | 定义 Prompt 的 Zone、Slot、顺序与预算骨架 |
-| Source | 提供 Narrative、Setting、Card、Session 等正文来源 |
-| Activation | 在每次 Build 中判断来源是否进入本轮上下文 |
-| Trace | 解释哪个来源经过什么步骤，最终为何 active 或 inactive |
+| Structure | 定义提示词的槽位、挂载点、排序与预算骨架 |
+| Source | 提供正文时间线、世界观设定、角色卡与工作历史等内容来源 |
+| Activation | 在每次编译时评估来源是否进入本轮上下文 |
+| Trace | 记录每个来源经过哪些步骤，因何生效或略过 |
 
-## Persistent enabled 与本轮 active
+## 保存启用（Enabled）与本轮生效（Active）
 
-enabled 是作者保存下来的配置，active 是一次 Prompt Build 的计算结果。二者不能混为一个布尔值。
+`Enabled` 是创作者长期保存的启用状态，`Active` 则是单轮提示词编译的动态计算结果，二者不能混淆
 
-例如，一个 Setting Resource 可以长期保持 enabled，但只有当关键词、状态事实、运行事实或用户 Pin 条件满足时，才在某一轮 Build 中 active。Activation 只产生覆盖层与 Trace，不应该偷偷修改源配置。
+例如，一个世界观条目可以长期处于 `Enabled` 状态，但只有在关键词命中、场景触发或手动置顶时，才会在某一轮编译中被置为 `Active`。激活过程只产生覆盖层与链路记录，不会擅自篡改作者的原生配置
 
-## 从来源到 Provider
+## 从内容来源到模型接入
 
 ~~~text
-Runtime 构造 Source Set
-  → Structure 分配 Zone / Slot
-  → Activation 评估本轮来源
-  → Loom Core Pass 执行转换与审计
-  → 编译 canonical message
-  → Provider Adapter 映射协议
+构建器拉取可用 Source 集合
+  → Structure 分配槽位与挂载点
+  → Activation 评估本轮生效内容
+  → Pass 管道执行格式转换与安全审计
+  → 编译为规范的 Canonical Messages
+  → Provider Adapter 映射到目标模型协议
 ~~~
 
-Provider Adapter 只负责协议映射，不决定 Narrative 是否提交，也不拥有 Prompt 的业务结构。Kernel 同样保持业务无感知。
+Provider 适配器仅负责网络协议映射，不决定故事是否提交，也不拥有提示词的业务结构，底层内核同样对具体故事保持中立
 
-## 为什么 Trace 很重要
+## 链路追踪（Trace）的价值
 
-长篇上下文会逐渐复杂。没有 Trace 时，作者只能猜测某段设定为什么出现、为什么缺失，或者是谁修改了最终 Prompt。可检查的 Build Trace 把这种猜测变成事实：来源、版本、顺序、转换与激活理由都可以被定位。
+长篇故事的上下文往往极其庞大。缺少链路追踪时，创作者只能猜测某段设定为什么被遗忘、为什么被截断，或是哪段逻辑修改了最终输出
+
+可查阅的编译链路将这些猜测转变为明确的事实：来源文件、版本编号、装配顺序与激活原因全部有迹可循，让复杂的长篇创作重获掌控感
