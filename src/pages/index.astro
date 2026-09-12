@@ -84,7 +84,7 @@ const features = [
       </div>
     </section>
 
-    <section class="product" id="system">
+    <section class="product" id="system" data-sky-intro>
       <div class="container">
         <div class="section-heading" data-chapter="02 / SYSTEM">
           <div>
@@ -96,7 +96,7 @@ const features = [
             角色设定、正文时间线与后台推演各安其位，在保持视野开阔的同时，提供稳定可靠的掌控力
           </p>
         </div>
-        <div class="product__stage" data-parallax="0.04">
+        <div class="product__stage">
           <ProductPreview />
         </div>
         <div class="product__legend">
@@ -355,7 +355,14 @@ const features = [
     font-size: 15px;
     line-height: 1.85;
   }
-  .product { position: relative; z-index: 2; padding: 150px 0 170px; background: var(--loom-site-bg); }
+  .product { position: relative; z-index: 2; padding: 150px 0 170px; background: transparent; }
+  .product::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--loom-site-bg) 0%, transparent 18%, transparent 82%, var(--loom-site-bg) 100%);
+  }
   .product > .container { position: relative; z-index: 1; }
   .section-heading {
     display: grid;

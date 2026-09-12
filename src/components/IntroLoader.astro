@@ -1,4 +1,4 @@
-<div class="intro-loader" data-intro-loader aria-hidden="true">
+<div class="intro-loader" data-intro-loader aria-hidden="true" hidden>
   <div class="intro-loader__visual">
     <div class="intro-loader__glow" aria-hidden="true"></div>
     <img
@@ -18,27 +18,11 @@
 </div>
 
 <script>
-  const loader = document.querySelector<HTMLElement>('[data-intro-loader]');
-  let shouldPlay = true;
-
-  try {
-    shouldPlay = sessionStorage.getItem('loom-intro-seen') !== '1';
-    if (shouldPlay) sessionStorage.setItem('loom-intro-seen', '1');
-  } catch {}
-
-  if (loader && shouldPlay && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    loader.dataset.active = '';
-    const duration = 1800;
-    const timer = window.setTimeout(() => {
-      loader.remove();
-    }, duration + 680);
-    window.addEventListener('pagehide', () => window.clearTimeout(timer), { once: true });
-  } else {
-    loader?.remove();
-  }
+  document.querySelector<HTMLElement>('[data-intro-loader]')?.remove();
 </script>
 
 <style>
+  .intro-loader[hidden] { display: none !important; }
   .intro-loader {
     position: fixed;
     z-index: 1000;
@@ -107,6 +91,7 @@
     100% { clip-path: inset(100% 0 0 0); visibility: hidden; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .intro-loader { display: none; }
+    .intro-loader[hidden] { display: none !important; }
+  .intro-loader { display: none; }
   }
 </style>

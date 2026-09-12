@@ -1,0 +1,7 @@
+// 单行文本截断
+@mixin text-ellipsis {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

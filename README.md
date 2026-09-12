@@ -26,6 +26,8 @@ corepack pnpm preview
 
 ## 当前边界
 
+- 发布页 `/#system` 提供工作区分栏与 Agent 对话的真实 React 组件草稿。完整界面截图待补充；来源、适配与更新方式见 [组件说明](src/components/studio-demo/README.md)。
+
 - 纯静态站点，不连接 Studio Server、不读取本地工作区、不调用 Provider。
 - 公开文档由本仓库单独维护，不自动同步产品仓库中的 Workbench 或 Archive。
 - src/styles/global.css 是网站自己的银灰色视觉 Token，不 import 产品仓库样式。

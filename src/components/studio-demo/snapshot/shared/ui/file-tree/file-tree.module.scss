@@ -1,0 +1,389 @@
+@use '../../../styles/abstracts' as *;
+
+.tree {
+  min-height: 0;
+  overflow: auto;
+  padding: 6px 0 14px;
+}
+
+.row {
+  --loom-tree-base-x: 34px;
+  --loom-tree-guide-x: var(--loom-tree-base-x);
+  --loom-tree-indent-step: 16px;
+  --loom-tree-indent: calc((var(--loom-tree-level) - 1) * var(--loom-tree-indent-step));
+  --loom-tree-icon-size: var(--loom-icon-size-4);
+  --loom-tree-icon-stroke: 1.25;
+
+  position: relative;
+  width: calc(100% - 12px);
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 0;
+  border-radius: var(--loom-radius-surface);
+  margin-inline: 6px;
+  padding: 2px 8px 2px 10px;
+  color: var(--loom-color-text-muted);
+  background: transparent;
+  text-align: left;
+  user-select: none;
+  touch-action: none; /* Required for dnd-kit touch sensors */
+
+  &.noDrag {
+    --loom-tree-base-x: 18px;
+  }
+}
+
+.sectionRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  padding: 12px 14px 4px;
+  margin-top: 8px;
+  user-select: none;
+}
+
+.sectionRow:first-child {
+  margin-top: 0;
+}
+
+.sectionDivider {
+  flex: 1;
+  height: 1px;
+  background: var(--loom-color-border);
+}
+
+.sectionLabel {
+  font-size: var(--loom-font-size-1);
+  font-weight: var(--loom-font-weight-5);
+  color: var(--loom-color-text-subtle);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.guideColumns {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  left: var(--loom-tree-guide-x);
+  display: flex;
+  pointer-events: none;
+}
+
+.guideColumn {
+  width: var(--loom-tree-indent-step);
+  border-left: 1px solid var(--loom-color-border);
+}
+
+.dragHandle {
+  position: relative;
+  z-index: 1;
+  width: 14px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  color: var(--loom-color-text-subtle);
+  background: transparent;
+  cursor: grab;
+  opacity: 0;
+  touch-action: none; /* Required for dnd-kit touch sensors */
+}
+
+.dragHandle svg,
+.disclosure svg,
+.icon svg,
+.actions svg {
+  width: var(--loom-tree-icon-size);
+  height: var(--loom-tree-icon-size);
+  stroke-width: var(--loom-tree-icon-stroke);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.rowContent {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.row:hover,
+.selected {
+  color: var(--loom-color-text);
+  background: color-mix(in srgb, var(--loom-color-surface) 54%, transparent);
+}
+
+.dragging {
+  opacity: 0.3;
+}
+
+.dragOver {
+  background: color-mix(in srgb, var(--loom-color-accent) 15%, transparent);
+  box-shadow: inset 2px 0 0 var(--loom-color-accent);
+}
+
+.draggingOverlay {
+  background: var(--loom-color-surface-inset);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 2px 0 0 var(--loom-color-accent);
+  opacity: 0.9;
+  cursor: grabbing;
+}
+
+.row > .disclosure {
+  position: relative;
+  z-index: 1;
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--loom-color-text-subtle);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin-left: var(--loom-tree-indent);
+  margin-right: 4px;
+}
+
+.row > .disclosure:hover {
+  color: var(--loom-color-text);
+}
+
+.branchContinuation {
+  position: absolute;
+  z-index: 0;
+  top: calc(50% + 8px);
+  bottom: -2px;
+  left: calc(var(--loom-tree-guide-x) + var(--loom-tree-indent));
+  width: 1px;
+  background: var(--loom-color-border);
+  pointer-events: none;
+}
+
+.icon {
+  flex: 0 0 auto;
+  width: var(--loom-icon-size-5);
+  height: var(--loom-icon-size-5);
+  display: grid;
+  place-items: center;
+  color: var(--loom-color-text-muted);
+}
+
+.labelBlock {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.metaRow {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.metaLeading {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.label,
+.meta {
+  @include text-ellipsis;
+}
+
+.label {
+  color: currentColor;
+  font-size: var(--loom-font-size-3);
+  font-weight: var(--loom-font-weight-3);
+}
+
+.meta {
+  min-width: 0;
+  color: var(--loom-color-text-subtle);
+  font-size: var(--loom-font-size-1);
+  font-weight: var(--loom-font-weight-2);
+}
+
+.flatTree .sectionRow {
+  justify-content: flex-start;
+  gap: 0;
+  padding-left: 10px;
+}
+
+.flatTree .sectionDivider {
+  display: none;
+}
+
+.flatTree .sectionLabel {
+  text-align: left;
+}
+
+.flatTree .row {
+  --loom-tree-indent: 0px;
+}
+
+.flatTree .row > .disclosure:empty {
+  display: none;
+  margin: 0;
+}
+
+.actions {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  min-height: 22px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--loom-radius-control);
+  padding: 0;
+  opacity: 0;
+  color: var(--loom-color-text-subtle);
+  background: transparent;
+}
+
+.row:hover .actions,
+.row:focus-within .actions,
+.actions:focus-visible {
+  opacity: 1;
+}
+
+.actions:hover:not(:disabled),
+.actions:focus-visible {
+  border-color: transparent;
+  color: var(--loom-color-text);
+  background: var(--loom-color-surface-muted);
+  box-shadow: none;
+}
+
+.muted .icon,
+.muted .label,
+.muted .meta {
+  color: var(--loom-color-text-subtle);
+  opacity: 0.56;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row:hover .dragHandle {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .dragHandle {
+    opacity: 0.65;
+  }
+}
+.editInput {
+  color: var(--loom-color-text);
+  background: var(--loom-color-surface-raised);
+  border: 1px solid var(--loom-color-focus);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-family: inherit;
+  font-size: var(--loom-font-size-3);
+  font-weight: var(--loom-font-weight-3);
+  line-height: inherit;
+  outline: none;
+  min-width: 0;
+  width: 100%;
+}
+
+.messageBlockContainer {
+  margin-inline: 6px;
+  margin-block: 2px;
+  width: calc(100% - 12px);
+  background: var(--loom-color-surface-subtle);
+  border: none;
+  outline: none;
+  border-radius: var(--loom-radius-message, 8px);
+  padding: 0;
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--loom-color-surface-subtle) 80%, var(--loom-color-surface-raised) 20%);
+  }
+
+  .row {
+    margin-inline: 0 !important;
+    width: 100% !important;
+    padding: 2px 8px 2px 10px !important;
+  }
+}
+
+.messageBlockContainerSelected {
+  background: color-mix(in srgb, var(--loom-color-surface-subtle) 75%, var(--loom-color-accent) 25%) !important;
+  color: var(--loom-color-text);
+}
+
+.messageBlockRow {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  margin-inline: 0 !important;
+  width: 100% !important;
+  padding: 2px 8px 2px 10px !important;
+
+  &:hover {
+    background: transparent !important;
+  }
+
+  &.selected {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .label {
+    font-weight: var(--loom-font-weight-5, 600);
+    color: var(--loom-color-text);
+  }
+}
+
+.messageBlockChildren {
+  display: flex;
+  flex-direction: column;
+}
+
+.childCountSup {
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: super;
+  margin-left: 2px;
+  color: var(--loom-color-text-subtle);
+  font-weight: var(--loom-font-weight-4, 500);
+  user-select: none;
+}
+
+.trailing {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.expandedRow {
+  position: relative;
+  padding: 6px 14px 10px calc(var(--loom-tree-guide-x) + (var(--loom-tree-level) * var(--loom-tree-indent-step)) + 16px);
+  background: color-mix(in srgb, var(--loom-color-surface) 25%, transparent);
+  border-bottom: 1px solid var(--loom-color-divider, rgba(255, 255, 255, 0.05));
+}
+
+
