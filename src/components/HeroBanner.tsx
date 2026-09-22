@@ -2,9 +2,10 @@ import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as R
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import LayeredIllustration from './illustration/LayeredIllustration'
 import ZoomImage from './illustration/ZoomImage'
+import type { DisplayImage } from '../lib/site-images'
 import './hero-banner.css'
 
-const slides = [
+export const slides = [
   {
     src: '/images/nom/layers/nom-layer-composite-002-004.png',
     alt: '诺姆与另一位人物置于 Loom Studio 海岸构图前',
@@ -35,7 +36,7 @@ const slides = [
   },
 ]
 
-const bottomSlides = [
+export const bottomSlides = [
   {
     src: '/images/nom/banners/nom-banner-001.png',
     alt: '诺姆坐在夜色湖畔',
@@ -65,19 +66,42 @@ const bottomSlides = [
   },
 ]
 
-type Props = { className?: string; variant?: 'top' | 'bottom' }
+type Props = {
+  className?: string
+  variant?: 'top' | 'bottom'
+  images: Record<string, DisplayImage & { fullSrc: string }>
+  layers?: { background: DisplayImage; foreground: DisplayImage }
+}
 
-export default function HeroBanner({ className = '', variant = 'top' }: Props) {
+export default function HeroBanner({ className = '', variant = 'top', images, layers }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const [target, setTarget] = useState(0)
+  const [enabled, setEnabled] = useState(variant === 'top')
+  const [playing, setPlaying] = useState(false)
+  const loaded = useRef(new Set<number>())
   const slideSet = variant === 'bottom' ? bottomSlides : slides
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActive(index => (index + 1) % slideSet.length)
+    if (variant !== 'bottom') return
+    // Observe the document-flow boundary, not the fixed footer behind the page.
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        setEnabled(true)
+        observer.disconnect()
+      }
+    }, { rootMargin: '800px' })
+    observer.observe(document.getElementById('footer-banner-start')!)
+    return () => observer.disconnect()
+  }, [variant])
+
+  useEffect(() => {
+    if (!enabled || !playing || target !== active) return
+    const timer = window.setTimeout(() => {
+      select((active + 1) % slideSet.length)
     }, 7000)
-    return () => window.clearInterval(timer)
-  }, [slideSet.length])
+    return () => window.clearTimeout(timer)
+  }, [active, target, enabled, playing, slideSet.length])
 
   useEffect(() => {
     let frame = 0
@@ -88,11 +112,13 @@ export default function HeroBanner({ className = '', variant = 'top' }: Props) {
       if (variant === 'bottom') {
         // Move the whole footer into place behind the content, not its image.
         banner.style.setProperty('--hero-bottom-offset', window.scrollY >= height ? '0px' : '-100%')
+        setPlaying(!document.hidden && document.getElementById('footer-banner-start')!.getBoundingClientRect().top < window.innerHeight)
       } else {
         const progress = Math.min(1, window.scrollY / height)
         banner.style.visibility = progress < 1 ? 'visible' : 'hidden'
         const position = 50 - window.scrollY * 100 / document.documentElement.scrollHeight
         banner.style.setProperty('--hero-image-y', `${Math.max(0, position)}%`)
+        setPlaying(!document.hidden && progress < 1)
       }
     }
     const requestUpdate = () => {
@@ -100,16 +126,23 @@ export default function HeroBanner({ className = '', variant = 'top' }: Props) {
     }
     window.addEventListener('scroll', requestUpdate, { passive: true })
     window.addEventListener('resize', requestUpdate)
+    document.addEventListener('visibilitychange', requestUpdate)
     update()
     return () => {
       window.removeEventListener('scroll', requestUpdate)
       window.removeEventListener('resize', requestUpdate)
+      document.removeEventListener('visibilitychange', requestUpdate)
       window.cancelAnimationFrame(frame)
     }
   }, [variant])
 
+  function select(index: number) {
+    setTarget(index)
+    if (loaded.current.has(index)) setActive(index)
+  }
+
   const move = (direction: number) => {
-    setActive(index => (index + direction + slideSet.length) % slideSet.length)
+    select((active + direction + slideSet.length) % slideSet.length)
   }
 
   const updateLayeredPointer = (event: ReactPointerEvent<HTMLElement>) => {
@@ -135,20 +168,23 @@ export default function HeroBanner({ className = '', variant = 'top' }: Props) {
           style={{ '--hero-mobile-position': slide.mobilePosition } as CSSProperties}
           key={slide.src}
           aria-hidden={index !== active}
+          inert={index !== active}
           onPointerMove={updateLayeredPointer}
           onPointerLeave={resetLayeredPointer}
         >
-          {'layered' in slide && slide.layered ? (
-            <>
-              <LayeredIllustration
-                background="/images/nom/layers/nom-layer-004.png"
-                foreground="/images/nom/layers/nom-layer-002.png"
-                label={slide.alt}
-              />
-              <ZoomImage src={slide.src} alt={slide.alt} loading={index === 0 ? 'eager' : 'lazy'} className="hero-banner__zoom hero-banner__zoom--layered" />
-            </>
-          ) : (
-            <ZoomImage src={slide.src} alt={slide.alt} loading={index === 0 ? 'eager' : 'lazy'} className="hero-banner__zoom" />
+          {enabled && (index === active || index === target || loaded.current.has(index)) && (
+            <ZoomImage image={images[slide.src]} fullSrc={images[slide.src].fullSrc}
+              sizes={`max(100vw, ${Math.ceil(images[slide.src].width / images[slide.src].height * 100)}svh)`}
+              alt={slide.alt} loading="eager" fetchPriority={variant === 'top' && index === 0 ? 'high' : 'auto'}
+              onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
+              onError={() => setTarget(active)}
+              className="hero-banner__zoom">
+              {'layered' in slide && slide.layered && layers ? (
+                <LayeredIllustration {...layers} label={slide.alt}
+                  onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
+                  onError={() => setTarget(active)} />
+              ) : undefined}
+            </ZoomImage>
           )}
           <div className="hero-banner__shade" aria-hidden="true" />
           <div className="hero-banner__copy">
@@ -166,7 +202,7 @@ export default function HeroBanner({ className = '', variant = 'top' }: Props) {
               type="button"
               className={index === active ? 'is-active' : ''}
               key={slide.src}
-              onClick={() => setActive(index)}
+              onClick={() => select(index)}
               aria-label={`第 ${index + 1} 张 Banner`}
               aria-current={index === active ? 'true' : undefined}
             />

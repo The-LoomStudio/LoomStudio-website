@@ -81,18 +81,6 @@
   object-position: center var(--hero-image-y);
 }
 
-.hero-banner__zoom--layered .zoom-image__trigger {
-  background: transparent;
-}
-
-.hero-banner__zoom--layered .zoom-image__trigger img {
-  visibility: hidden;
-}
-
-.hero-banner__zoom--layered {
-  pointer-events: auto;
-}
-
 .hero-banner__zoom .zoom-image__dialog {
   transform: none;
 }

@@ -1,7 +1,8 @@
 import './card-showcase.css'
 import ZoomImage from '../illustration/ZoomImage'
+import type { DisplayImage } from '../../lib/site-images'
 
-const cards = [
+export const cards = [
   { src: '/images/cards/display/card-001.png', alt: '角色卡展示图一' },
   { src: '/images/cards/display/card-002.png', alt: '角色卡展示图二' },
   { src: '/images/cards/display/card-003.png', alt: '角色卡展示图三' },
@@ -22,24 +23,24 @@ const cards = [
   { src: '/images/cards/display/card-018.png', alt: '角色卡展示图十八' },
 ]
 
-function Card({ src, alt }: (typeof cards)[number]) {
+function Card({ image, alt }: { image: DisplayImage; alt: string }) {
   return (
-    <ZoomImage src={src} alt={alt} className="card-showcase__card" />
+    <ZoomImage image={image} sizes="188px" alt={alt} className="card-showcase__card" />
   )
 }
 
-export default function CardMarquee() {
+export default function CardMarquee({ images }: { images: Record<string, DisplayImage> }) {
   return (
     <div className="card-showcase card-showcase--marquee" aria-label="角色卡展示">
       <div className="card-showcase__lane card-showcase__lane--forward">
         <div className="card-showcase__track">
-          {[...cards, ...cards].map((card, index) => <Card key={`forward-${index}`} {...card} />)}
+          {[...cards, ...cards].map((card, index) => <Card key={`forward-${index}`} image={images[card.src]} alt={card.alt} />)}
         </div>
       </div>
       <div className="card-showcase__lane card-showcase__lane--reverse">
         <div className="card-showcase__track">
           {[...cards.slice().reverse(), ...cards.slice().reverse()].map((card, index) => (
-            <Card key={`reverse-${index}`} {...card} />
+            <Card key={`reverse-${index}`} image={images[card.src]} alt={card.alt} />
           ))}
         </div>
       </div>

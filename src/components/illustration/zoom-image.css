@@ -18,7 +18,22 @@
   overflow: hidden;
 }
 .zoom-image__dialog[open] { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.zoom-image__dialog::backdrop { background: rgb(10 14 20 / .88); backdrop-filter: blur(10px); }
+.zoom-image__dialog::backdrop {
+  background: rgb(10 14 20 / 0);
+  backdrop-filter: blur(0);
+  transition: background-color 600ms cubic-bezier(.2, .8, .2, 1),
+    backdrop-filter 600ms cubic-bezier(.2, .8, .2, 1);
+}
+.zoom-image__dialog[open]:not([data-closing])::backdrop {
+  background: rgb(10 14 20 / .88);
+  backdrop-filter: blur(10px);
+}
+@starting-style {
+  .zoom-image__dialog[open]:not([data-closing])::backdrop {
+    background: rgb(10 14 20 / 0);
+    backdrop-filter: blur(0);
+  }
+}
 .zoom-image__dialog > img {
   display: block;
   max-width: 100%;
@@ -35,4 +50,7 @@
 .zoom-image__dialog > p { text-align: center; margin: 16px 0 0; max-width: 60ch; }
 .zoom-image__close { position: absolute; z-index: 1; right: 20px; top: 16px; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #252b31; color: white; font-size: 28px; cursor: pointer; }
 .zoom-image button:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: 4px; }
-@media (prefers-reduced-motion: reduce) { .zoom-image__dialog > img { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .zoom-image__dialog > img,
+  .zoom-image__dialog::backdrop { transition: none; }
+}

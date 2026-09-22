@@ -3,11 +3,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ProductPreview from '../components/ProductPreview.astro';
-import IntroLoader from '../components/IntroLoader.astro';
-import CardMarquee from '../components/card-showcase/CardMarquee';
-import CardStack from '../components/card-showcase/CardStack';
-import HeroBanner from '../components/HeroBanner';
+import CardMarquee, { cards } from '../components/card-showcase/CardMarquee';
+import CardStack, { stackCards } from '../components/card-showcase/CardStack';
+import HeroBanner, { slides, bottomSlides } from '../components/HeroBanner';
 import StoryParallaxWall from '../components/StoryParallaxWall.astro';
+import { siteImage } from '../lib/site-images';
+
+const cardImages = Object.fromEntries(await Promise.all(cards.map(async ({ src }) => [src, await siteImage(src, [188, 376])])));
+const stackImages = Object.fromEntries(stackCards.map(({ src }) => [src, cardImages[src]]));
+const bannerImages = Object.fromEntries(await Promise.all([...slides, ...bottomSlides].map(async ({ src }) => [
+  src, { ...await siteImage(src, [640, 960, 1440, 1920]), fullSrc: (await siteImage(src, [2560], 90)).src },
+])));
+const topImages = Object.fromEntries(slides.map(({ src }) => [src, bannerImages[src]]));
+const bottomImages = Object.fromEntries(bottomSlides.map(({ src }) => [src, bannerImages[src]]));
+const layers = {
+  background: await siteImage('/images/nom/layers/nom-layer-004.png', [768, 1280, 1920]),
+  foreground: await siteImage('/images/nom/layers/nom-layer-002.png', [780, 1280, 1560], 90),
+};
+const brand = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
 
 const features = [
   {
@@ -29,7 +42,6 @@ const features = [
 ---
 
 <BaseLayout title="Loom Studio" description="专为长篇角色扮演与互动叙事打造的桌面工具：分离剧情正文、推演过程与提示词构建，让每一次选择都能延展成清晰的世界线">
-  <IntroLoader />
   <SiteHeader />
 
   <main>
@@ -40,15 +52,16 @@ const features = [
         <a href="#system">02 系统</a>
         <a href="#architecture">03 架构</a>
       </nav>
-      <HeroBanner client:load />
+      <HeroBanner client:load images={topImages} layers={layers} />
       <a class="hero__scroll" href="#story"><span>向下滚动探索</span><i></i></a>
     </section>
 
     <div class="home-content">
     <section class="brand-banner" aria-label="Loom Studio 品牌 Banner">
-      <CardStack client:visible />
+      <CardStack client:visible images={stackImages} />
       <div class="brand-banner__sticker">
-        <img src="/brand/banner.png" alt="Loom Studio" loading="lazy" decoding="async" />
+        <img data-static-image style="opacity: 0" src={brand.src} srcset={brand.srcSet} width={brand.width} height={brand.height}
+          sizes="(max-width: 680px) 70vw, 480px" alt="Loom Studio" loading="lazy" decoding="async" />
       </div>
       <p>编织世界，交织故事。<br />把下一段旅程留给你自己。</p>
     </section>
@@ -58,7 +71,7 @@ const features = [
         <p class="eyebrow">A gallery of possibilities</p>
         <h2 id="card-banner-title">每一张卡面<br />都可以是一个新的角色</h2>
       </div>
-      <CardMarquee client:visible />
+      <CardMarquee client:visible images={cardImages} />
     </section>
 
     <section class="manifesto" id="story">
@@ -127,10 +140,11 @@ const features = [
     </section>
 
     <StoryParallaxWall />
+    <div id="footer-banner-start" aria-hidden="true"></div>
     </div>
 
     <section class="adventure">
-      <HeroBanner client:visible variant="bottom" />
+      <HeroBanner client:load variant="bottom" images={bottomImages} />
     </section>
   </main>
 
@@ -138,6 +152,13 @@ const features = [
 
 
   <script>
+    for (const image of document.querySelectorAll<HTMLImageElement>('[data-static-image]')) {
+      const update = () => { image.style.opacity = image.complete && image.naturalWidth ? '1' : '0'; };
+      image.addEventListener('load', update);
+      image.addEventListener('error', update);
+      update();
+    }
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const parallaxItems = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'));
     let frame = 0;

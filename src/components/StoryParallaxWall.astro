@@ -1,4 +1,7 @@
 ---
+import { siteImage } from '../lib/site-images';
+import ZoomImage from './illustration/ZoomImage';
+
 const portraits = [
   { src: '/images/nom/illustrations/nom-illustration-001.png', alt: '诺姆手持书本的竖向插画', speed: '-0.08', className: 'story-wall__image--portrait-a' },
   { src: '/images/nom/illustrations/nom-illustration-004.png', alt: '诺姆站在城市光影中的竖向插画', speed: '0.12', className: 'story-wall__image--portrait-b' },
@@ -22,6 +25,23 @@ const dense = [
   { src: '/images/nom/banners/nom-banner-020.png', alt: '温暖餐吧里的夜晚', speed: '-0.12', className: 'story-wall__image--dense-g' },
   { src: '/images/nom/banners/nom-banner-021.png', alt: '高处远眺城市与城堡', speed: '0.08', className: 'story-wall__image--dense-h' },
 ];
+
+const images = Object.fromEntries(await Promise.all([...portraits, ...wide, ...dense].map(async ({ src }) => [
+  src, {
+    ...await siteImage(src, [320, 640, 960, 1520]),
+    fullSrc: (await siteImage(src, [2560], 90)).src,
+  },
+])));
+const denseSizes = [
+  '(max-width: 680px) 68vw, clamp(360px, 45vw, 620px)',
+  '(max-width: 680px) 35vw, clamp(190px, 23vw, 320px)',
+  '(max-width: 680px) 64vw, clamp(300px, 38vw, 520px)',
+  '(max-width: 680px) 82vw, clamp(420px, 54vw, 760px)',
+  '(max-width: 680px) 42vw, clamp(220px, 27vw, 370px)',
+  '(max-width: 680px) 72vw, clamp(360px, 46vw, 640px)',
+  '(max-width: 680px) 38vw, clamp(180px, 22vw, 300px)',
+  '(max-width: 680px) 78vw, clamp(390px, 50vw, 700px)',
+];
 ---
 
 <section id="vertical-parallax" class="story-wall" aria-label="竖排视差章节">
@@ -34,23 +54,30 @@ const dense = [
   <div class="story-wall__portrait-field" aria-label="故事的最初片段">
     {portraits.map((image) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+        <ZoomImage client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          sizes="(max-width: 680px) clamp(108px, 31vw, 150px), clamp(150px, 18vw, 250px)"
+          alt={image.alt} />
       </figure>
     ))}
   </div>
 
   <div class="story-wall__wide-field" aria-label="故事逐渐展开">
-    {wide.map((image) => (
+    {wide.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+        <ZoomImage client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          sizes={index === 3
+            ? '(max-width: 680px) clamp(175px, 48vw, 250px), clamp(240px, 31vw, 420px)'
+            : '(max-width: 680px) clamp(190px, 55vw, 290px), clamp(280px, 38vw, 520px)'}
+          alt={image.alt} />
       </figure>
     ))}
   </div>
 
   <div class="story-wall__dense-field" aria-label="交织的故事片段">
-    {dense.map((image) => (
+    {dense.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+        <ZoomImage client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          sizes={denseSizes[index]} alt={image.alt} />
       </figure>
     ))}
   </div>
@@ -117,7 +144,7 @@ const dense = [
     will-change: transform;
   }
 
-  .story-wall__image img {
+  .story-wall__image :global(.zoom-image__trigger img) {
     display: block;
     width: 100%;
     height: auto;

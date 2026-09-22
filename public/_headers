@@ -1,0 +1,4 @@
+# Only content-fingerprinted build output may use immutable caching.
+# HTML and fixed-name public files keep Cloudflare Pages' default revalidation.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
