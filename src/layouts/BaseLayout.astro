@@ -18,11 +18,11 @@ const pageTitle = title === 'Loom Studio'
 ---
 
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme={Astro.url.pathname === '/' ? 'dark' : 'light'}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="theme-color" content="#82919b" data-theme-color />
+    <meta name="theme-color" content={Astro.url.pathname === '/' ? '#252b31' : '#82919b'} data-theme-color />
     <script is:inline>
       try {
         const pendingTransition = sessionStorage.getItem('loom-site-route-transition');
@@ -63,6 +63,11 @@ const pageTitle = title === 'Loom Studio'
     <link rel="icon" type="image/png" href="/brand/website_logo.png" />
     <link rel="apple-touch-icon" href="/brand/website_logo.png" />
     <title>{pageTitle}</title>
+    {Astro.url.pathname === '/' && <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+    </>}
   </head>
   <body>
     <slot />

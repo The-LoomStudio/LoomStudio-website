@@ -1,0 +1,44 @@
+.layered-illustration {
+  --illustration-x: 0;
+  --illustration-y: 0;
+  --hero-scroll-shift: 0px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  overflow: hidden;
+  container-type: inline-size;
+}
+.layered-illustration img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  object-fit: cover;
+  object-position: top;
+}
+.layered-illustration__background {
+  transform: translate3d(calc(var(--illustration-x) * -6px), calc(var(--illustration-y) * -6px - var(--hero-scroll-shift)), 0) scale(1.05);
+}
+.layered-illustration__foreground {
+  transform: translate3d(calc(var(--illustration-x) * -12px), calc(var(--illustration-y) * -10px - var(--hero-scroll-shift)), 0) scale(1.02);
+}
+.layered-illustration[data-foreground-fit="contain"] .layered-illustration__foreground {
+  object-fit: contain;
+  object-position: right bottom;
+}
+@container (max-width: 639px) {
+  .layered-illustration__background {
+    transform: translate3d(calc(var(--illustration-x) * -3px), calc(var(--illustration-y) * -3px), 0) scale(1.03);
+  }
+  .layered-illustration .layered-illustration__foreground {
+    object-fit: contain;
+    object-position: center;
+    /* ponytail: 原图人物位于透明画布右侧；新素材需覆盖这两个构图变量。 */
+    transform: translate3d(calc(var(--illustration-mobile-offset, -40cqw) + var(--illustration-x) * -6px), calc(var(--illustration-y) * -5px), 0) scale(var(--illustration-mobile-scale, 3.5));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .layered-illustration { --illustration-x: 0 !important; --illustration-y: 0 !important; }
+}

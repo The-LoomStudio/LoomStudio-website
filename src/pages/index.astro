@@ -3,25 +3,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ProductPreview from '../components/ProductPreview.astro';
-import SkyBackdrop from '../components/SkyBackdrop.astro';
 import IntroLoader from '../components/IntroLoader.astro';
-import { ArrowRight } from '@lucide/astro';
+import CardMarquee from '../components/card-showcase/CardMarquee';
+import CardStack from '../components/card-showcase/CardStack';
+import HeroBanner from '../components/HeroBanner';
+import StoryParallaxWall from '../components/StoryParallaxWall.astro';
 
 const features = [
   {
     index: '01',
-    title: '独立的剧情正文',
-    copy: '正文只保留确认的情节发展，模型的草稿与推演归于后台，不再侵扰阅读',
+    title: '故事，好好读',
+    copy: '把确认的情节留在正文里，把推演草稿交给后台。沿着角色的脚步，一页一页读下去。',
   },
   {
     index: '02',
-    title: '幕后推演空间',
-    copy: '为 Agent 提供专属的工作历史，推演与逻辑校验独立发生，服务于故事，却不干扰故事',
+    title: '幕后，有帮手',
+    copy: 'Agent 在自己的工作区整理线索、调用工具。想知道它忙了什么？打开面板就能看看。',
   },
   {
     index: '03',
-    title: '清晰的构建路径',
-    copy: '角色设定、世界观规则与上下文如何装配，一览无余，提示词不再是不可解释的黑盒',
+    title: '灵感，有来处',
+    copy: '这次对话用到了哪些设定，又带上了哪段记忆？展开提示词构建过程，把故事的来龙去脉看清楚。',
   },
 ];
 ---
@@ -29,47 +31,44 @@ const features = [
 <BaseLayout title="Loom Studio" description="专为长篇角色扮演与互动叙事打造的桌面工具：分离剧情正文、推演过程与提示词构建，让每一次选择都能延展成清晰的世界线">
   <IntroLoader />
   <SiteHeader />
-  <SkyBackdrop />
 
   <main>
-    <section class="hero" id="top" data-sky-intro>
-      <div class="hero__sky-fade" aria-hidden="true"></div>
+    <section class="hero" id="top">
       <nav class="hero__sections" aria-label="发布页章节">
         <span>SECTIONS</span>
         <a href="#story">01 叙事</a>
         <a href="#system">02 系统</a>
         <a href="#architecture">03 架构</a>
       </nav>
-      <div class="container hero__content">
-        <div class="hero__copy">
-          <div class="hero__heading-row">
-            <h1><span>编织世界</span><em>交织故事</em></h1>
-            <span class="hero__chapter-tag" aria-hidden="true">00 / WORLDLINE</span>
-          </div>
-          <p class="hero__lead">
-            专为长篇角色扮演与互动叙事打造的桌面工具<br />
-            分离剧情正文、推演过程与提示词构建，让每一次选择都能延展成清晰的世界线
-          </p>
-          <div class="hero__actions">
-            <a class="button button--primary" href="/docs">开始阅读文档 <ArrowRight size={16} stroke-width={1.8} /></a>
-            <a class="button" href="#story">探索 Loom Studio</a>
-          </div>
-          <div class="hero__banner">
-            <img src="/brand/banner.png" alt="Loom Studio" width="240" height="180" loading="eager" decoding="async" />
-          </div>
-        </div>
-      </div>
+      <HeroBanner client:load />
       <a class="hero__scroll" href="#story"><span>向下滚动探索</span><i></i></a>
+    </section>
+
+    <div class="home-content">
+    <section class="brand-banner" aria-label="Loom Studio 品牌 Banner">
+      <CardStack client:visible />
+      <div class="brand-banner__sticker">
+        <img src="/brand/banner.png" alt="Loom Studio" loading="lazy" decoding="async" />
+      </div>
+      <p>编织世界，交织故事。<br />把下一段旅程留给你自己。</p>
+    </section>
+
+    <section class="card-banner card-banner--top" aria-labelledby="card-banner-title">
+      <div class="container card-banner__heading">
+        <p class="eyebrow">A gallery of possibilities</p>
+        <h2 id="card-banner-title">每一张卡面<br />都可以是一个新的角色</h2>
+      </div>
+      <CardMarquee client:visible />
     </section>
 
     <section class="manifesto" id="story">
       <div class="container manifesto__grid">
         <div class="manifesto__sticky" data-chapter="01 / NARRATIVE">
-          <p class="eyebrow">Beyond the transcript</p>
-          <h2>长篇互动叙事<br />需要超越单列对话的结构</h2>
+          <p class="eyebrow">A home for your stories</p>
+          <h2>故事还长<br />我们慢慢讲</h2>
           <p>
-            单列对话往往止于零碎问答，但一个世界应当能够持续延伸<br />
-            Loom Studio 将剧情正文与推演过程清晰分开，正文纯净连贯，分支随时可溯，让故事真正具备长篇沉浸的厚度
+            一封来信、一位老朋友，或是一条没走过的小路。<br />
+            把它们放进你的世界，让正文、设定和幕后推演各有自己的位置，陪故事走得更远。
           </p>
         </div>
         <div class="manifesto__features">
@@ -84,33 +83,33 @@ const features = [
       </div>
     </section>
 
-    <section class="product" id="system" data-sky-intro>
+    <section class="product" id="system">
       <div class="container">
         <div class="section-heading" data-chapter="02 / SYSTEM">
           <div>
             <p class="eyebrow">Inside the studio</p>
-            <h2>秩序井然的<br />创作空间</h2>
+            <h2>你的小小工作室<br />装得下大大的世界</h2>
           </div>
           <p>
-            桌面级高信息密度界面，服务于专注而持久的创作<br />
-            角色设定、正文时间线与后台推演各安其位，在保持视野开阔的同时，提供稳定可靠的掌控力
+            角色的秘密、世界的规则，还有刚刚发生的冒险，都在这里。<br />
+            先试试下面这段小故事，再打开工作区，看看它是怎样被编织出来的。
           </p>
         </div>
         <div class="product__stage">
           <ProductPreview />
         </div>
         <div class="product__legend">
-          <div><span>01</span><b>Narrative Timeline</b><p>只保存受控提交的故事正文与世界线</p></div>
-          <div><span>02</span><b>Agent Session</b><p>容纳推演、工具调用与独立工作分支</p></div>
-          <div><span>03</span><b>Prompt Build</b><p>以资源、激活与链路解释每轮上下文装配</p></div>
+          <div><span>01</span><b>故事时间线</b><p>沿着正文，找回每一次选择</p></div>
+          <div><span>02</span><b>Agent 工作区</b><p>看看幕后帮手的思路和工具记录</p></div>
+          <div><span>03</span><b>提示词构建</b><p>看清哪些设定参与了这一轮对话</p></div>
         </div>
       </div>
     </section>
 
     <section class="architecture" id="architecture">
       <div class="container architecture__inner" data-chapter="03 / ARCHITECTURE">
-        <p class="eyebrow">Built for depth</p>
-        <h2>分层明确<br />始于长远</h2>
+        <p class="eyebrow">A little look backstage</p>
+        <h2>好故事的背后<br />也有小小的分工</h2>
         <div class="architecture__flow">
           <div><small>STORY</small><b>剧情正文</b><span>呈现故事与分支</span></div>
           <i>↔</i>
@@ -121,29 +120,22 @@ const features = [
           <div><small>MODEL</small><b>模型接入</b><span>只接收编译结果</span></div>
         </div>
         <p class="architecture__note">
-          正文专注于呈现，会话专注于推演，构建器专注于装配<br />
-          各层各司其职，让系统能够从容支撑起庞大的世界观与漫长的故事跨度
+          正文讲故事，Agent 理线索，构建器把需要的设定送给模型。<br />
+          每一步都有迹可循，你可以安心游玩，也可以随时掀开幕布，动手改一改。
         </p>
       </div>
     </section>
 
-    <section class="adventure" data-sky-final>
-      <div class="adventure__fade" aria-hidden="true"></div>
-      <div class="container adventure__content">
-        <div class="adventure__panel" data-chapter="04 / ADVENTURE">
-          <p class="eyebrow">Start your journey</p>
-          <h2>走出文本框的局限</h2>
-          <p>
-            将复杂的机制沉入底层，让角色、情境与选择重新回到舞台中央<br />
-            由此开始，编织一段真正完整、能够长久延续的故事
-          </p>
-          <a class="button button--primary" href="/docs">进入公开文档 <ArrowRight size={16} stroke-width={1.8} /></a>
-        </div>
-      </div>
+    <StoryParallaxWall />
+    </div>
+
+    <section class="adventure">
+      <HeroBanner client:visible variant="bottom" />
     </section>
   </main>
 
   <SiteFooter easterEgg />
+
 
   <script>
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -170,19 +162,116 @@ const features = [
     window.addEventListener('scroll', requestUpdate, { passive: true });
     window.addEventListener('resize', requestUpdate);
     updateParallax();
+
+    const finePointer = window.matchMedia('(pointer: fine)');
+    let scrollTarget = window.scrollY;
+    let scrollFrame = 0;
+    let lastScrollTime = 0;
+
+    const stopWheelScroll = () => {
+      window.cancelAnimationFrame(scrollFrame);
+      scrollFrame = 0;
+      scrollTarget = window.scrollY;
+    };
+
+    const animateWheelScroll = (time: number) => {
+      scrollTarget = Math.max(0, Math.min(scrollTarget, document.documentElement.scrollHeight - window.innerHeight));
+      const current = window.scrollY;
+      const distance = scrollTarget - current;
+      if (Math.abs(distance) < 0.5) {
+        window.scrollTo({ top: scrollTarget, behavior: 'instant' });
+        scrollFrame = 0;
+        return;
+      }
+      const amount = 1 - Math.exp(-(time - lastScrollTime) / 100);
+      lastScrollTime = time;
+      window.scrollTo({ top: current + distance * amount, behavior: 'instant' });
+      scrollFrame = window.requestAnimationFrame(animateWheelScroll);
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      if (
+        reduceMotion.matches || !finePointer.matches || event.defaultPrevented || !event.cancelable ||
+        event.ctrlKey || event.metaKey || event.shiftKey || !event.deltaY ||
+        Math.abs(event.deltaY) < Math.abs(event.deltaX) ||
+        document.documentElement.hasAttribute('data-menu-open') || document.querySelector('dialog[open]')
+      ) {
+        stopWheelScroll();
+        return;
+      }
+      // Let demo panes, editors and other nested scroll areas retain native input.
+      for (const element of event.composedPath()) {
+        if (element === document.body || element === document.documentElement) break;
+        if (!(element instanceof HTMLElement)) continue;
+        if (
+          element.matches('input, textarea, select, [contenteditable]:not([contenteditable="false"])') ||
+          (/(auto|scroll)/.test(getComputedStyle(element).overflowY) && element.scrollHeight > element.clientHeight)
+        ) {
+          stopWheelScroll();
+          return;
+        }
+      }
+      event.preventDefault();
+      if (!scrollFrame) scrollTarget = window.scrollY;
+      const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? window.innerHeight : 1;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      scrollTarget = Math.max(0, Math.min(maxScroll, scrollTarget + event.deltaY * unit * 0.45));
+      if (!scrollFrame) {
+        lastScrollTime = performance.now();
+        scrollFrame = window.requestAnimationFrame(animateWheelScroll);
+      }
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('pointerdown', stopWheelScroll, { passive: true, capture: true });
+    window.addEventListener('touchstart', stopWheelScroll, { passive: true, capture: true });
+    window.addEventListener('keydown', stopWheelScroll, { capture: true });
+    window.addEventListener('resize', stopWheelScroll);
+    window.addEventListener('pagehide', stopWheelScroll);
+    reduceMotion.addEventListener('change', stopWheelScroll);
+    finePointer.addEventListener('change', stopWheelScroll);
   </script>
 </BaseLayout>
 
 <style>
+  :global(body:has(.hero)) {
+    --loom-site-font-sans: "Nunito", "ZCOOL KuaiLe", "PingFang SC", sans-serif;
+    --loom-site-font-display: "Fredoka", "ZCOOL KuaiLe", sans-serif;
+  }
   .hero {
     position: relative;
-    min-height: max(800px, 100svh);
+    z-index: 1;
+    height: 100svh;
+    min-height: 100svh;
     display: grid;
     align-items: center;
-    overflow: hidden;
-    padding-top: calc(var(--loom-site-header-height) + 36px);
-    padding-bottom: 72px;
+    overflow: clip;
+    padding: 0;
     background: transparent;
+  }
+  .home-content {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 100svh;
+    background: var(--loom-site-bg);
+    box-shadow: 0 -24px 54px rgb(8 12 16 / .24);
+  }
+  .home-content::before {
+    position: absolute;
+    top: -240px;
+    right: 0;
+    left: 0;
+    height: 240px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgb(var(--loom-site-bg-channels) / .08) 22%,
+      rgb(var(--loom-site-bg-channels) / .34) 52%,
+      rgb(var(--loom-site-bg-channels) / .78) 78%,
+      var(--loom-site-bg) 100%
+    );
+    content: '';
+    pointer-events: none;
   }
   .hero__sky-fade {
     position: absolute;
@@ -217,19 +306,32 @@ const features = [
   .hero__sections a { transition: color 160ms ease; }
   .hero__sections a:hover { color: var(--loom-site-text); }
   .hero__content {
+    position: absolute;
+    top: 50svh;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    margin-top: 40px;
+    justify-content: center;
+    margin-top: 0;
+    text-align: center;
   }
   .hero__copy {
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     max-width: 740px;
+    width: 100%;
     background: transparent;
   }
   .hero__heading-row {
-    display: inline-flex;
-    align-items: flex-start;
+    position: absolute;
+    left: calc(50% + clamp(120px, 16vw, 180px) + 24px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
     gap: 20px;
   }
   .hero__chapter-tag {
@@ -244,8 +346,10 @@ const features = [
   }
   .hero h1 {
     margin: 0;
-    font: 560 clamp(54px, 6vw, 76px)/1.06 var(--loom-site-font-display);
-    letter-spacing: -0.04em;
+    font: 400 clamp(18px, 2vw, 26px)/1.6 var(--loom-site-font-display);
+    letter-spacing: 0.18em;
+    writing-mode: vertical-rl;
+    white-space: nowrap;
     text-wrap: balance;
     text-shadow: none;
   }
@@ -255,33 +359,41 @@ const features = [
     font-style: normal;
   }
   .hero__lead {
+    position: absolute;
+    top: 100%;
+    width: min(610px, 90vw);
     max-width: 610px;
-    margin: 28px 0 0;
+    margin: 24px auto 0;
     color: var(--loom-site-text-muted);
     font-size: 17px;
     line-height: 1.85;
     text-wrap: pretty;
   }
   .hero__actions {
+    position: absolute;
+    top: calc(100% + 124px);
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 14px;
-    margin-top: 36px;
+    margin-top: 0;
   }
   .hero__banner {
-    margin-top: 40px;
-    margin-bottom: 12px;
-    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: block;
+    max-width: 100%;
   }
   .hero__banner img {
     display: block;
-    width: clamp(210px, 24vw, 260px);
+    width: clamp(240px, 32vw, 360px);
+    max-width: 100%;
     height: auto;
     filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.1));
     transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), filter 300ms ease;
   }
   .hero__banner img:hover {
-    transform: translateY(-2px) scale(1.02);
+    transform: scale(1.02);
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.18));
   }
   .hero__scroll {
@@ -298,17 +410,104 @@ const features = [
     transform: translateX(-50%);
   }
   .hero__scroll i { width: 1px; height: 38px; background: var(--loom-site-text-subtle); }
+  .brand-banner {
+    position: relative;
+    display: grid;
+    min-height: clamp(520px, 42vw, 600px);
+    place-items: center;
+    gap: 18px;
+    padding: 42px 20px 48px;
+    overflow: clip;
+    background: var(--loom-site-bg);
+  }
+  .brand-banner :global(.card-showcase--stack) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+  .brand-banner :global(.card-showcase__card) { pointer-events: auto; }
+  .banner-footer { position: absolute; z-index: 4; inset: auto 0 0; }
+  .adventure :global(.hero-banner__controls) { bottom: 12%; }
+  @media (max-width: 760px) {
+    .brand-banner { min-height: 500px; }
+    .brand-banner :global(.card-showcase__stack) {
+      width: 100%;
+      transform: none;
+    }
+    .brand-banner :global(.card-showcase--stack .card-showcase__card) {
+      width: clamp(150px, 42vw, 205px);
+      --card-scale: .88 !important;
+      --card-hover-scale: .96 !important;
+    }
+    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(1)) {
+      --card-x: clamp(-130px, -31vw, -92px) !important;
+      --card-y: 125px !important;
+    }
+    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(2)) {
+      --card-x: clamp(-96px, -23vw, -70px) !important;
+      --card-y: -100px !important;
+    }
+    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(3)) {
+      --card-x: clamp(70px, 23vw, 96px) !important;
+      --card-y: -100px !important;
+    }
+    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(4)) {
+      --card-x: clamp(92px, 31vw, 130px) !important;
+      --card-y: 125px !important;
+    }
+    .brand-banner__sticker { width: 160px; }
+    .adventure :global(.hero-banner__controls) { bottom: 16%; }
+  }
+  .brand-banner__sticker {
+    position: relative;
+    z-index: 20;
+    width: min(240px, 62vw);
+    filter: drop-shadow(0 14px 22px rgb(8 12 16 / .24));
+  }
+  .brand-banner__sticker img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .brand-banner > p {
+    position: relative;
+    z-index: 20;
+    margin: 0;
+    color: var(--loom-site-text-muted);
+    font: 14px/1.8 var(--loom-site-font-display);
+    text-align: center;
+  }
   .manifesto {
     position: relative;
-    min-height: 1550px;
+    min-height: auto;
     overflow: clip;
     padding: 160px 0;
     background: var(--loom-site-bg);
   }
-  .manifesto__grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12vw; }
+  .card-banner {
+    position: relative;
+    overflow: hidden;
+    padding: 110px 0 92px;
+    background: var(--loom-site-bg);
+  }
+  .card-banner__heading {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    margin-bottom: 48px;
+    text-align: center;
+  }
+  .card-banner__heading h2 {
+    margin: 0;
+    font: 540 clamp(38px, 5vw, 64px)/1.18 var(--loom-site-font-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .manifesto__grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr; gap: 72px; text-align: center; }
   .manifesto__sticky {
-    position: sticky;
-    top: 150px;
+    position: relative;
     height: fit-content;
     border-radius: 24px;
     padding: 32px;
@@ -334,14 +533,14 @@ const features = [
   }
   .manifesto__sticky > p:last-child {
     max-width: 500px;
-    margin: 28px 0 0;
+    margin: 28px auto 0;
     color: var(--loom-site-text-muted);
     font-size: 16px;
     line-height: 1.9;
   }
-  .manifesto__features { display: grid; gap: 160px; padding-top: 180px; }
+  .manifesto__features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .manifesto__features article {
-    min-height: 300px;
+    min-height: 0;
     border-radius: 24px;
     padding: 32px;
     background: transparent;
@@ -366,15 +565,17 @@ const features = [
   .product > .container { position: relative; z-index: 1; }
   .section-heading {
     display: grid;
-    grid-template-columns: 1.1fr 0.65fr;
-    align-items: end;
-    gap: 80px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 28px;
     margin-bottom: 78px;
     border-radius: 24px;
     padding: 32px;
     background: transparent;
   }
   .section-heading > p {
+    max-width: 640px;
     margin: 0 0 8px;
     color: var(--loom-site-text-muted);
     font-size: 15px;
@@ -455,82 +656,83 @@ const features = [
     font-size: 14px;
     line-height: 1.8;
   }
-  .adventure {
+  .card-stack-banner {
     position: relative;
-    min-height: 1000px;
-    display: grid;
-    align-items: end;
+    min-height: 760px;
     overflow: hidden;
-    color: var(--loom-site-text);
-    background: transparent;
-    transition: color 320ms ease;
+    background: var(--loom-site-bg-soft);
   }
-  .adventure[data-sky-text='dark'] {
-    --loom-site-text: #26343d;
-    --loom-site-text-muted: #3d4c55;
-    --loom-site-text-subtle: #53636c;
-    --loom-site-accent: #344f5c;
+  .card-stack-banner__stage {
+    position: relative;
+    min-height: 760px;
+    display: grid;
+    align-items: center;
   }
-  .adventure__fade {
-    position: absolute;
+  .card-stack-banner__heading {
+    position: relative;
     z-index: 1;
-    top: -1px;
-    left: 0;
-    width: 100%;
-    height: clamp(380px, 46vw, 720px);
-    background: linear-gradient(
-      180deg,
-      rgb(var(--loom-site-bg-channels) / 1) 0%,
-      rgb(var(--loom-site-bg-channels) / 0.96) 14%,
-      rgb(var(--loom-site-bg-channels) / 0.78) 36%,
-      rgb(var(--loom-site-bg-channels) / 0.5) 58%,
-      rgb(var(--loom-site-bg-channels) / 0.22) 78%,
-      rgb(var(--loom-site-bg-channels) / 0) 100%
-    );
+    display: grid;
+    width: min(440px, calc(100% - 40px));
+    justify-items: center;
+    text-align: center;
+  }
+  .card-stack-banner__heading h2 {
+    margin: 0;
+    font: 540 clamp(42px, 5.6vw, 70px)/1.16 var(--loom-site-font-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .card-stack-banner__heading > p:last-child {
+    max-width: 560px;
+    margin: 24px 0 0;
+    color: var(--loom-site-text-muted);
+    font-size: 15px;
+    line-height: 1.85;
+  }
+  .card-stack-banner__stage > .card-showcase {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
     pointer-events: none;
   }
-  .adventure__content { position: relative; z-index: 2; padding-bottom: 120px; }
-  .adventure__panel {
-    max-width: 650px;
-    border-radius: 30px;
-    padding: 42px;
-    background: transparent;
+  .card-stack-banner__stage .card-showcase__card {
+    pointer-events: auto;
   }
-  .adventure__panel h2 {
-    font-size: clamp(52px, 6vw, 76px);
+  .adventure {
+    position: fixed;
+    z-index: 0;
+    inset: 0;
+    height: 100svh;
+    overflow: hidden;
+    background: var(--loom-site-bg);
+    pointer-events: none;
   }
-  .adventure__panel > p:not(.eyebrow) {
-    max-width: 560px;
-    margin: 28px 0 34px;
-    color: var(--loom-site-text-muted);
-    font: 17px/1.9 var(--loom-site-font-display);
-    text-shadow: none;
-  }
+  .adventure :global(.hero-banner) { pointer-events: auto; }
   @media (max-width: 900px) {
     .manifesto { min-height: auto; }
     .manifesto__grid, .section-heading { grid-template-columns: 1fr; gap: 54px; }
     .manifesto__sticky { position: static; }
-    .manifesto__features { gap: 100px; padding-top: 40px; }
+    .manifesto__features { grid-template-columns: 1fr; justify-items: center; gap: 40px; }
     .product__legend { grid-template-columns: 1fr; }
     .architecture__flow { grid-template-columns: 1fr; }
     .architecture__flow > i { transform: rotate(90deg); }
   }
   @media (max-width: 680px) {
-    .hero { min-height: 900px; }
+    .hero__banner img { width: 54vw; max-width: 240px; }
+    .hero__heading-row { left: calc(50% + min(27vw, 120px) + 10px); }
     .hero__sections { width: calc(100% - 28px); gap: 12px; font-size: 8px; letter-spacing: 0.08em; }
     .hero__sections span { display: none; }
-    .hero__copy { max-width: none; padding: 12px 0; }
+    .hero__copy { max-width: none; padding: 0; }
     .hero__chapter-tag { display: none; }
     .manifesto, .product { padding-block: 110px; }
+    .card-banner { padding-block: 80px; }
+    .card-banner__heading { margin-bottom: 30px; }
     .manifesto h2, .section-heading h2, .architecture h2 { font-size: 42px; }
     .manifesto__features article { min-height: auto; }
     .product__legend > div { padding: 24px 12px; }
     .architecture { padding: 110px 0; }
-    .adventure { min-height: 820px; }
-    .adventure__content { padding-bottom: 80px; }
-    .adventure__panel { padding: 28px; }
-    .adventure__panel h2,
-    .adventure__panel > p:not(.eyebrow) { max-width: none; }
+    .card-stack-banner,
+    .card-stack-banner__stage { min-height: 620px; }
     [data-chapter]::after { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {

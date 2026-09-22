@@ -24,10 +24,8 @@ export default function StoryDemo() {
   const [busy, setBusy] = useState(true)
   const [job, setJob] = useState<Job>({ id: 0, text: intro, type: 'intro' })
   const [choiceIndex, setChoiceIndex] = useState(0)
-  const initialMinutes = (() => {
-    const now = new Date()
-    return now.getHours() * 60 + now.getMinutes()
-  })()
+  // Keep SSR and the first client render identical; sync the wall clock after hydration.
+  const initialMinutes = 12 * 60
   const [minutes, setMinutes] = useState(initialMinutes)
   const rootRef = useRef<HTMLElement>(null)
   const textRef = useRef<HTMLElement>(null)
@@ -36,6 +34,13 @@ export default function StoryDemo() {
   const busyRef = useRef(true)
   const nextId = useRef(1)
   const timeRef = useRef(initialMinutes)
+
+  useEffect(() => {
+    const now = new Date()
+    const currentMinutes = now.getHours() * 60 + now.getMinutes()
+    timeRef.current = currentMinutes
+    setMinutes(currentMinutes)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -114,16 +119,6 @@ export default function StoryDemo() {
     void run()
     return () => { cancelled = true; window.clearTimeout(timer) }
   }, [job])
-
-  useEffect(() => {
-    const root = rootRef.current!
-    const publish = (visible: boolean) => window.dispatchEvent(new CustomEvent('loom:story-time', {
-      detail: { minutes: visible ? minutes : null },
-    }))
-    const observer = new IntersectionObserver(([entry]) => publish(entry.isIntersecting), { threshold: 0 })
-    observer.observe(root)
-    return () => { observer.disconnect(); publish(false) }
-  }, [minutes])
 
   useEffect(() => {
     const pane = textRef.current!

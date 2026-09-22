@@ -1,0 +1,192 @@
+---
+const portraits = [
+  { src: '/images/nom/illustrations/nom-illustration-001.png', alt: '诺姆手持书本的竖向插画', speed: '-0.08', className: 'story-wall__image--portrait-a' },
+  { src: '/images/nom/illustrations/nom-illustration-004.png', alt: '诺姆站在城市光影中的竖向插画', speed: '0.12', className: 'story-wall__image--portrait-b' },
+  { src: '/images/nom/illustrations/nom-illustration-007.png', alt: '诺姆在自然场景中的竖向插画', speed: '-0.16', className: 'story-wall__image--portrait-c' },
+];
+
+const wide = [
+  { src: '/images/nom/banners/nom-banner-001.png', alt: '诺姆坐在夜色湖畔', speed: '0.08', className: 'story-wall__image--wide-a' },
+  { src: '/images/nom/banners/nom-banner-006.png', alt: '篝火旁的两个人', speed: '-0.12', className: 'story-wall__image--wide-b' },
+  { src: '/images/nom/banners/nom-banner-010.png', alt: '诺姆坐在海岸木栈桥上阅读', speed: '0.16', className: 'story-wall__image--wide-c' },
+  { src: '/images/nom/banners/nom-banner-012.png', alt: '山城远景中的两个人', speed: '-0.06', className: 'story-wall__image--wide-d' },
+];
+
+const dense = [
+  { src: '/images/nom/banners/nom-banner-003.png', alt: '诺姆在画室创作', speed: '-0.1', className: 'story-wall__image--dense-a' },
+  { src: '/images/nom/banners/nom-banner-007.png', alt: '拱窗与书架中的诺姆', speed: '0.14', className: 'story-wall__image--dense-b' },
+  { src: '/images/nom/banners/nom-banner-009.png', alt: '海湾码头上的两个人', speed: '-0.18', className: 'story-wall__image--dense-c' },
+  { src: '/images/nom/banners/nom-banner-014.png', alt: '图书馆中的协作场景', speed: '0.1', className: 'story-wall__image--dense-d' },
+  { src: '/images/nom/banners/nom-banner-016.png', alt: '夜间列车车厢中的两个人', speed: '-0.08', className: 'story-wall__image--dense-e' },
+  { src: '/images/nom/banners/nom-banner-018.png', alt: '城市高处的黄昏远眺', speed: '0.16', className: 'story-wall__image--dense-f' },
+  { src: '/images/nom/banners/nom-banner-020.png', alt: '温暖餐吧里的夜晚', speed: '-0.12', className: 'story-wall__image--dense-g' },
+  { src: '/images/nom/banners/nom-banner-021.png', alt: '高处远眺城市与城堡', speed: '0.08', className: 'story-wall__image--dense-h' },
+];
+---
+
+<section id="vertical-parallax" class="story-wall" aria-label="竖排视差章节">
+  <div class="container story-wall__intro">
+    <p class="eyebrow">A story keeps unfolding</p>
+    <h2 id="story-wall-title">开始你的故事旅程</h2>
+    <p>从一幅画面，到一条可以继续走下去的世界线。</p>
+  </div>
+
+  <div class="story-wall__portrait-field" aria-label="故事的最初片段">
+    {portraits.map((image) => (
+      <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
+        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+      </figure>
+    ))}
+  </div>
+
+  <div class="story-wall__wide-field" aria-label="故事逐渐展开">
+    {wide.map((image) => (
+      <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
+        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+      </figure>
+    ))}
+  </div>
+
+  <div class="story-wall__dense-field" aria-label="交织的故事片段">
+    {dense.map((image) => (
+      <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
+        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+      </figure>
+    ))}
+  </div>
+</section>
+
+<style>
+  .story-wall {
+    position: relative;
+    overflow: clip;
+    padding: 180px 0 150px;
+    background: var(--loom-site-bg);
+  }
+
+  .story-wall__intro {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .story-wall__intro h2 {
+    margin: 0;
+    font: 540 clamp(46px, 7vw, 92px)/1.12 var(--loom-site-font-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .story-wall__intro > p:last-child {
+    margin: 26px 0 0;
+    color: var(--loom-site-text-muted);
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .story-wall__portrait-field,
+  .story-wall__wide-field,
+  .story-wall__dense-field {
+    position: relative;
+    width: min(100% - 40px, 1240px);
+    margin-inline: auto;
+  }
+
+  .story-wall__portrait-field {
+    height: 800px;
+    margin-top: 90px;
+  }
+
+  .story-wall__wide-field {
+    height: 940px;
+    margin-top: 40px;
+  }
+
+  .story-wall__dense-field {
+    padding-top: 1110px;
+    margin-top: 20px;
+  }
+
+  .story-wall__image {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+    transform: translate3d(0, var(--parallax-y, 0px), 0);
+    will-change: transform;
+  }
+
+  .story-wall__image img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .story-wall__portrait-field .story-wall__image {
+    width: clamp(150px, 18vw, 250px);
+  }
+
+  /* One image leads, two images widen the base and close the empty lower field. */
+  .story-wall__image--portrait-a { top: 385px; left: 10%; }
+  .story-wall__image--portrait-b { top: 20px; left: 43%; }
+  .story-wall__image--portrait-c { top: 420px; right: 10%; }
+
+  .story-wall__wide-field .story-wall__image {
+    width: clamp(280px, 38vw, 520px);
+  }
+
+  .story-wall__image--wide-a { top: 80px; left: 2%; }
+  .story-wall__image--wide-b { top: 330px; right: 4%; }
+  .story-wall__image--wide-c { top: 590px; left: 19%; }
+  .story-wall__image--wide-d { top: 210px; left: 42%; width: clamp(240px, 31vw, 420px) !important; }
+
+  .story-wall__image--dense-a { top: 40px; left: 0; width: clamp(360px, 45vw, 620px); }
+  .story-wall__image--dense-b { top: 250px; left: 34%; width: clamp(190px, 23vw, 320px); }
+  .story-wall__image--dense-c { top: 30px; right: 0; width: clamp(300px, 38vw, 520px); }
+  .story-wall__image--dense-d { top: 480px; left: 8%; width: clamp(420px, 54vw, 760px); }
+  .story-wall__image--dense-e { top: 560px; right: 10%; width: clamp(220px, 27vw, 370px); }
+  .story-wall__image--dense-f { top: 800px; right: 0; width: clamp(360px, 46vw, 640px); }
+  .story-wall__image--dense-g { top: 900px; left: 25%; width: clamp(180px, 22vw, 300px); }
+  /* 末图参与文档流，实际图高撑开章节；位移限定在底部留白以内。 */
+  .story-wall__image--dense-h {
+    position: relative;
+    left: 0;
+    width: clamp(390px, 50vw, 700px);
+    transform: translate3d(0, clamp(-64px, var(--parallax-y, 0px), 64px), 0);
+  }
+
+  @media (max-width: 680px) {
+    .story-wall { padding: 120px 0 100px; }
+    .story-wall__intro h2 { font-size: 44px; }
+    .story-wall__portrait-field,
+    .story-wall__wide-field,
+    .story-wall__dense-field {
+      width: calc(100% - 28px);
+    }
+    .story-wall__portrait-field { height: 620px; margin-top: 50px; }
+    .story-wall__wide-field { height: 760px; margin-top: 10px; }
+    .story-wall__dense-field { padding-top: 930px; }
+    .story-wall__portrait-field .story-wall__image { width: clamp(108px, 31vw, 150px); }
+    .story-wall__image--portrait-a { top: 320px; left: 0; }
+    .story-wall__image--portrait-b { top: 0; left: 50%; }
+    .story-wall__image--portrait-c { top: 345px; right: 0; }
+    .story-wall__wide-field .story-wall__image { width: clamp(190px, 55vw, 290px); }
+    .story-wall__image--wide-a { top: 40px; left: 0; }
+    .story-wall__image--wide-b { top: 220px; right: 0; }
+    .story-wall__image--wide-c { top: 450px; left: 8%; }
+    .story-wall__image--wide-d { top: 150px; left: 34%; width: clamp(175px, 48vw, 250px) !important; }
+    .story-wall__image--dense-a { top: 20px; left: 0; width: 68vw; }
+    .story-wall__image--dense-b { top: 170px; left: 43%; width: 35vw; }
+    .story-wall__image--dense-c { top: 250px; right: 0; width: 64vw; }
+    .story-wall__image--dense-d { top: 430px; left: 0; width: 82vw; }
+    .story-wall__image--dense-e { top: 560px; right: 0; width: 42vw; }
+    .story-wall__image--dense-f { top: 680px; right: 0; width: 72vw; }
+    .story-wall__image--dense-g { top: 820px; left: 18%; width: 38vw; }
+    .story-wall__image--dense-h { width: 78vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-wall__image { transform: none; }
+  }
+</style>
