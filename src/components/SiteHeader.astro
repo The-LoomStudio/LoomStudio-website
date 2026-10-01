@@ -2,8 +2,10 @@
 import { ArrowUpRight, GitFork, Moon, Sun } from '@lucide/astro';
 
 const path = Astro.url.pathname;
-const activeRoute = path.startsWith('/docs')
-  ? 'docs'
+const activeRoute = path.replace(/\/$/, '') === '/docs/architecture'
+  ? 'architecture'
+  : path.startsWith('/docs')
+    ? 'docs'
   : path.startsWith('/marketplace')
     ? 'marketplace'
     : path.startsWith('/showcase')
@@ -17,6 +19,7 @@ const routes = [
   { id: 'marketplace', href: '/marketplace', label: '生态市场', caption: '扩展插件与提示词资源' },
   { id: 'download', href: '/download', label: '客户端下载', caption: '桌面版安装包' },
   { id: 'docs', href: '/docs', label: '公开文档', caption: '架构原理与使用指南' },
+  { id: 'architecture', href: '/docs/architecture', label: '架构地图', caption: '系统模块 · 调用关系与数据路径' },
 ];
 const activeRouteIndex = routes.findIndex((route) => route.id === activeRoute);
 const stageOffset = (index: number) => {
@@ -127,7 +130,6 @@ const stageOffset = (index: number) => {
   syncThemeToggle();
 
   if (trigger && menu) {
-    const backgroundTargets = Array.from(document.querySelectorAll<HTMLElement>('main, footer'));
     const routeStage = menu.querySelector<HTMLElement>('[data-route-stage]');
     const routeLinks = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-route-index]'));
     const currentRouteIndex = Number(routeStage?.dataset.currentIndex ?? 0);
@@ -167,7 +169,7 @@ const stageOffset = (index: number) => {
       trigger.setAttribute('aria-expanded', String(open));
       trigger.setAttribute('aria-label', open ? '关闭页面导航' : '打开页面导航');
       document.documentElement.toggleAttribute('data-menu-open', open);
-      backgroundTargets.forEach((element) => { element.inert = open; });
+      document.querySelectorAll<HTMLElement>('main, footer').forEach((element) => { element.inert = open; });
     };
 
     const transitionMenu = (open: boolean, afterTransition?: () => void) => {
@@ -468,7 +470,9 @@ const stageOffset = (index: number) => {
     color: var(--loom-site-text);
     text-align: center;
     cursor: pointer;
-    opacity: 0.42;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
     filter: blur(0.8px);
     transform: translate(-50%, -50%) scale(0.72);
     transform-origin: center;
@@ -478,6 +482,11 @@ const stageOffset = (index: number) => {
       transform 520ms cubic-bezier(.22, .8, .2, 1);
   }
 
+  .route-menu__route:is([data-stage-offset='-2'], [data-stage-offset='-1'], [data-stage-offset='0'], [data-stage-offset='1'], [data-stage-offset='2']) {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .route-menu__route:is([data-stage-offset='-2'], [data-stage-offset='2']) { opacity: 0.42; }
   .route-menu__route[data-stage-offset='-2'] {
     transform: translate(-50%, -50%) translateX(clamp(-660px, -43vw, -390px)) scale(0.72);
   }

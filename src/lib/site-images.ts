@@ -13,6 +13,7 @@ const sources = import.meta.glob<ImageMetadata>([
   '/public/images/cards/display/*.png',
   '/public/images/nom/banners/nom-banner-{001,003,005,006,007,008,009,010,011,012,014,015,016,017,018,020,021}.png',
   '/public/images/nom/illustrations/nom-illustration-{001,004,007}.png',
+  '/public/images/nom/expressions/nom-expression-001.png',
   '/public/images/nom/layers/nom-layer-{002,004,composite-002-004}.png',
   '/public/brand/banner.png',
 ], { eager: true, import: 'default' })

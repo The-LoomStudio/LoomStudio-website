@@ -51,6 +51,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     <aside class="docs-nav" aria-label="文档导航">
       <div class="docs-nav__inner">
         <p class="docs-nav__title">DOCUMENTATION</p>
+        <a class="docs-nav__link" href="/docs/architecture">开发者架构地图 ↗</a>
         <div class="docs-nav__groups">
           {groups.map((group) => {
             const active = group.links.some((link) => path === link.href);

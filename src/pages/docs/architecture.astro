@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchitectureMap from '../../components/architecture-map/ArchitectureMap';
+import SiteHeader from '../../components/SiteHeader.astro';
+import { siteImage } from '../../lib/site-images';
+const nom = await siteImage('/images/nom/expressions/nom-expression-001.png', [96, 192, 256]);
+const cardCover = await siteImage('/images/cards/display/card-001.png', [96, 192]);
+---
+
+<BaseLayout title="架构地图" description="Loom Studio 的交互式开发者架构地图：追踪角色导入、剧情创建、Agent、模型、工具与本地数据的实际路径。">
+  <div class="architecture-page">
+    <SiteHeader />
+    <ArchitectureMap nom={nom} cardCover={cardCover} client:only="react">
+      <div slot="fallback" class="map-loading" role="status">正在加载 Loom Studio 架构地图…</div>
+    </ArchitectureMap>
+  </div>
+  <noscript>架构地图需要 JavaScript。<a href="/docs/concepts/agent-sessions">阅读 Agent Session 文档</a></noscript>
+</BaseLayout>
+
+<style>
+  .map-loading {
+    height: 100svh;
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+  }
+</style>
+
+<style is:global>
+  .architecture-page .theme-toggle {
+    top: 64px;
+    left: 10px;
+    right: auto;
+  }
+</style>

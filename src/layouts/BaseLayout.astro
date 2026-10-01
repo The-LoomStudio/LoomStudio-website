@@ -73,7 +73,7 @@ const pageTitle = title === 'Loom Studio'
     <link rel="icon" type="image/png" href="/brand/website_logo.png" />
     <link rel="apple-touch-icon" href="/brand/website_logo.png" />
     <title>{pageTitle}</title>
-    {Astro.url.pathname === '/' && <>
+    {(Astro.url.pathname === '/' || Astro.url.pathname === '/docs/architecture') && <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />

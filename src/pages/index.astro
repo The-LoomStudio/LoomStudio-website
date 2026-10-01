@@ -8,6 +8,7 @@ import CardStack, { stackCards } from '../components/card-showcase/CardStack';
 import HeroBanner, { slides, bottomSlides } from '../components/HeroBanner';
 import StoryParallaxWall from '../components/StoryParallaxWall.astro';
 import { siteImage } from '../lib/site-images';
+import { ArrowUpRight } from '@lucide/astro';
 
 const cardImages = Object.fromEntries(await Promise.all(cards.map(async ({ src }) => [src, await siteImage(src, [188, 376])])));
 const stackImages = Object.fromEntries(stackCards.map(({ src }) => [src, cardImages[src]]));
@@ -136,6 +137,7 @@ const features = [
           正文讲故事，Agent 理线索，构建器把需要的设定送给模型。<br />
           每一步都有迹可循，你可以安心游玩，也可以随时掀开幕布，动手改一改。
         </p>
+        <a class="architecture__map" href="/docs/architecture">开发者架构地图 <ArrowUpRight size={18} aria-hidden="true" /></a>
       </div>
     </section>
 
@@ -670,6 +672,17 @@ const features = [
   .architecture__flow b { font: 600 16px var(--loom-site-font-display); }
   .architecture__flow span { color: var(--loom-site-text-subtle); font-size: 10px; }
   .architecture__flow > i { color: var(--loom-site-text-subtle); font-style: normal; }
+  .architecture__map {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    padding: 7px 0;
+    border-bottom: 1px solid currentColor;
+    color: var(--loom-site-accent);
+    font-size: 14px;
+  }
+  .architecture__map:hover { color: var(--loom-site-text); }
   .architecture__note {
     max-width: 680px;
     margin: 44px auto 0;
