@@ -1,0 +1,208 @@
+---
+import { ArrowUpRight, Check, ChevronDown, Construction, Feather, Megaphone, MoveDown, Sparkles } from '@lucide/astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { siteImage } from '../lib/site-images';
+
+const [logo, cover, postcard] = await Promise.all([
+  siteImage('/brand/banner.png', [360, 720, 1080], 90),
+  siteImage('/images/nom/banners/nom-banner-015.png', [480, 960]),
+  siteImage('/images/nom/banners/nom-banner-003.png', [480, 960]),
+]);
+const categories = [
+  ['all', '全部'],
+  ['update', '更新'],
+  ['fix', '修复'],
+  ['journal', '随笔'],
+];
+---
+
+<BaseLayout title="News" description="Loom Studio 的新闻、官网更新、修复记录与开发随笔。">
+  <SiteHeader />
+  <main class="news">
+    <header class="news-heading">
+      <a href="/" aria-label="Loom Studio 首页" class="news-logo">
+        <img src={logo.src} srcset={logo.srcSet} width={logo.width} height={logo.height}
+          sizes="(max-width: 600px) 80vw, 420px" alt="Loom Studio" fetchpriority="high" />
+      </a>
+      <h1>News <span>/ 工作室手记</span></h1>
+      <p>新消息、小修补，还有创作途中的一点灵感。</p>
+    </header>
+
+    <fieldset class="news-filters">
+      <legend class="sr-only">消息分类</legend>
+      {categories.map(([value, label]) => (
+        <label>
+          <input type="radio" name="news-category" value={value} checked={value === 'all'} />
+          <span>{label}</span>
+        </label>
+      ))}
+    </fieldset>
+
+    <section class="news-board" aria-label="新闻与手记">
+      <article class="news-item news-cover" data-category="update">
+        <img class="news-cover__image" src={cover.src} srcset={cover.srcSet}
+          width={cover.width} height={cover.height} sizes="(max-width: 680px) 90vw, 380px"
+          alt="诺姆捧着书，站在 Loom Studio 文字前" />
+        <div class="news-copy">
+          <span class="news-tag">WEBSITE / 官网更新</span>
+          <h2>沿着斜线，<br />遇见下一页。</h2>
+          <p>全屏 Menu 换上了新的图文编排。图片、标题与小段文字沿斜线展开，每个入口都有自己的样子。</p>
+          <footer><time datetime="2026-10-07">2026.10.07</time><Sparkles size={19} aria-hidden="true" /></footer>
+        </div>
+      </article>
+
+      <article class="news-item news-ticket" data-category="fix">
+        <header><span class="news-tag">修复记录</span><MoveDown size={22} aria-hidden="true" /></header>
+        <div class="ticket-perforation" aria-hidden="true"></div>
+        <h2>上下滑，<br />就好啦。</h2>
+        <p>移动端 Menu 现在跟随手指的纵向移动，不必顺着画面的斜线划。横向偏移也不会再影响滑动速度。</p>
+        <footer><time datetime="2026-10-07">2026.10.07</time><span>TOUCH / FIXED</span></footer>
+      </article>
+
+      <article class="news-item news-welcome" data-category="update">
+        <span class="news-sticker">Hello, News!</span>
+        <Megaphone size={32} stroke-width={1.7} aria-hidden="true" />
+        <h2>工作室的<br />小小公告板。</h2>
+        <p>新闻、更新通知、Bug 修复，今后都在这里见。也为偶尔想写的个人博客，留一个位置。</p>
+        <footer><time datetime="2026-10-07">2026.10.07</time><span>第一张便签</span></footer>
+      </article>
+
+      <article class="news-item news-postcard" data-category="journal">
+        <span class="news-tape" aria-hidden="true"></span>
+        <img src={postcard.src} srcset={postcard.srcSet} width={postcard.width} height={postcard.height}
+          sizes="(max-width: 680px) 90vw, 380px" alt="诺姆与书本的插画" loading="lazy" />
+        <span class="news-tag">从工作台寄来</span>
+        <h2>故事背后的地图</h2>
+        <p>正文、推演与上下文，如何在工作台里相遇？沿着架构地图的连线，看看故事背后的结构。</p>
+        <a href="/docs/architecture">去地图逛逛 <ArrowUpRight size={18} aria-hidden="true" /></a>
+      </article>
+
+      <article class="news-item news-checklist" data-category="update">
+        <span class="news-sticker">Little things</span>
+        <span class="news-tag">交互小记</span>
+        <h2>多一点停留，<br />少一点匆忙。</h2>
+        <p>这次 Menu 的几个小变化，放在一起记下来。</p>
+        <ul>
+          <li><Check size={17} aria-hidden="true" />更有重量的滚动阻尼</li>
+          <li><Check size={17} aria-hidden="true" />图片内部更明显的视差</li>
+          <li><Check size={17} aria-hidden="true" />首尾相接的循环浏览</li>
+        </ul>
+        <details>
+          <summary>还有两个熟悉的细节 <ChevronDown size={18} aria-hidden="true" /></summary>
+          <p>Menu 按钮的线条动画和进入页面时的卷帘转场都保留下来。图片用于展示，不需要和目标页的首屏一一对应。</p>
+        </details>
+        <footer><time datetime="2026-10-07">2026.10.07</time><span>MENU NOTES</span></footer>
+      </article>
+
+      <article class="news-item news-note" data-category="journal">
+        <Feather size={28} stroke-width={1.6} aria-hidden="true" />
+        <span class="news-tag">设计手记 / 01</span>
+        <h2>同一个工作室，<br />不必同一种排版。</h2>
+        <p>有的入口适合大幅插画，有的适合两张错落的图片，还有的应该先看见文字。</p>
+        <p>这次给每个导航做了不同的编排，也让这个公告板保留一点不整齐的趣味。</p>
+        <footer><span>LOOM STUDIO</span><time datetime="2026-10-07">2026.10.07</time></footer>
+      </article>
+
+      <article class="news-item news-coming" data-category="journal">
+        <Construction size={24} aria-hidden="true" />
+        <span class="news-tag">待续</span>
+        <h2>下一篇，慢慢写。</h2>
+        <p>这里也留给未来的个人博客。暂时没有新的文章，就先让灵感长一会儿。</p>
+      </article>
+    </section>
+    <p class="news-end">这一页，先记到这里。<span aria-hidden="true">✳</span></p>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .news {
+    --news-ink: #293238;
+    --news-muted: #58646a;
+    --news-yellow: #f4d06f;
+    --news-heading: "Fredoka", "ZCOOL KuaiLe", var(--loom-site-font-display);
+    width: min(1200px, calc(100% - 160px));
+    margin: 0 auto;
+    padding: 92px 0 28px;
+    font-family: "Nunito", var(--loom-site-font-sans);
+    letter-spacing: 0;
+  }
+  .news-heading { text-align: center; margin-bottom: 30px; }
+  .news-logo { display: block; width: min(420px, 100%); margin: auto; transition: transform 220ms ease; }
+  .news-logo:hover { transform: rotate(-1deg); }
+  .news-logo img { width: 100%; height: auto; }
+  .news-heading h1 { margin: 14px 0 8px; font: 500 30px/1.4 var(--news-heading); }
+  .news-heading h1 span { font-size: 19px; }
+  .news-heading p { margin: 0; font-size: 14px; color: var(--loom-site-text-muted); }
+  .news-filters { display: flex; justify-content: center; gap: 8px; margin: 0 0 42px; padding: 0; border: 0; }
+  .news-filters label { position: relative; cursor: pointer; }
+  .news-filters input, .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .news-filters span { display: block; padding: 9px 22px; border-radius: 999px; font-size: 14px; color: var(--loom-site-text); }
+  .news-filters input:checked + span { background: var(--news-yellow); color: var(--news-ink); }
+  .news-filters input:focus-visible + span { outline: 2px solid var(--loom-site-text); outline-offset: 4px; }
+  .news-filters label:hover span { box-shadow: inset 0 0 0 1px currentColor; }
+  .news-board { columns: 3; column-gap: 30px; padding-top: 14px; }
+  .news-item { position: relative; break-inside: avoid; margin: 0 0 32px; padding: 28px; background: #fff; color: var(--news-ink); border-radius: 8px; overflow-wrap: anywhere; }
+  .news-item h2 { margin: 16px 0 12px; font: 500 27px/1.3 var(--news-heading); }
+  .news-item p { font-size: 14px; line-height: 1.85; color: var(--news-muted); margin: 0 0 16px; }
+  .news-tag { display: inline-block; font-size: 11px; font-weight: 700; }
+  .news-item footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 26px; font-size: 10px; color: var(--news-muted); }
+  .news-cover { padding: 0; }
+  .news-cover__image { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px 8px 0 0; }
+  .news-copy { padding: 30px 26px 24px; position: relative; }
+  .news-copy > .news-tag { margin-top: -47px; margin-bottom: 4px; position: relative; display: table; padding: 9px 12px; background: var(--news-yellow); border: 5px solid white; border-radius: 999px; transform: rotate(-3deg); }
+  .news-ticket { background: #fafcfb; }
+  .news-ticket header { display: flex; justify-content: space-between; align-items: center; }
+  .ticket-perforation { position: relative; border-top: 2px dashed #bccac6; margin: 26px -4px; }
+  .ticket-perforation::before, .ticket-perforation::after { content: ""; position: absolute; top: -13px; width: 24px; height: 24px; background: var(--loom-site-bg); border-radius: 50%; }
+  .ticket-perforation::before { left: -36px; }
+  .ticket-perforation::after { right: -36px; }
+  .news-welcome { background: #d9eee4; padding-top: 38px; border-radius: 8px 8px 32px 8px; }
+  .news-sticker { display: block; width: fit-content; position: relative; margin: -42px 0 22px; color: #66529b; font: 600 25px/1.3 var(--news-heading); -webkit-text-stroke: 6px white; paint-order: stroke fill; transform: rotate(-5deg); }
+  .news-welcome .news-sticker { color: #8a4f38; margin-top: -53px; }
+  .news-postcard { padding: 14px 14px 26px; transform: rotate(-1.5deg); text-align: center; margin-top: 14px; }
+  .news-postcard img { width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: cover; margin-bottom: 20px; }
+  .news-postcard h2 { font-size: 24px; }
+  .news-postcard p { padding: 0 8px; }
+  .news-postcard a { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; border-bottom: 1px solid #92a39b; padding-bottom: 4px; }
+  .news-tape { position: absolute; z-index: 1; width: 88px; height: 26px; left: calc(50% - 44px); top: -11px; background: #f4d06fe6; transform: rotate(4deg); }
+  .news-checklist { margin-top: 18px; padding-top: 30px; }
+  .news-checklist ul { list-style: none; padding: 0; margin: 22px 0; }
+  .news-checklist li { display: flex; align-items: center; gap: 9px; font-size: 13px; margin: 12px 0; }
+  .news-checklist li svg { flex-shrink: 0; color: #427562; }
+  .news-checklist details { border-top: 1px dashed #c7cccf; border-bottom: 1px dashed #c7cccf; }
+  .news-checklist summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; padding: 16px 0; font-size: 13px; list-style: none; }
+  .news-checklist summary::-webkit-details-marker { display: none; }
+  .news-checklist summary svg { flex-shrink: 0; transition: transform 180ms ease; }
+  .news-checklist details[open] summary svg { transform: rotate(180deg); }
+  .news-checklist details p { font-size: 13px; }
+  .news-note { background: #e8def3; border-radius: 8px 30px 8px 8px; }
+  .news-note > svg { display: block; margin-bottom: 18px; }
+  .news-note h2 { font-size: 25px; }
+  .news-coming { background: transparent; color: var(--loom-site-text); border: 1px dashed var(--loom-site-border-strong); }
+  .news-coming > svg { vertical-align: middle; margin-right: 10px; }
+  .news-coming h2 { font-size: 23px; }
+  .news-coming p { color: var(--loom-site-text-muted); margin-bottom: 0; }
+  .news-end { text-align: center; margin: 26px 0; font-size: 13px; color: var(--loom-site-text-muted); }
+  .news-end span { display: block; margin-top: 16px; color: var(--news-yellow); font-size: 30px; }
+  .news:has(input[value="update"]:checked) .news-item:not([data-category="update"]),
+  .news:has(input[value="fix"]:checked) .news-item:not([data-category="fix"]),
+  .news:has(input[value="journal"]:checked) .news-item:not([data-category="journal"]) { display: none; }
+  @media (max-width: 1100px) {
+    .news { width: calc(100% - 80px); padding-top: 108px; }
+    .news-board { columns: 2; }
+  }
+  @media (max-width: 680px) {
+    .news { width: calc(100% - 40px); }
+    .news-logo { width: min(340px, 100%); }
+    .news-board { columns: 1; max-width: 440px; margin: auto; }
+    .news-filters span { padding: 9px 18px; }
+    .news-heading h1 { font-size: 27px; }
+    .news-heading p { font-size: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .news-logo, .news-checklist summary svg { transition: none; }
+  }
+</style>

@@ -1,114 +1,127 @@
 ---
-import { ArrowUpRight, GitFork, Moon, Sun } from '@lucide/astro';
+import { ArrowDownRight, ArrowUpLeft, ArrowUpRight, Moon, Sun } from '@lucide/astro';
+import { siteImage } from '../lib/site-images';
 
-const path = Astro.url.pathname;
-const activeRoute = path.replace(/\/$/, '') === '/docs/architecture'
-  ? 'architecture'
-  : path.startsWith('/docs')
-    ? 'docs'
-  : path.startsWith('/marketplace')
-    ? 'marketplace'
-    : path.startsWith('/showcase')
-      ? 'showcase'
-      : path.startsWith('/download')
-        ? 'download'
-        : 'home';
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const routes = [
-  { id: 'home', href: '/', label: '发布', caption: '产品主页 · 编织世界，交织故事' },
-  { id: 'showcase', href: '/showcase', label: '作品展厅', caption: '长篇叙事案例' },
-  { id: 'marketplace', href: '/marketplace', label: '生态市场', caption: '扩展插件与提示词资源' },
-  { id: 'download', href: '/download', label: '客户端下载', caption: '桌面版安装包' },
-  { id: 'docs', href: '/docs', label: '公开文档', caption: '架构原理与使用指南' },
-  { id: 'architecture', href: '/docs/architecture', label: '架构地图', caption: '系统模块 · 调用关系与数据路径' },
+  { id: 'home', href: '/', label: '发布', short: '首页', caption: '编织世界，交织故事。从一位角色开始，留下属于你的世界线。', image: 'banners/nom-banner-015.png', detail: 'illustrations/nom-illustration-004.png' },
+  { id: 'showcase', href: '/showcase', label: '作品展厅', short: '展厅', caption: '一封来信，一座陌生的城。每一次选择，都有新的故事。', image: 'illustrations/nom-illustration-001.png', detail: 'banners/nom-banner-020.png' },
+  { id: 'marketplace', href: '/marketplace', label: '生态市场', short: '市场', caption: '角色、设定与创作的工具。为你的世界，寻找新的灵感。', image: 'banners/nom-banner-017.png', detail: 'banners/nom-banner-007.png' },
+  { id: 'download', href: '/download', label: '客户端下载', short: '下载', caption: '把故事带回自己的工作台。下一段旅程，从这里开始。', image: 'banners/nom-banner-009.png', detail: 'banners/nom-banner-016.png' },
+  { id: 'docs', href: '/docs', label: '公开文档', short: '文档', caption: '翻开工作台的使用手册。从第一步，到故事的深处。', image: 'illustrations/nom-illustration-007.png', detail: 'banners/nom-banner-014.png' },
+  { id: 'architecture', href: '/docs/architecture', label: '架构地图', short: '架构', caption: '正文、推演与上下文。沿着一条线，走进工作台的幕后。', image: 'banners/nom-banner-003.png', detail: 'banners/nom-banner-012.png' },
+  { id: 'news', href: '/news', label: '工作室手记', short: 'News', caption: '新消息、小修补，还有创作途中的一点灵感。来公告板前，看看最近的故事。', image: 'banners/nom-banner-018.png', detail: 'banners/nom-banner-021.png' },
 ];
+const activeRoute = path === '/docs/architecture'
+  ? 'architecture'
+  : path.startsWith('/docs') ? 'docs'
+  : routes.find((route) => route.href === path)?.id ?? 'home';
 const activeRouteIndex = routes.findIndex((route) => route.id === activeRoute);
-const stageOffset = (index: number) => {
-  const half = Math.floor(routes.length / 2);
-  let offset = index - activeRouteIndex;
-  if (offset > half) offset -= routes.length;
-  if (offset < -half) offset += routes.length;
-  return offset;
-};
+const images = await Promise.all(routes.map((route) => siteImage(`/images/nom/${route.image}`, [480, 960])));
+const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/${route.detail}`, [320, 640])));
 ---
 
-<header class="site-controls">
-  <button
-    class="menu-trigger"
-    type="button"
-    aria-label="打开页面导航"
-    aria-controls="route-menu"
-    aria-expanded="false"
-    data-menu-trigger
-  >
-    <i class="menu-trigger__line menu-trigger__line--top"></i>
-    <i class="menu-trigger__line menu-trigger__line--middle"></i>
-    <i class="menu-trigger__line menu-trigger__line--bottom"></i>
+<header class:list={['site-controls', { 'site-controls--compact': activeRoute === 'docs' }]}>
+  <button class="site-icon menu-trigger" type="button" aria-label="打开页面导航"
+    title="打开页面导航" aria-controls="route-menu" aria-expanded="false" data-menu-trigger>
+    <i class="menu-trigger__line menu-trigger__line--top" aria-hidden="true"></i>
+    <i class="menu-trigger__line menu-trigger__line--middle" aria-hidden="true"></i>
+    <i class="menu-trigger__line menu-trigger__line--bottom" aria-hidden="true"></i>
   </button>
-
+  <nav class="site-quick-nav" aria-label="快捷导航">
+    {routes.map((route) => (
+      <a href={route.href} aria-label={route.label}
+        aria-current={route.id === activeRoute ? 'page' : undefined}>{route.short}</a>
+    ))}
+  </nav>
   {activeRoute !== 'home' && (
-    <button class="theme-toggle" type="button" aria-label="切换至暗色模式" aria-pressed="false" title="切换至暗色模式" data-theme-toggle>
-      <Sun class="theme-toggle__sun" size={23} stroke-width={1.8} aria-hidden="true" />
-      <Moon class="theme-toggle__moon" size={22} stroke-width={1.8} aria-hidden="true" />
+    <button class="site-icon theme-toggle" type="button" aria-label="切换至暗色模式"
+      aria-pressed="false" title="切换至暗色模式" data-theme-toggle>
+      <Sun class="theme-toggle__sun" size={22} stroke-width={1.6} aria-hidden="true" />
+      <Moon class="theme-toggle__moon" size={22} stroke-width={1.6} aria-hidden="true" />
     </button>
   )}
 </header>
 
-<div
-  class="route-menu"
-  id="route-menu"
-  role="dialog"
-  aria-modal="true"
-  aria-label="页面导航"
-  aria-hidden="true"
-  data-route-menu
-  hidden
-  inert
->
-  <div class="route-menu__content">
+<dialog class="route-menu" id="route-menu" aria-label="页面导航" data-route-menu
+  data-current-index={activeRouteIndex}>
+  <button class="site-icon menu-close" type="button" aria-label="关闭页面导航" title="关闭页面导航" data-menu-close autofocus>
+    <i class="menu-trigger__line menu-trigger__line--top" aria-hidden="true"></i>
+    <i class="menu-trigger__line menu-trigger__line--middle" aria-hidden="true"></i>
+    <i class="menu-trigger__line menu-trigger__line--bottom" aria-hidden="true"></i>
+  </button>
+  <div class="route-menu__surface">
+  <div class="route-menu__header">
     <a class="route-menu__brand" href="/" data-menu-link>
-      <img src="/brand/loom-logo.png" alt="" width="38" height="38" />
+      <img src="/brand/loom-logo.png" alt="" width="28" height="28" />
       <span>Loom Studio</span>
-      <small>PAGE / WORLDLINE NAVIGATION</small>
     </a>
+    <span class="route-menu__edition" aria-hidden="true">世界与故事 / INDEX</span>
+  </div>
 
-    <nav class="route-menu__routes" aria-label="页面入口" data-route-stage data-current-index={activeRouteIndex} tabindex="0">
-      {routes.map((route, index) => {
-        const offset = stageOffset(index);
-        const titleLength = Array.from(route.label).length;
-        const titleSize = titleLength >= 8 ? 'long' : titleLength >= 4 ? 'medium' : 'short';
-        return (
-          <a
-            class:list={['route-menu__route', { active: route.id === activeRoute }]}
-            href={route.href}
-            aria-current={route.id === activeRoute ? 'page' : undefined}
-            data-menu-link
-            data-route-index={index}
-            data-front={offset === 0 ? 'true' : undefined}
-            draggable="false"
-            data-stage-offset={offset}
-            style={`z-index:${10 - Math.abs(offset)}`}
-          >
-            <small>{String(index).padStart(2, '0')} / {route.id === activeRoute ? 'CURRENT' : 'PAGE'}</small>
-            <span class="route-menu__route-title" data-title-size={titleSize}>{route.label}</span>
-            <em>{route.caption}</em>
+  <div class="route-menu__scroll" data-menu-scroll tabindex="0" aria-label="页面索引">
+    <div class="route-menu__track">
+      <nav class="route-menu__stage" aria-label="页面入口">
+        {routes.map((route, index) => (
+          <a class="route-menu__entry"
+            href={route.href} aria-current={route.id === activeRoute ? 'page' : undefined}
+            data-route-index={index} data-composition={route.id} data-menu-link draggable="false" style={`--offset:${index - activeRouteIndex}`}>
+            <span class="route-menu__meta">
+              <span>{String(index + 1).padStart(2, '0')} / {route.id.toUpperCase()}</span>
+              {route.id === activeRoute && <span>当前页面</span>}
+            </span>
+            <span class="route-menu__image route-menu__image--main">
+              <img src={images[index].src} srcset={images[index].srcSet}
+                width={images[index].width} height={images[index].height}
+                sizes="(max-width: 600px) 50vw, 480px" alt="" loading="lazy" decoding="async" draggable="false" />
+            </span>
+            <span class="route-menu__image route-menu__image--detail">
+              <img src={details[index].src} srcset={details[index].srcSet}
+                width={details[index].width} height={details[index].height}
+                sizes="(max-width: 600px) 32vw, 300px" alt="" loading="lazy" decoding="async" draggable="false" />
+            </span>
+            <span class="route-menu__title">{route.label}<ArrowUpRight size={24} stroke-width={1.4} aria-hidden="true" /></span>
+            <span class="route-menu__caption">{route.caption}</span>
           </a>
-        );
-      })}
-    </nav>
-
-    <div class="route-menu__footer">
-      <a class="route-menu__github" href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">
-        <GitFork size={14} stroke-width={1.7} /> GitHub <ArrowUpRight size={13} stroke-width={1.7} />
-      </a>
+        ))}
+      </nav>
     </div>
   </div>
-</div>
+
+  <div class="route-menu__footer">
+    <span class="route-menu__position"><b data-menu-counter>{String(activeRouteIndex + 1).padStart(2, '0')}</b> / {String(routes.length).padStart(2, '0')}</span>
+    <div class="route-menu__steps">
+      <button class="site-icon" type="button" aria-label="上一项" title="上一项" data-menu-previous>
+        <ArrowUpLeft size={22} stroke-width={1.5} aria-hidden="true" />
+      </button>
+      <button class="site-icon" type="button" aria-label="下一项" title="下一项" data-menu-next>
+        <ArrowDownRight size={22} stroke-width={1.5} aria-hidden="true" />
+      </button>
+    </div>
+    <a class="route-menu__github" href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">
+      GitHub <ArrowUpRight size={14} aria-hidden="true" />
+    </a>
+  </div>
+  </div>
+</dialog>
 
 <script>
-  const trigger = document.querySelector<HTMLButtonElement>('[data-menu-trigger]');
-  const menu = document.querySelector<HTMLElement>('[data-route-menu]');
+  const trigger = document.querySelector<HTMLButtonElement>('[data-menu-trigger]')!;
+  const menu = document.querySelector<HTMLDialogElement>('[data-route-menu]')!;
+  const scroller = menu.querySelector<HTMLElement>('[data-menu-scroll]')!;
+  const surface = menu.querySelector<HTMLElement>('.route-menu__surface')!;
+  const links = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-route-index]'));
+  const previous = menu.querySelector<HTMLButtonElement>('[data-menu-previous]')!;
+  const next = menu.querySelector<HTMLButtonElement>('[data-menu-next]')!;
+  const counter = menu.querySelector<HTMLElement>('[data-menu-counter]')!;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const themeToggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-  let menuAnimating = false;
+  let progress = Number(menu.dataset.currentIndex);
+  let targetProgress = progress;
+  let frame = 0;
+  let lastTime = 0;
+  let drag: { id: number; x: number; y: number; start: number } | null = null;
+  let dragged = false;
 
   const syncThemeToggle = () => {
     if (!themeToggle) return;
@@ -118,7 +131,6 @@ const stageOffset = (index: number) => {
     themeToggle.setAttribute('aria-label', label);
     themeToggle.title = label;
   };
-
   themeToggle?.addEventListener('click', () => {
     const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = theme;
@@ -129,171 +141,180 @@ const stageOffset = (index: number) => {
   });
   syncThemeToggle();
 
-  if (trigger && menu) {
-    const routeStage = menu.querySelector<HTMLElement>('[data-route-stage]');
-    const routeLinks = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-route-index]'));
-    const currentRouteIndex = Number(routeStage?.dataset.currentIndex ?? 0);
-    let stagedRouteIndex = currentRouteIndex;
-    let wheelDistance = 0;
-    let lastWheelStepAt = 0;
-    let activePointerId: number | null = null;
-    let pointerAnchorX = 0;
-    let pointerStartY = 0;
-    let pointerMoved = false;
-    let suppressRouteClick = false;
-
-    const circularRouteOffset = (index: number, center: number) => {
-      const half = Math.floor(routeLinks.length / 2);
-      let offset = index - center;
-      if (offset > half) offset -= routeLinks.length;
-      if (offset < -half) offset += routeLinks.length;
-      return offset;
-    };
-
-    const stageRoute = (index: number, moveFocus = false) => {
-      stagedRouteIndex = index;
-      routeLinks.forEach((link, routeIndex) => {
-        const offset = circularRouteOffset(routeIndex, index);
-        const distance = Math.abs(offset);
-        link.dataset.stageOffset = String(offset);
-        link.style.zIndex = String(10 - distance);
-        link.toggleAttribute('data-front', distance === 0);
-      });
-      if (moveFocus) routeLinks[index]?.focus({ preventScroll: true });
-    };
-
-    const commitMenuState = (open: boolean) => {
-      menu.hidden = !open;
-      menu.inert = !open;
-      menu.setAttribute('aria-hidden', String(!open));
-      trigger.setAttribute('aria-expanded', String(open));
-      trigger.setAttribute('aria-label', open ? '关闭页面导航' : '打开页面导航');
-      document.documentElement.toggleAttribute('data-menu-open', open);
-      document.querySelectorAll<HTMLElement>('main, footer').forEach((element) => { element.inert = open; });
-    };
-
-    const transitionMenu = (open: boolean, afterTransition?: () => void) => {
-      if (menuAnimating || open === !menu.hidden) return;
-      if (open) stageRoute(currentRouteIndex);
-      menuAnimating = true;
-      document.documentElement.dataset.menuTransition = open ? 'opening' : 'closing';
-
-      const update = () => commitMenuState(open);
-      const transition = document.startViewTransition?.(update);
-      if (!transition) update();
-
-      const finished = transition?.finished ?? Promise.resolve();
-      finished
-        .catch(() => {})
-        .finally(() => {
-          delete document.documentElement.dataset.menuTransition;
-          menuAnimating = false;
-          afterTransition?.();
-        });
-    };
-
-    trigger.addEventListener('click', () => transitionMenu(menu.hasAttribute('hidden')));
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !menu.hidden) transitionMenu(false);
-    });
-
-    routeStage?.addEventListener('keydown', (event) => {
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-      const direction = event.key === 'ArrowRight' ? 1 : -1;
-      const nextIndex = (stagedRouteIndex + direction + routeLinks.length) % routeLinks.length;
-      stageRoute(nextIndex, true);
-      event.preventDefault();
-    });
-
-    routeStage?.addEventListener('wheel', (event) => {
-      const rawDistance = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-      const distance = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? rawDistance * 16 : rawDistance;
-      const now = performance.now();
-      event.preventDefault();
-
-      if (now - lastWheelStepAt < 170) return;
-      if (wheelDistance && Math.sign(wheelDistance) !== Math.sign(distance)) wheelDistance = 0;
-      wheelDistance += distance;
-      if (Math.abs(wheelDistance) < 42) return;
-
-      const direction = wheelDistance > 0 ? 1 : -1;
-      const nextIndex = (stagedRouteIndex + direction + routeLinks.length) % routeLinks.length;
-      wheelDistance = 0;
-      lastWheelStepAt = now;
-      stageRoute(nextIndex);
-    }, { passive: false });
-
-    routeStage?.addEventListener('pointerdown', (event) => {
-      if (!event.isPrimary || event.button !== 0 || event.pointerType === 'mouse') return;
-      activePointerId = event.pointerId;
-      pointerAnchorX = event.clientX;
-      pointerStartY = event.clientY;
-      pointerMoved = false;
-      routeStage.setPointerCapture(event.pointerId);
-      routeStage.toggleAttribute('data-dragging', true);
-    });
-
-    routeStage?.addEventListener('pointermove', (event) => {
-      if (event.pointerId !== activePointerId) return;
-      const horizontalDistance = event.clientX - pointerAnchorX;
-      const verticalDistance = event.clientY - pointerStartY;
-      if (!pointerMoved && Math.abs(horizontalDistance) <= Math.max(8, Math.abs(verticalDistance))) return;
-      if (Math.abs(horizontalDistance) < 48) return;
-
-      event.preventDefault();
-      const direction = horizontalDistance < 0 ? 1 : -1;
-      const nextIndex = (stagedRouteIndex + direction + routeLinks.length) % routeLinks.length;
-      pointerAnchorX = event.clientX;
-      pointerStartY = event.clientY;
-      pointerMoved = true;
-      suppressRouteClick = true;
-      stageRoute(nextIndex);
-    });
-
-    const finishPointerInteraction = (event: PointerEvent) => {
-      if (!routeStage || event.pointerId !== activePointerId) return;
-      if (routeStage.hasPointerCapture(event.pointerId)) routeStage.releasePointerCapture(event.pointerId);
-      activePointerId = null;
-      routeStage.removeAttribute('data-dragging');
-      if (pointerMoved) window.setTimeout(() => { suppressRouteClick = false; }, 80);
-    };
-
-    routeStage?.addEventListener('pointerup', finishPointerInteraction);
-    routeStage?.addEventListener('pointercancel', finishPointerInteraction);
-    routeStage?.addEventListener('dragstart', (event) => event.preventDefault());
-
-    menu.querySelectorAll<HTMLAnchorElement>('[data-menu-link]').forEach((link) => {
-      link.addEventListener('click', (event) => {
-        const destination = new URL(link.href, window.location.href);
-        const sameDocument = destination.pathname === window.location.pathname && destination.search === window.location.search;
-        const routeIndex = Number(link.dataset.routeIndex);
+  const wrap = (value: number) => ((value % links.length) + links.length) % links.length;
+  const offsetFrom = (index: number, position: number) => wrap(index - position + links.length / 2) - links.length / 2;
+  const paint = () => {
+    const position = reduceMotion.matches ? Math.round(progress) : progress;
+    links.forEach((link, index) => link.style.setProperty('--offset', String(offsetFrom(index, position))));
+    counter.textContent = String(wrap(Math.round(progress)) + 1).padStart(2, '0');
+  };
+  const render = (time: number) => {
+    frame = 0;
+    if (!menu.open || document.hidden) return;
+    const elapsed = Math.min(time - lastTime, 64);
+    lastTime = time;
+    progress = reduceMotion.matches
+      ? targetProgress
+      : progress + (targetProgress - progress) * (1 - Math.exp(-elapsed / 200));
+    if (Math.abs(targetProgress - progress) < 0.0005) {
+      progress = targetProgress;
+      paint();
+      return;
+    }
+    paint();
+    frame = requestAnimationFrame(render);
+  };
+  const requestUpdate = () => {
+    if (menu.open && !document.hidden && !frame) {
+      lastTime = performance.now();
+      frame = requestAnimationFrame(render);
+    }
+  };
+  const goTo = (index: number, immediate = false) => {
+    targetProgress = index;
+    if (immediate || reduceMotion.matches) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      progress = targetProgress = wrap(index);
+      paint();
+    } else requestUpdate();
+  };
+  trigger.addEventListener('click', () => {
+    menu.showModal();
+    document.documentElement.setAttribute('data-menu-open', '');
+    trigger.setAttribute('aria-expanded', 'true');
+    goTo(Number(menu.dataset.currentIndex), true);
+  });
+  const closeMenu = () => {
+    if (menu.hasAttribute('data-closing')) return;
+    if (reduceMotion.matches) {
+      menu.close();
+      return;
+    }
+    menu.setAttribute('data-closing', '');
+  };
+  surface.addEventListener('animationend', (event) => {
+    if (event.target === surface && menu.hasAttribute('data-closing')) menu.close();
+  });
+  menu.querySelector('[data-menu-close]')!.addEventListener('click', closeMenu);
+  menu.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeMenu();
+  });
+  menu.addEventListener('close', () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    drag = null;
+    dragged = false;
+    scroller.removeAttribute('data-dragging');
+    menu.removeAttribute('data-closing');
+    document.documentElement.removeAttribute('data-menu-open');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.focus({ preventScroll: true });
+  });
+  previous.addEventListener('click', () => goTo(Math.round(targetProgress) - 1));
+  next.addEventListener('click', () => goTo(Math.round(targetProgress) + 1));
+  menu.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      const focusable = Array.from(menu.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), [tabindex="0"]'));
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
-
-        if (Number.isInteger(routeIndex) && suppressRouteClick) return;
-
-        if (Number.isInteger(routeIndex) && routeIndex !== stagedRouteIndex) {
-          stageRoute(routeIndex);
-          return;
-        }
-        
-        if (sameDocument) {
-          transitionMenu(false);
-          return;
-        }
-
-        const routeTransitionKey = 'loom-site-route-transition';
-        try {
-          sessionStorage.setItem(routeTransitionKey, JSON.stringify({
-            direction: 'curtain',
-            pathname: destination.pathname,
-            createdAt: Date.now(),
-          }));
-        } catch {}
-
-        window.location.assign(destination.href);
-      });
+        last.focus({ preventScroll: true });
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus({ preventScroll: true });
+      }
+      return;
+    }
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const movements: Record<string, number> = {
+      ArrowLeft: -1, ArrowUp: -1, PageUp: -1,
+      ArrowRight: 1, ArrowDown: 1, PageDown: 1,
+      Home: -wrap(Math.round(targetProgress)), End: links.length - 1 - wrap(Math.round(targetProgress)),
+    };
+    const movement = movements[event.key];
+    if (movement === undefined) return;
+    event.preventDefault();
+    const index = wrap(Math.round(targetProgress) + movement);
+    links[index].focus({ preventScroll: true });
+    goTo(index, true);
+  });
+  // Tab can focus an off-screen link; bring its image and title into the viewport.
+  links.forEach((link, index) => {
+    link.addEventListener('focus', () => {
+      if (link.matches(':focus-visible')) goTo(index, true);
     });
-  }
+  });
+  menu.querySelectorAll<HTMLAnchorElement>('[data-menu-link]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const destination = new URL(link.href);
+      if (destination.pathname === location.pathname && destination.search === location.search) {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+      document.documentElement.dataset.routeTransition = 'curtain';
+      try {
+        sessionStorage.setItem('loom-site-route-transition', JSON.stringify({
+          direction: 'curtain', pathname: destination.pathname, createdAt: Date.now(),
+        }));
+      } catch {}
+    });
+  });
+  // Only the open gallery consumes wheel input; page scrolling remains unchanged.
+  scroller.addEventListener('wheel', (event) => {
+    if (event.ctrlKey || event.metaKey || !event.cancelable) return;
+    event.preventDefault();
+    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? scroller.clientHeight : 1;
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    targetProgress += delta * unit * 0.00055;
+    requestUpdate();
+  }, { passive: false });
+  scroller.addEventListener('pointerdown', (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    dragged = false;
+    drag = { id: event.pointerId, x: event.clientX, y: event.clientY, start: targetProgress };
+  });
+  scroller.addEventListener('pointermove', (event) => {
+    if (!drag || drag.id !== event.pointerId) return;
+    const dx = event.clientX - drag.x;
+    const dy = event.clientY - drag.y;
+    if (!dragged && Math.hypot(dx, dy) < 6) return;
+    dragged = true;
+    scroller.setPointerCapture(event.pointerId);
+    scroller.setAttribute('data-dragging', '');
+    // Touch scrolls vertically; only the presentation moves along the diagonal.
+    targetProgress = drag.start - (event.pointerType === 'mouse' ? (dx + dy) * 0.0012 : dy * 0.002);
+    requestUpdate();
+  });
+  const finishDrag = (event: PointerEvent) => {
+    if (!drag || drag.id !== event.pointerId) return;
+    if (scroller.hasPointerCapture(event.pointerId)) scroller.releasePointerCapture(event.pointerId);
+    scroller.removeAttribute('data-dragging');
+    drag = null;
+  };
+  scroller.addEventListener('pointerup', finishDrag);
+  scroller.addEventListener('pointercancel', finishDrag);
+  scroller.addEventListener('click', (event) => {
+    if (!dragged) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dragged = false;
+  }, { capture: true });
+  scroller.addEventListener('dragstart', (event) => event.preventDefault());
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+    } else requestUpdate();
+  });
+  reduceMotion.addEventListener('change', () => {
+    if (reduceMotion.matches && menu.hasAttribute('data-closing')) menu.close();
+    else requestUpdate();
+  });
 </script>
 
 <style is:global>
@@ -304,26 +325,25 @@ const stageOffset = (index: number) => {
     height: var(--loom-site-header-height);
     pointer-events: none;
   }
-
-  .menu-trigger,
-  .theme-toggle {
-    position: absolute;
-    pointer-events: auto;
-  }
-
-  .menu-trigger {
-    top: 10px;
-    left: 10px;
+  .site-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
     width: 44px;
     height: 44px;
     border: 0;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 0;
-    color: var(--loom-site-text);
+    color: inherit;
     background: transparent;
     cursor: pointer;
+    pointer-events: auto;
   }
-
+  .site-icon:hover { color: var(--loom-site-accent-strong); background: var(--loom-site-accent-soft); }
+  .site-icon:disabled { opacity: .25; cursor: default; background: transparent; }
+  .menu-trigger, .theme-toggle { position: absolute; top: 10px; color: var(--loom-site-text); }
+  .menu-trigger { left: 10px; }
+  .menu-trigger:hover, .menu-close:hover { background: transparent; }
   .menu-trigger__line {
     position: absolute;
     top: 50%;
@@ -332,327 +352,264 @@ const stageOffset = (index: number) => {
     height: 3px;
     border-radius: 999px;
     background: currentColor;
-    filter: drop-shadow(0 2px 3px rgba(4, 8, 13, 0.62));
+    filter: drop-shadow(0 2px 3px rgb(4 8 13 / .62));
     transform: translate(-50%, -50%) rotate(-38deg);
     transform-origin: center;
-    transition:
-      top 320ms cubic-bezier(.55, 0, .1, 1),
-      left 320ms cubic-bezier(.55, 0, .1, 1),
-      width 320ms cubic-bezier(.55, 0, .1, 1),
-      opacity 180ms ease,
-      transform 360ms cubic-bezier(.55, 0, .1, 1);
+    transition: top 320ms ease, left 320ms ease, width 320ms ease, opacity 180ms ease, transform 360ms cubic-bezier(.55, 0, .1, 1);
   }
-
   .menu-trigger__line::before {
-    content: '';
     position: absolute;
     inset: 0;
+    content: '';
     background: var(--loom-site-accent);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 220ms cubic-bezier(.55, 0, .1, 1);
+    transition: transform 220ms ease;
   }
-
-  .menu-trigger:hover .menu-trigger__line::before { transform: scaleX(1); }
+  .menu-trigger:hover .menu-trigger__line::before,
+  .menu-close:hover .menu-trigger__line::before { transform: scaleX(1); }
   .menu-trigger__line--top { top: 14px; left: 18px; width: 12px; }
   .menu-trigger__line--middle { top: 22px; }
   .menu-trigger__line--bottom { top: 30px; left: 26px; width: 12px; }
-
-  html[data-menu-open] .menu-trigger__line--top {
-    top: 22px;
-    left: 22px;
-    width: 24px;
+  .menu-close { position: absolute; z-index: 3; top: 10px; left: 10px; }
+  .route-menu[open]:not([data-closing]) .menu-trigger__line--top {
+    top: 22px; left: 22px; width: 24px;
     transform: translate(-50%, -50%) rotate(45deg);
+    animation: menu-line-top 360ms cubic-bezier(.55, 0, .1, 1);
   }
-
-  html[data-menu-open] .menu-trigger__line--middle {
+  .route-menu[open]:not([data-closing]) .menu-trigger__line--middle {
     opacity: 0;
     transform: translate(-50%, -50%) rotate(-38deg) scaleX(0);
+    animation: menu-line-middle 220ms ease;
   }
-
-  html[data-menu-open] .menu-trigger__line--bottom {
-    top: 22px;
-    left: 22px;
-    width: 24px;
+  .route-menu[open]:not([data-closing]) .menu-trigger__line--bottom {
+    top: 22px; left: 22px; width: 24px;
     transform: translate(-50%, -50%) rotate(-45deg);
+    animation: menu-line-bottom 360ms cubic-bezier(.55, 0, .1, 1);
   }
-
-  .theme-toggle {
-    z-index: 2;
-    top: 10px;
-    right: 10px;
-    width: 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
-    border: 0;
-    border-radius: 8px;
-    padding: 0;
-    color: var(--loom-site-text);
-    background: transparent;
-    cursor: pointer;
-    filter: drop-shadow(0 2px 3px rgba(4, 8, 13, 0.62));
-    view-transition-name: theme-toggle;
-    transition: opacity 180ms ease, transform 180ms ease;
+  @keyframes menu-line-top {
+    from { top: 14px; left: 18px; width: 12px; transform: translate(-50%, -50%) rotate(-38deg); }
   }
-
-  .theme-toggle:hover { transform: translateY(-1px) rotate(8deg) scale(1.06); }
+  @keyframes menu-line-middle {
+    from { opacity: 1; transform: translate(-50%, -50%) rotate(-38deg) scaleX(1); }
+  }
+  @keyframes menu-line-bottom {
+    from { top: 30px; left: 26px; width: 12px; transform: translate(-50%, -50%) rotate(-38deg); }
+  }
+  .theme-toggle { right: 10px; }
   .theme-toggle__moon { display: none; }
   html[data-theme='dark'] .theme-toggle__sun { display: none; }
   html[data-theme='dark'] .theme-toggle__moon { display: block; }
+  .site-quick-nav {
+    position: absolute;
+    top: 62px;
+    left: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    pointer-events: auto;
+    font: 500 12px/1.5 var(--loom-site-font-sans);
+    letter-spacing: 0;
+    text-shadow: 0 1px 5px var(--loom-site-bg);
+  }
+  .site-quick-nav a { display: block; padding: 5px 0; color: var(--loom-site-text-muted); }
+  .site-quick-nav a:hover, .site-quick-nav a[aria-current] { color: var(--loom-site-text); text-decoration: underline; text-underline-offset: 5px; }
+  .site-controls--compact .site-quick-nav { flex-direction: row; gap: 16px; }
+  body:has(.docs-shell) { --loom-site-header-height: 108px; }
+  .architecture-page .site-quick-nav { flex-direction: column; gap: 3px; }
+  .architecture-page .site-controls .theme-toggle { top: auto; bottom: 14px; left: 10px; right: auto; position: fixed; }
+  html[data-menu-open] .site-controls { visibility: hidden; }
 
   .route-menu {
     position: fixed;
-    z-index: 300;
     inset: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    color: var(--loom-site-text);
-    background: var(--loom-site-menu-bg);
-  }
-
-  .route-menu[hidden] { display: none; }
-
-  html[data-menu-transition] .menu-trigger { view-transition-name: menu-toggle; }
-  html[data-menu-transition] .route-menu { view-transition-name: route-menu; }
-
-  .route-menu__content {
-    width: min(calc(100% - 80px), 1440px);
-    min-height: 100%;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    margin-inline: auto;
-    padding: 10px 0 34px;
-  }
-
-  .route-menu__brand {
-    position: fixed;
-    top: 10px;
-    left: 64px;
-    display: flex;
-    width: fit-content;
-    min-height: 44px;
-    align-items: center;
-    gap: 11px;
-    font-size: 15px;
-    font-weight: 680;
-    letter-spacing: 0.02em;
-  }
-
-  .route-menu__brand img { width: 38px; height: 38px; }
-  .route-menu__brand small { margin-left: 6px; opacity: 0.58; font: 8px var(--loom-site-font-mono); letter-spacing: 0.18em; }
-
-  .route-menu__routes {
-    grid-row: 2;
-    position: relative;
-    min-height: min(62vh, 580px);
-    touch-action: pan-y;
-    overscroll-behavior: contain;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  .route-menu__routes:focus-visible { outline: 0; }
-  .route-menu__routes:focus-visible .route-menu__route[data-front] .route-menu__route-title {
-    outline: 2px solid var(--loom-site-accent-strong);
-    outline-offset: 6px;
-    border-radius: 8px;
-  }
-  .route-menu__routes[data-dragging],
-  .route-menu__routes[data-dragging] .route-menu__route { cursor: grabbing; }
-
-  .route-menu__route {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 260px;
-    height: 190px;
-    color: var(--loom-site-text);
-    text-align: center;
-    cursor: pointer;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    filter: blur(0.8px);
-    transform: translate(-50%, -50%) scale(0.72);
-    transform-origin: center;
-    transition:
-      opacity 420ms ease,
-      filter 420ms ease,
-      transform 520ms cubic-bezier(.22, .8, .2, 1);
-  }
-
-  .route-menu__route:is([data-stage-offset='-2'], [data-stage-offset='-1'], [data-stage-offset='0'], [data-stage-offset='1'], [data-stage-offset='2']) {
-    visibility: visible;
-    pointer-events: auto;
-  }
-  .route-menu__route:is([data-stage-offset='-2'], [data-stage-offset='2']) { opacity: 0.42; }
-  .route-menu__route[data-stage-offset='-2'] {
-    transform: translate(-50%, -50%) translateX(clamp(-660px, -43vw, -390px)) scale(0.72);
-  }
-  .route-menu__route[data-stage-offset='-1'] {
-    opacity: 0.68;
-    filter: blur(0.35px);
-    transform: translate(-50%, -50%) translateX(clamp(-360px, -24vw, -230px)) scale(0.86);
-  }
-  .route-menu__route[data-stage-offset='0'] {
-    opacity: 1;
-    filter: none;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  .route-menu__route[data-stage-offset='1'] {
-    opacity: 0.68;
-    filter: blur(0.35px);
-    transform: translate(-50%, -50%) translateX(clamp(230px, 24vw, 360px)) scale(0.86);
-  }
-  .route-menu__route[data-stage-offset='2'] {
-    transform: translate(-50%, -50%) translateX(clamp(390px, 43vw, 660px)) scale(0.72);
-  }
-  .route-menu__route:hover { opacity: 0.9; filter: none; }
-  .route-menu__route[data-front] { color: var(--loom-site-accent-strong); }
-  .route-menu__route[data-front]:hover { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
-  .route-menu__route small,
-  .route-menu__route em,
-  .route-menu__route-title {
-    position: absolute;
-    left: 50%;
     width: 100%;
-    transform: translateX(-50%);
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    color: var(--loom-site-text);
+    background: transparent;
+    font-family: var(--loom-site-font-sans);
+    letter-spacing: 0;
   }
-  .route-menu__route small {
-    top: 17px;
-    font: 9px var(--loom-site-font-mono);
-    letter-spacing: 0.2em;
-  }
-  .route-menu__route-title {
-    top: 50%;
-    max-width: 100%;
-    font-family: var(--loom-site-font-display);
-    font-weight: 650;
-    line-height: 0.96;
-    letter-spacing: -0.025em;
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
-  }
-  .route-menu__route-title[data-title-size='short'] { font-size: clamp(46px, 5vw, 70px); }
-  .route-menu__route-title[data-title-size='medium'] { font-size: clamp(40px, 4.3vw, 60px); }
-  .route-menu__route-title[data-title-size='long'] { font-size: clamp(26px, 2.5vw, 36px); letter-spacing: -0.04em; }
-  .route-menu__route em {
-    bottom: 17px;
-    font-size: 8px;
-    font-style: normal;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .route-menu__footer {
-    grid-row: 3;
+  .route-menu::backdrop { background: transparent; }
+  .route-menu__surface { position: absolute; inset: 0; background: var(--loom-site-menu-bg); }
+  html[data-theme='dark'] .route-menu__surface { background: #192126; }
+  .route-menu[open] .route-menu__surface { animation: menu-arrive 680ms cubic-bezier(.55, 0, .1, 1); }
+  .route-menu[data-closing] .route-menu__surface { animation: menu-depart 680ms cubic-bezier(.55, 0, .1, 1) forwards; pointer-events: none; }
+  .route-menu__header {
+    position: absolute;
+    z-index: 2;
+    inset: 10px 22px auto 68px;
+    min-height: 44px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    gap: 14px;
+    pointer-events: none;
+  }
+  .route-menu__brand { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; pointer-events: auto; }
+  .route-menu__edition { margin-left: auto; font: 11px var(--loom-site-font-mono); color: var(--loom-site-text-subtle); }
+  .route-menu__scroll {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    touch-action: pinch-zoom;
+    cursor: grab;
+    user-select: none;
+  }
+  .route-menu__scroll::-webkit-scrollbar { display: none; }
+  .route-menu__scroll:focus-visible { outline-offset: -6px; }
+  .route-menu__scroll[data-dragging] { cursor: grabbing; }
+  .route-menu__track { height: 100%; }
+  .route-menu__stage {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    --step-x: 72vw;
+    --step-y: 60dvh;
+  }
+  .route-menu__entry {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: 20px repeat(7, minmax(0, 1fr));
+    gap: 14px 18px;
+    width: min(860px, 72vw);
+    height: min(480px, calc(100dvh - 160px));
+    transform: translate(-50%, -50%) translate3d(calc(var(--offset) * var(--step-x)), calc(var(--offset) * var(--step-y)), 0);
+    will-change: transform;
+    -webkit-user-drag: none;
+  }
+  .route-menu__meta { grid-column: 1 / -1; grid-row: 1; display: flex; justify-content: space-between; gap: 12px; color: var(--loom-site-text-subtle); font: 10px/1.5 var(--loom-site-font-mono); }
+  .route-menu__image { display: block; overflow: hidden; background: var(--loom-site-surface); }
+  .route-menu__image--main { grid-area: var(--main-area); }
+  .route-menu__image--detail { grid-area: var(--detail-area); }
+  .route-menu__entry[data-composition='home'] {
+    --main-area: 2 / 1 / 9 / 9;
+    --detail-area: 2 / 10 / 5 / 13;
+    --title-area: 5 / 9 / 7 / 13;
+    --caption-area: 7 / 9 / 9 / 13;
+  }
+  .route-menu__entry[data-composition='showcase'] {
+    --main-area: 2 / 1 / 9 / 5;
+    --detail-area: 4 / 9 / 9 / 13;
+    --title-area: 2 / 6 / 4 / 13;
+    --caption-area: 5 / 6 / 8 / 9;
+  }
+  .route-menu__entry[data-composition='marketplace'] {
+    --main-area: 4 / 1 / 9 / 7;
+    --detail-area: 2 / 9 / 6 / 13;
+    --title-area: 2 / 1 / 4 / 9;
+    --caption-area: 7 / 8 / 9 / 13;
+  }
+  .route-menu__entry[data-composition='download'] {
+    --main-area: 2 / 1 / 6 / 13;
+    --detail-area: 6 / 2 / 9 / 5;
+    --title-area: 6 / 6 / 8 / 13;
+    --caption-area: 8 / 6 / 9 / 13;
+  }
+  .route-menu__entry[data-composition='docs'] {
+    --main-area: 2 / 2 / 9 / 6;
+    --detail-area: 6 / 8 / 9 / 13;
+    --title-area: 2 / 7 / 4 / 13;
+    --caption-area: 4 / 7 / 6 / 12;
+  }
+  .route-menu__entry[data-composition='architecture'] {
+    --main-area: 4 / 1 / 9 / 9;
+    --detail-area: 2 / 10 / 6 / 13;
+    --title-area: 2 / 1 / 4 / 9;
+    --caption-area: 6 / 10 / 9 / 13;
+  }
+  .route-menu__entry[data-composition='news'] {
+    --main-area: 2 / 6 / 7 / 13;
+    --detail-area: 5 / 1 / 9 / 5;
+    --title-area: 2 / 1 / 5 / 6;
+    --caption-area: 7 / 6 / 9 / 13;
+  }
+  .route-menu__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translate3d(clamp(-11%, calc(var(--offset) * -11%), 11%), clamp(-11%, calc(var(--offset) * -11%), 11%), 0) scale(1.26);
+  }
+  .route-menu__image--detail img {
+    transform: translate3d(clamp(-15%, calc(var(--offset) * -15%), 15%), clamp(-15%, calc(var(--offset) * -15%), 15%), 0) scale(1.34);
+  }
+  .route-menu__title { grid-area: var(--title-area); display: flex; align-items: center; justify-content: space-between; gap: 12px; font: 500 36px/1.3 var(--loom-site-font-display); }
+  .route-menu__title svg { flex-shrink: 0; }
+  .route-menu__caption { grid-area: var(--caption-area); font-size: 13px; line-height: 1.8; color: var(--loom-site-text-muted); align-self: center; }
+  .route-menu__footer {
+    position: absolute;
+    z-index: 2;
+    inset: auto 26px 18px;
+    display: flex;
+    align-items: center;
     gap: 24px;
-    padding-top: 20px;
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    pointer-events: none;
   }
-
-  .route-menu__footer a { opacity: 0.72; transition: opacity 160ms ease; }
-  .route-menu__footer a:hover { opacity: 1; }
-  .route-menu__github { display: inline-flex; align-items: center; gap: 7px; }
-
-  html[data-menu-transition]::view-transition-old(root),
-  html[data-menu-transition]::view-transition-new(root) { animation: none; }
-
-  ::view-transition-group(route-menu) {
-    z-index: 1000;
-    animation-duration: 680ms;
-    animation-timing-function: cubic-bezier(.55, 0, .1, 1);
+  .route-menu__position { font: 12px var(--loom-site-font-mono); color: var(--loom-site-text-subtle); }
+  .route-menu__position b { color: var(--loom-site-text); font-size: 20px; font-weight: 400; }
+  .route-menu__steps { display: flex; gap: 6px; }
+  .route-menu__github { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12px; pointer-events: auto; }
+  @keyframes menu-arrive { from { clip-path: inset(100% 0 0); } to { clip-path: inset(0); } }
+  @keyframes menu-depart { from { clip-path: inset(0); } to { clip-path: inset(100% 0 0); } }
+  @media (max-width: 1100px) {
+    .site-quick-nav { flex-direction: row; gap: 16px; }
   }
-
-  ::view-transition-old(route-menu),
-  ::view-transition-new(route-menu) { mix-blend-mode: normal; }
-
-  ::view-transition-group(theme-toggle) {
-    z-index: 1002;
-    animation: none;
+  @media (max-width: 600px) {
+    .site-quick-nav { left: 18px; top: 58px; gap: 14px; font-size: 11px; }
+    .route-menu__edition { display: none; }
+    .route-menu__stage { --step-x: 90vw; --step-y: 52dvh; }
+    .route-menu__entry { width: 84vw; height: min(500px, calc(100dvh - 150px)); grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+    .route-menu__entry[data-composition='home'] {
+      --main-area: 2 / 1 / 7 / 5; --detail-area: 2 / 5 / 5 / 7;
+      --title-area: 7 / 1 / 8 / 7; --caption-area: 8 / 1 / 9 / 7;
+    }
+    .route-menu__entry[data-composition='showcase'] {
+      --main-area: 3 / 1 / 8 / 4; --detail-area: 4 / 4 / 8 / 7;
+      --title-area: 2 / 1 / 3 / 7; --caption-area: 8 / 1 / 9 / 7;
+    }
+    .route-menu__entry[data-composition='marketplace'] {
+      --main-area: 3 / 1 / 7 / 5; --detail-area: 5 / 4 / 8 / 7;
+      --title-area: 2 / 1 / 3 / 7; --caption-area: 8 / 1 / 9 / 7;
+    }
+    .route-menu__entry[data-composition='download'] {
+      --main-area: 2 / 1 / 5 / 7; --detail-area: 6 / 1 / 9 / 3;
+      --title-area: 5 / 3 / 7 / 7; --caption-area: 7 / 3 / 9 / 7;
+    }
+    .route-menu__entry[data-composition='docs'] {
+      --main-area: 2 / 1 / 7 / 4; --detail-area: 7 / 2 / 9 / 6;
+      --title-area: 2 / 4 / 4 / 7; --caption-area: 4 / 4 / 7 / 7;
+    }
+    .route-menu__entry[data-composition='architecture'] {
+      --main-area: 3 / 1 / 6 / 7; --detail-area: 6 / 1 / 9 / 4;
+      --title-area: 2 / 1 / 3 / 7; --caption-area: 6 / 4 / 9 / 7;
+    }
+    .route-menu__entry[data-composition='news'] {
+      --main-area: 3 / 3 / 7 / 7; --detail-area: 4 / 1 / 8 / 3;
+      --title-area: 2 / 1 / 3 / 7; --caption-area: 7 / 3 / 9 / 7;
+    }
+    .route-menu__title { font-size: 28px; }
+    .route-menu__caption { font-size: 12px; }
+    .route-menu__footer { inset: auto 18px 14px; gap: 14px; }
   }
-
-  ::view-transition-old(theme-toggle),
-  ::view-transition-new(theme-toggle) {
-    animation: none;
-    mix-blend-mode: normal;
+  @media (max-height: 580px) {
+    .route-menu__entry { gap: 6px 12px; }
+    .route-menu__title { font-size: 22px; }
+    .route-menu__caption { font-size: 11px; line-height: 1.5; }
   }
-
-  html[data-menu-transition='opening']::view-transition-new(route-menu) {
-    animation: route-menu-curtain-in 680ms cubic-bezier(.55, 0, .1, 1) both;
-  }
-
-  html[data-menu-transition='closing']::view-transition-old(route-menu) {
-    animation: route-menu-curtain-out 680ms cubic-bezier(.55, 0, .1, 1) both;
-  }
-
-  ::view-transition-group(menu-toggle) {
-    z-index: 1001;
-    animation-duration: 320ms;
-  }
-
-  ::view-transition-old(menu-toggle),
-  ::view-transition-new(menu-toggle) {
-    mix-blend-mode: normal;
-  }
-
-  html[data-menu-transition]::view-transition-old(menu-toggle) {
-    animation: menu-toggle-out 220ms ease-in both;
-  }
-
-  html[data-menu-transition]::view-transition-new(menu-toggle) {
-    animation: menu-toggle-in 300ms 70ms cubic-bezier(.16, 1, .3, 1) both;
-  }
-
-  @keyframes route-menu-curtain-in {
-    from { clip-path: inset(100% 0 0 0); }
-    to { clip-path: inset(0 0 0 0); }
-  }
-
-  @keyframes route-menu-curtain-out {
-    from { clip-path: inset(0 0 0 0); }
-    to { clip-path: inset(100% 0 0 0); }
-  }
-
-  @keyframes menu-toggle-out {
-    to { opacity: 0; transform: scale(0.76) rotate(-10deg); }
-  }
-
-  @keyframes menu-toggle-in {
-    from { opacity: 0; transform: scale(0.76) rotate(10deg); }
-  }
-
-  @media (max-width: 980px) {
-    .route-menu__routes { min-height: min(58vh, 500px); }
-    .route-menu__route { width: 220px; }
-  }
-
-  @media (max-width: 720px) {
-    .route-menu__content { width: calc(100% - 36px); padding: 10px 0 24px; }
-    .route-menu__brand small { display: none; }
-    .route-menu__routes { min-height: 440px; }
-    .route-menu__route { width: 160px; height: 160px; }
-    .route-menu__route[data-stage-offset='-2'] { transform: translate(-50%, -50%) translateX(-74vw) scale(0.68); }
-    .route-menu__route[data-stage-offset='-1'] { transform: translate(-50%, -50%) translateX(-39vw) scale(0.82); }
-    .route-menu__route[data-stage-offset='1'] { transform: translate(-50%, -50%) translateX(39vw) scale(0.82); }
-    .route-menu__route[data-stage-offset='2'] { transform: translate(-50%, -50%) translateX(74vw) scale(0.68); }
-    .route-menu__route-title[data-title-size='short'] { font-size: 38px; }
-    .route-menu__route-title[data-title-size='medium'] { font-size: 32px; }
-    .route-menu__route-title[data-title-size='long'] { font-size: 22px; }
-    .route-menu__footer { align-items: flex-end; }
-    .route-menu__github { padding-bottom: 2px; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .menu-trigger__line,
-    .route-menu__route { transition-duration: 0.01ms !important; }
-    html[data-menu-transition]::view-transition-old(*),
-    html[data-menu-transition]::view-transition-new(*) { animation: none !important; }
+    .route-menu[open] .route-menu__surface,
+    .route-menu .menu-trigger__line { animation: none; transition: none; }
+    .route-menu__image img { transform: none; }
   }
 </style>
