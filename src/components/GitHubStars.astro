@@ -1,0 +1,59 @@
+---
+import { Star } from '@lucide/astro';
+---
+<a class="github-stars" href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer" aria-label="在 GitHub 查看 Loom Studio" data-github-stars>
+  <svg class="github-stars__brand" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .75a11.25 11.25 0 0 0-3.558 21.923c.563.104.768-.244.768-.542 0-.267-.01-.975-.015-1.913-3.13.68-3.791-1.509-3.791-1.509-.512-1.3-1.25-1.646-1.25-1.646-1.022-.699.077-.685.077-.685 1.13.08 1.725 1.16 1.725 1.16 1.005 1.723 2.637 1.225 3.279.937.102-.728.394-1.225.715-1.507-2.499-.284-5.126-1.25-5.126-5.565 0-1.23.44-2.234 1.16-3.022-.116-.285-.503-1.43.11-2.98 0 0 .945-.303 3.094 1.155A10.78 10.78 0 0 1 12 6.178c.956.004 1.918.129 2.817.378 2.148-1.458 3.09-1.155 3.09-1.155.615 1.55.228 2.695.112 2.98.722.788 1.158 1.793 1.158 3.022 0 4.327-2.63 5.278-5.136 5.557.404.35.765 1.043.765 2.1 0 1.516-.014 2.74-.014 3.112 0 .3.203.65.774.54A11.25 11.25 0 0 0 12 .75Z" /></svg>
+  <span class="github-stars__stat"><Star class="github-stars__star" size={12} stroke-width={1.7} aria-hidden="true" /><span data-star-count aria-hidden="true">GitHub</span></span>
+</a>
+<script>
+  const link = document.querySelector<HTMLAnchorElement>('[data-github-stars]');
+  const count = link?.querySelector<HTMLElement>('[data-star-count]');
+  if (link && count) {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const format = new Intl.NumberFormat('en-US');
+    async function loadStars() {
+      try {
+        const response = await fetch('https://api.github.com/repos/The-LoomStudio/LoomStudio', {
+          headers: { Accept: 'application/vnd.github+json' },
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!response.ok) throw new Error(`GitHub ${response.status}`);
+        const data = await response.json();
+        const stars = data.stargazers_count;
+        if (!Number.isSafeInteger(stars) || stars < 0) throw new Error('Invalid star count');
+        link!.setAttribute('aria-label', `Loom Studio 在 GitHub 获得 ${format.format(stars)} 个 Star，打开仓库`);
+        link!.title = `${format.format(stars)} GitHub Stars`;
+        if (motion.matches || stars === 0) { count!.textContent = format.format(stars); return; }
+        link!.classList.add('is-loaded');
+        const started = performance.now();
+        let frame = 0;
+        const finish = () => { cancelAnimationFrame(frame); count!.textContent = format.format(stars); };
+        const tick = (now: number) => {
+          const progress = Math.min(1, (now - started) / 700);
+          count!.textContent = format.format(Math.round(stars * (1 - (1 - progress) ** 3)));
+          if (progress < 1 && !motion.matches) frame = requestAnimationFrame(tick);
+          else finish();
+        };
+        frame = requestAnimationFrame(tick);
+        window.addEventListener('pagehide', finish, { once: true });
+      } catch {
+        // Public API/network failures leave a usable repository link, never an invented count.
+        link!.title = '暂时无法读取星数，点击查看 GitHub 仓库';
+      }
+    }
+    void loadStars();
+  }
+</script>
+<style>
+  .github-stars { position: absolute; top: 10px; right: 64px; height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 8px; color: var(--loom-site-text); background: transparent; pointer-events: auto; font: 13px var(--loom-site-font-mono); font-variant-numeric: tabular-nums; }
+  .github-stars__stat { display: inline-flex; align-items: center; gap: 4px; }
+  .github-stars [data-star-count] { min-width: 3ch; text-align: center; }
+  .github-stars__brand { width: 26px; height: 26px; }
+  .github-stars__star { width: 12px; height: 12px; }
+  .github-stars svg { flex-shrink: 0; }
+  .github-stars:hover { color: var(--loom-site-accent-strong); }
+  .github-stars:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: 3px; }
+  .github-stars.is-loaded .github-stars__star { animation: star-arrive 700ms ease-out; }
+  @keyframes star-arrive { 0%, 100% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-4px) rotate(-14deg) scale(1.15); } 65% { transform: translateY(1px) rotate(8deg); } }
+  @media (prefers-reduced-motion: reduce) { .github-stars.is-loaded .github-stars__star { animation: none; } }
+</style>

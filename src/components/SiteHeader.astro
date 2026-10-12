@@ -1,5 +1,6 @@
 ---
 import { ArrowDownRight, ArrowUpLeft, ArrowUpRight, Moon, Sun } from '@lucide/astro';
+import GitHubStars from './GitHubStars.astro';
 import { siteImage } from '../lib/site-images';
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -34,7 +35,8 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
         aria-current={route.id === activeRoute ? 'page' : undefined}>{route.short}</a>
     ))}
   </nav>
-  {activeRoute !== 'home' && (
+  {activeRoute === 'home' && <GitHubStars />}
+  {(
     <button class="site-icon theme-toggle" type="button" aria-label="切换至暗色模式"
       aria-pressed="false" title="切换至暗色模式" data-theme-toggle>
       <Sun class="theme-toggle__sun" size={22} stroke-width={1.6} aria-hidden="true" />
@@ -415,7 +417,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   }
   .site-quick-nav a { display: block; padding: 5px 0; color: var(--loom-site-text-muted); }
   .site-quick-nav a:hover, .site-quick-nav a[aria-current] { color: var(--loom-site-text); text-decoration: underline; text-underline-offset: 5px; }
-  .site-controls--compact .site-quick-nav { flex-direction: row; gap: 16px; }
+  .site-controls--compact .site-quick-nav { flex-direction: column; gap: 3px; }
   body:has(.docs-shell) { --loom-site-header-height: 108px; }
   .architecture-page .site-quick-nav { flex-direction: column; gap: 3px; }
   .architecture-page .site-controls .theme-toggle { top: auto; bottom: 14px; left: 10px; right: auto; position: fixed; }

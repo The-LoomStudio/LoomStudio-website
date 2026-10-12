@@ -1,0 +1,66 @@
+---
+import { ArrowUpRight } from '@lucide/astro';
+import { semanticScenes, type SceneNode, type Side } from './semantic-scenes';
+import { snapshot } from './map-data';
+const scene = semanticScenes.workflow;
+const colors: Record<string, string> = { runtime: '#79dfbd', storage: '#c1abff', external: '#efdc82', tool: '#f1b37b', decision: '#ff9baa' };
+const port = (n: SceneNode, side: Side): [number, number] => ({ left: [n.x, n.y + 56], right: [n.x + 240, n.y + 56], top: [n.x + 120, n.y], bottom: [n.x + 120, n.y + 112] } as Record<Side, [number, number]>)[side];
+const edges = scene.edges.map(edge => {
+  const from = scene.nodes.find(n => n.id === edge.from)!;
+  const to = scene.nodes.find(n => n.id === edge.to)!;
+  const points = [port(from, edge.fromSide ?? 'right'), ...(edge.via ?? []), port(to, edge.toSide ?? 'left')];
+  const middle = Math.floor((points.length - 1) / 2);
+  const labelPosition = edge.labelAt ?? [(points[middle][0] + points[middle + 1][0]) / 2, (points[middle][1] + points[middle + 1][1]) / 2];
+  return { ...edge, points: points.map(p => p.join(',')).join(' '), labelPosition };
+});
+---
+<div class="map-preview">
+  <a class="map-preview__header" href="/docs/architecture">
+    <span><small>EXPLORE THE ARCHITECTURE</small><strong>走进 Loom 的幕后</strong></span>
+    <span class="map-preview__open"><ArrowUpRight size={26} aria-hidden="true" /><span>打开交互地图</span></span>
+  </a>
+  <div class="map-preview__scroll" tabindex="0" role="region" aria-label="模型与工具执行循环预览，可横向滚动">
+    <a href="/docs/architecture" aria-label="打开完整架构地图，探索模型与工具的执行循环">
+      <svg viewBox="-30 -25 1580 1040" role="img" aria-labelledby="architecture-preview-title">
+        <title id="architecture-preview-title">模型与工具执行循环：上下文准备、模型响应、工具执行及中断恢复</title>
+        <defs><marker id="preview-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="var(--loom-site-text-muted)" /></marker></defs>
+        {scene.frames.map(frame => <g>
+          <rect class="map-preview__lane" x={frame.x} y={frame.y} width={frame.width} height={frame.height} rx="20" />
+          <text class="map-preview__lane-title" x={frame.x + 22} y={frame.y + 30}>{frame.title}</text>
+        </g>)}
+        {edges.map(edge => <g>
+          <polyline points={edge.points} fill="none" stroke="var(--loom-site-text-muted)" stroke-width="2" stroke-dasharray={edge.kind === 'return' ? '8 6' : edge.kind === 'branch' ? '3 6' : undefined} marker-end="url(#preview-arrow)" />
+          <text class="map-preview__edge" x={edge.labelPosition[0]} y={edge.labelPosition[1]} text-anchor="middle" dominant-baseline="middle">{edge.label}</text>
+        </g>)}
+        {scene.nodes.map(node => <g style={`--node-color:${colors[node.category]}`}>
+          <rect class="map-preview__node" x={node.x} y={node.y} width="240" height="112" rx={node.category === 'external' ? 30 : node.category === 'storage' ? 5 : 16} stroke-dasharray={node.category === 'tool' || node.role === 'decision' ? '6 4' : undefined} />
+          {node.category === 'storage' && <path d={`M${node.x + 8} ${node.y + 12}v88`} stroke="var(--node-color)" stroke-width="3" />}
+          <text class="map-preview__title" x={node.x + 20} y={node.y + 45}>{node.title}</text>
+          <text class="map-preview__summary" x={node.x + 20} y={node.y + 78}>{node.summary}</text>
+        </g>)}
+      </svg>
+    </a>
+  </div>
+  <div class="map-preview__footer"><span>全局模块 · 工作流 · 数据流 · 生命周期 · 调用时序</span><span>源码图解 · {snapshot.baseline.slice(0, 7)}</span></div>
+</div>
+<style>
+  .map-preview { margin-top: 48px; text-align: left; border: 1px solid var(--loom-site-border-strong); border-radius: 26px; overflow: hidden; background: var(--loom-site-bg-soft); }
+  .map-preview__header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding: 24px 28px; color: var(--loom-site-text); }
+  .map-preview__header small { display: block; margin-bottom: 8px; font: 10px var(--loom-site-font-mono); letter-spacing: .12em; color: var(--loom-site-text-muted); }
+  .map-preview__header strong { font: 600 24px var(--loom-site-font-display); }
+  .map-preview__open { display: inline-flex; flex-direction: column; align-items: center; flex-shrink: 0; gap: 6px; padding: 4px 0; font-size: 13px; white-space: nowrap; }
+  .map-preview__open svg { width: 26px; height: 26px; flex-shrink: 0; }
+  .map-preview__header:hover .map-preview__open span { text-decoration: underline; text-underline-offset: 4px; }
+  .map-preview__scroll { overflow-x: auto; background: var(--loom-site-bg); border-block: 1px solid var(--loom-site-border); }
+  .map-preview__scroll a { display: block; min-width: 760px; padding: 20px; }
+  .map-preview__scroll svg { display: block; width: 100%; height: auto; }
+  .map-preview__lane { fill: var(--loom-site-surface); fill-opacity: .18; stroke: var(--loom-site-border-strong); stroke-dasharray: 8 6; }
+  .map-preview__lane-title { fill: var(--loom-site-text-muted); font: 16px var(--loom-site-font-mono); }
+  .map-preview__node { fill: color-mix(in srgb, var(--node-color) 14%, var(--loom-site-surface)); stroke: var(--node-color); stroke-width: 2; }
+  .map-preview__title { fill: var(--loom-site-text); font: 600 20px var(--loom-site-font-display); }
+  .map-preview__summary { fill: var(--loom-site-text-muted); font: 13px var(--loom-site-font-sans); }
+  .map-preview__edge { fill: var(--loom-site-text-muted); stroke: var(--loom-site-bg); stroke-width: 7; paint-order: stroke; stroke-linejoin: round; font: 13px var(--loom-site-font-sans); }
+  .map-preview__footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 17px 28px; color: var(--loom-site-text-muted); font-size: 11px; }
+  .map-preview a:focus-visible, .map-preview__scroll:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: -4px; }
+  @media (max-width: 680px) { .map-preview__header { padding: 20px; } .map-preview__header strong { font-size: 20px; } .map-preview__footer { padding: 16px 20px; line-height: 1.8; } }
+</style>

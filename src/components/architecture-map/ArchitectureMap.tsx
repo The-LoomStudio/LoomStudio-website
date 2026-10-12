@@ -5,6 +5,7 @@ import {
 } from '@xyflow/react';
 import { ArrowLeft, ArrowUpRight, ChevronRight, Cloud, Database, Focus, Map as MapIcon, MessageCircle, Minus, Monitor, PanelRightClose, PanelRightOpen, Plus, Puzzle, Search, SendHorizontal, Server, ShieldCheck, Square, Workflow, X } from 'lucide-react';
 import { connections, items, journeys, regions, snapshot, sourceUrl, type MapItem, type RegionId, type Journey, type Connection } from './map-data';
+import { MapColorLegend } from './MapColorLegend';
 import { concepts } from './concepts';
 import { MapViewTabs, type MapView } from './MapViewTabs';
 import { SemanticMap } from './SemanticMap';
@@ -51,7 +52,7 @@ function Detail({ data }: NodeProps<DetailNode>) {
     : data.region === 'external' || data.id === 'gateway' ? 'signal'
     : 'note';
   return (
-    <div className={`am-node am-shape-${shape}${data.simulation ? ' am-simulation-node' : ''}${data.highlighted ? ' is-highlighted' : ''}${data.inspected ? ' is-inspected' : ''}${data.muted ? ' is-muted' : ''}${data.delivery ? ` is-${data.delivery}` : ''}`} aria-busy={data.delivery === 'processing'}>
+    <div data-category={data.region} className={`am-node am-shape-${shape}${data.simulation ? ' am-simulation-node' : ''}${data.highlighted ? ' is-highlighted' : ''}${data.inspected ? ' is-inspected' : ''}${data.muted ? ' is-muted' : ''}${data.delivery ? ` is-${data.delivery}` : ''}`} aria-busy={data.delivery === 'processing'}>
       <Handle type="target" position={data.targetSide} />
       <div className="am-node-content nopan" onClick={event => { if (!(event.target as Element).closest('button, textarea, form')) data.inspect(); }}>
         {data.simulation ? <>
@@ -130,7 +131,7 @@ const systemPorts: Record<RegionId, { id: string; type: 'source' | 'target'; sid
 };
 
 function Region({ data }: NodeProps<RegionNode>) {
-  return <div className={`am-group-label am-system-${data.region}`}>
+  return <div data-category={data.region} className={`am-group-label am-system-${data.region}`}>
     <button onClick={data.inspect} aria-label={`查看 ${data.title} 模块`}>
       <h2>{data.title}</h2><p>{data.subtitle}</p>
     </button>
@@ -421,6 +422,7 @@ function MapCanvas({ nom, cardCover, view, setView }: MapProps & { view: 'module
             onMove={(_, viewport) => setZoom(viewport.zoom)}
             onPaneClick={() => { setSelectedId(undefined); setSelectedConcept(undefined); }}
           >
+            <Panel position="bottom-right" className="am-color-panel"><MapColorLegend categories={['client', 'server', 'runtime', 'storage', 'extensions', 'external']} /></Panel>
             <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="var(--am-grid)" />
             <Panel position="bottom-left" className="am-controls">
               <button aria-label="缩小" title="缩小" onClick={() => void flow.zoomOut({ duration: 180 })}><Minus size={17} /></button>
@@ -432,7 +434,7 @@ function MapCanvas({ nom, cardCover, view, setView }: MapProps & { view: 'module
           </ReactFlow>
         </section>
 
-        <aside className="am-sidebar" id="architecture-sidebar" aria-label="架构说明">
+        <aside className="am-sidebar" id="architecture-sidebar" aria-label="架构说明" aria-hidden={!sidebarOpen} inert={!sidebarOpen}>
           <div className="am-sidebar-heading">
             <span>{concept ? '数据概念' : selected ? '模块详情' : selectedRegion ? '系统模块' : journey ? '操作路径' : '架构总览'}</span>
           </div>

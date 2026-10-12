@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ProductPreview from '../components/ProductPreview.astro';
+import ArchitecturePreview from '../components/architecture-map/ArchitecturePreview.astro';
 import CardMarquee, { cards } from '../components/card-showcase/CardMarquee';
 import CardStack, { stackCards } from '../components/card-showcase/CardStack';
 import HeroBanner, { slides, bottomSlides } from '../components/HeroBanner';
@@ -64,7 +65,7 @@ const features = [
         <img data-static-image style="opacity: 0" src={brand.src} srcset={brand.srcSet} width={brand.width} height={brand.height}
           sizes="(max-width: 680px) 70vw, 480px" alt="Loom Studio" loading="lazy" decoding="async" />
       </div>
-      <p>编织世界，交织故事。<br />把下一段旅程留给你自己。</p>
+      <div class="brand-banner__copy"><p>编织世界，交织故事。<br />把下一段旅程留给你自己。</p><a class="brand-banner__download" href="/download">下载与启动 <ArrowUpRight size={18} aria-hidden="true" /></a></div>
     </section>
 
     <section class="card-banner card-banner--top" aria-labelledby="card-banner-title">
@@ -124,15 +125,7 @@ const features = [
       <div class="container architecture__inner" data-chapter="03 / ARCHITECTURE">
         <p class="eyebrow">A little look backstage</p>
         <h2>好故事的背后<br />也有小小的分工</h2>
-        <div class="architecture__flow">
-          <div><small>STORY</small><b>剧情正文</b><span>呈现故事与分支</span></div>
-          <i>↔</i>
-          <div><small>WORK</small><b>推演会话</b><span>负责逻辑推导与工具</span></div>
-          <i>→</i>
-          <div><small>CONTEXT</small><b>提示词构建</b><span>负责资源装配与激活</span></div>
-          <i>→</i>
-          <div><small>MODEL</small><b>模型接入</b><span>只接收编译结果</span></div>
-        </div>
+        <ArchitecturePreview />
         <p class="architecture__note">
           正文讲故事，Agent 理线索，构建器把需要的设定送给模型。<br />
           每一步都有迹可循，你可以安心游玩，也可以随时掀开幕布，动手改一改。
@@ -493,7 +486,7 @@ const features = [
     width: 100%;
     height: auto;
   }
-  .brand-banner > p {
+  .brand-banner__copy {
     position: relative;
     z-index: 20;
     margin: 0;
@@ -501,6 +494,10 @@ const features = [
     font: 14px/1.8 var(--loom-site-font-display);
     text-align: center;
   }
+  .brand-banner__copy p { margin: 0; }
+  .brand-banner__download { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; margin-top: 22px; padding: 0 24px; border: 1px solid var(--loom-site-border-strong); border-radius: 999px; background: var(--loom-site-surface); color: var(--loom-site-text); font-size: 14px; }
+  .brand-banner__download:hover { background: var(--loom-site-surface-raised); }
+  .brand-banner__download:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: 4px; }
   .manifesto {
     position: relative;
     min-height: auto;
@@ -652,26 +649,6 @@ const features = [
     text-align: center;
   }
   .architecture h2 { max-width: 850px; margin-inline: auto; }
-  .architecture__flow {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
-    align-items: center;
-    gap: 14px;
-    margin-top: 78px;
-  }
-  .architecture__flow > div {
-    min-height: 145px;
-    display: grid;
-    align-content: center;
-    gap: 8px;
-    border-radius: 18px;
-    padding: 18px;
-    background: transparent;
-  }
-  .architecture__flow small { color: var(--loom-site-accent); font: 9px var(--loom-site-font-mono); letter-spacing: 0.14em; }
-  .architecture__flow b { font: 600 16px var(--loom-site-font-display); }
-  .architecture__flow span { color: var(--loom-site-text-subtle); font-size: 10px; }
-  .architecture__flow > i { color: var(--loom-site-text-subtle); font-style: normal; }
   .architecture__map {
     display: inline-flex;
     align-items: center;
@@ -748,8 +725,6 @@ const features = [
     .manifesto__sticky { position: static; }
     .manifesto__features { grid-template-columns: 1fr; justify-items: center; gap: 40px; }
     .product__legend { grid-template-columns: 1fr; }
-    .architecture__flow { grid-template-columns: 1fr; }
-    .architecture__flow > i { transform: rotate(90deg); }
   }
   @media (max-width: 680px) {
     .hero__banner img { width: 54vw; max-width: 240px; }

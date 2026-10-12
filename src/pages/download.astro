@@ -1,97 +1,92 @@
 ---
 import PortalLayout from '../layouts/PortalLayout.astro';
-import { ArrowUpRight, Laptop, Monitor, Terminal } from '@lucide/astro';
-
-const platforms = [
-  { name: 'macOS', note: 'Apple Silicon / Intel 状态待确认', icon: Laptop },
-  { name: 'Windows', note: '公开构建与签名状态待确认', icon: Monitor },
-  { name: 'Linux', note: '发行格式与支持范围待确认', icon: Terminal },
-];
+import { ArrowUpRight, Terminal } from '@lucide/astro';
+const commands = `git clone https://github.com/The-LoomStudio/LoomStudio.git
+cd LoomStudio
+npm start`;
 ---
 
 <PortalLayout
-  title="下载"
-  description="Loom Studio 下载页草稿：公开构建、平台支持和本地优先边界。"
-  eyebrow="Download Loom Studio"
-  marker="PAGE / 03 · RELEASE FOUNDATION"
+  title="下载与启动"
+  description="通过 Git 克隆 Loom Studio，使用 npm start 安装依赖、构建并启动本地工作台。"
+  eyebrow="Get Loom Studio"
+  marker="PAGE / 03 · GET STARTED"
   headline="把工作台留在自己的机器上"
-  intro="下载页将负责公开构建、平台支持、校验信息与升级说明。当前尚未发布正式安装包，因此这里只建立诚实的发布入口，不制造不可用的下载按钮。"
+  intro="现在可以从源码启动 Loom Studio。安装包尚未发布，先准备好 Git 和 Node.js，三行命令就能开始安装。"
 >
   <section class="portal-section portal-section--soft">
-    <div class="container">
-      <div class="portal-section__heading">
-        <div><small>BUILDS / PLATFORMS</small><h2>公开构建准备中</h2></div>
-        <p>平台、架构、签名和系统要求会在首个公开构建确认后填写。现在的状态标签只说明页面进度。</p>
+    <div class="container download-start">
+      <div class="download-start__intro">
+        <span class="portal-tag">从源码启动</span>
+        <h2>打开终端，<br />把 Loom 带回本地</h2>
+        <p>需要 <strong>Git</strong> 和 <strong>Node.js 22.18.0 或更新版本</strong>，并确保终端能使用 <code>git</code>、<code>node</code> 和 <code>npm</code>。</p>
+        <p>首次启动需要联网：脚本会调用固定版本 pnpm 安装依赖，并在缺少构建产物时构建应用。这个过程可能需要几分钟，请保持终端开启。</p>
+        <div class="download-links"><a href="https://git-scm.com/downloads" target="_blank" rel="noreferrer">安装 Git <ArrowUpRight size={15} /></a><a href="https://nodejs.org/en/download" target="_blank" rel="noreferrer">安装 Node.js <ArrowUpRight size={15} /></a></div>
       </div>
-      <div class="download-platforms">
-        {platforms.map(({ name, note, icon: Icon }) => (
-          <article class="download-platform">
-            <div><Icon size={28} stroke-width={1.5} /><span class="portal-tag">PENDING</span></div>
-            <h3>{name}</h3>
-            <p>{note}</p>
-            <span class="download-platform__status">尚未开放下载</span>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="portal-section">
-    <div class="container download-release">
-      <div>
-        <span class="portal-tag">FOUNDATION BUILD</span>
-        <small>RELEASE CHANNEL / NOT PUBLISHED</small>
-        <h2>首个版本应当同时给出文件校验值和明确的兼容说明</h2>
-      </div>
-      <div class="download-release__facts">
-        <div><span>VERSION</span><b>待首个公开版本确认</b></div>
-        <div><span>INSTALLER</span><b>尚未生成正式安装包</b></div>
-        <div><span>UPDATES</span><b>升级与回退策略待发布</b></div>
-        <a href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">
-          查看源代码 <ArrowUpRight size={15} stroke-width={1.7} />
-        </a>
+      <div class="download-command">
+        <div class="download-command__heading"><span><Terminal size={18} />在你准备存放程序的目录运行</span><button type="button" data-copy-install>复制命令</button></div>
+        <pre><code data-install-commands>{commands}</code></pre>
+        <p>Windows、macOS 和 Linux 都可使用这组命令。</p>
+        <span class="download-copy-status" role="status" aria-live="polite" data-copy-status></span>
       </div>
     </div>
   </section>
-
   <section class="portal-section">
     <div class="container">
-      <div class="portal-section__heading">
-        <div><small>BOUNDARY / LOCAL-FIRST</small><h2>下载的不只是一个界面</h2></div>
-        <p>桌面端需要把数据位置、Provider 凭据、插件能力和升级边界说清楚。正式发布前，这些内容不会用一句“安全可靠”含混带过。</p>
+      <div class="portal-section__heading"><div><small>START / PLAY</small><h2>启动之后</h2></div><p>日常游玩使用同一个本地服务，无需分别启动前端与后端。</p></div>
+      <div class="download-steps">
+        <article><span>01 / 打开工作台</span><h3>访问终端显示的地址</h3><p>默认是 <a href="http://127.0.0.1:18010" target="_blank" rel="noreferrer">http://127.0.0.1:18010</a>。运行期间保持服务窗口开启，结束时在终端按 Ctrl+C 停止服务。</p></article>
+        <article><span>02 / 配置模型</span><h3>接上你使用的模型</h3><p>在应用中配置账户、API 凭据和模型，并绑定预设。基础内容不附带 API Key 或模型绑定。</p></article>
+        <article><span>03 / 再次启动</span><h3>回到程序目录运行</h3><p>下次在 <code>LoomStudio</code> 目录执行 <code>npm start</code>。也可使用 Windows 的 <code>start.bat</code>、macOS 的 <code>start.command</code> 或 Linux 的 <code>./start.sh</code>。</p></article>
       </div>
-      <div class="download-boundaries">
-        <article><span>01</span><h3>本地数据</h3><p>工作区和创作数据默认留在本地边界中。</p></article>
-        <article><span>02</span><h3>Provider</h3><p>模型调用边界与凭据处理需要在发布说明中明确。</p></article>
-        <article><span>03</span><h3>Extensions</h3><p>插件能力、来源与版本必须可见、可诊断。</p></article>
-      </div>
+      <p class="download-note">macOS 启动脚本的执行权限取决于本机设置；Linux 启动脚本尚未完成实机人工验收。通用入口始终是终端中的 <code>npm start</code>。</p>
+    </div>
+  </section>
+  <section class="portal-section portal-section--soft">
+    <div class="container download-details">
+      <article><small>UPDATES / DATA</small><h2>更新前，保留好你的故事</h2><p>程序和用户数据分开保存，终端会显示实际数据目录。更新前先停止服务并备份整个数据目录。</p><p>更新源码后需要重新安装匹配的依赖并主动构建；<code>npm start</code> 不会检测已有构建是否落后于源码。</p><pre><code>{`git pull --ff-only
+npm exec --yes --package=pnpm@9.15.0 -- pnpm install --frozen-lockfile
+npm exec --yes --package=pnpm@9.15.0 -- pnpm build:app
+npm start`}</code></pre><p>如果本地改动导致 Git 无法更新，先处理改动；不要直接覆盖自己的文件。</p></article>
+      <article><small>RELEASES / COMING LATER</small><h2>安装包准备中</h2><p>目前先使用源码启动。后续正式发行包会在 GitHub Releases 提供版本、平台与校验信息。GitHub 自动生成的 Source code 压缩包仍属于源码，并非预构建成品。</p><div class="download-links"><a href="https://github.com/The-LoomStudio/LoomStudio/releases" target="_blank" rel="noreferrer">查看 Releases <ArrowUpRight size={15} /></a><a href="https://github.com/The-LoomStudio/LoomStudio/blob/main/docs/guide/beta-release.md" target="_blank" rel="noreferrer">完整安装与数据说明 <ArrowUpRight size={15} /></a></div><p>服务目前供本机使用。模型调用会把本轮构建的上下文发送给你配置的 Provider。</p></article>
     </div>
   </section>
 </PortalLayout>
 
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-copy-install]');
+  const commands = document.querySelector<HTMLElement>('[data-install-commands]');
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  button?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(commands!.textContent!);
+      status!.textContent = '已复制，可以粘贴到终端。';
+    } catch {
+      status!.textContent = '无法访问剪贴板，请选中上方命令手动复制。';
+    }
+  });
+</script>
 <style>
-  .download-platforms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .download-platform { min-height: 300px; display: flex; flex-direction: column; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
-  .download-platform > div { display: flex; align-items: center; justify-content: space-between; }
-  .download-platform h3 { margin: auto 0 10px; font-size: 28px; }
-  .download-platform p { min-height: 44px; margin: 0 0 24px; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.7; }
-  .download-platform__status { color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); letter-spacing: .1em; }
-  .download-release { display: grid; grid-template-columns: 1fr minmax(300px, .72fr); gap: clamp(48px, 9vw, 120px); padding: clamp(42px, 6vw, 68px) 0; border-top: 1px solid var(--loom-site-border); border-bottom: 1px solid var(--loom-site-border); }
-  .download-release small { display: block; margin: 28px 0 16px; color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); letter-spacing: .14em; }
-  .download-release h2 { max-width: 650px; margin: 0; font: 580 clamp(28px, 4vw, 46px)/1.24 var(--loom-site-font-display); letter-spacing: -.03em; }
-  .download-release__facts { display: grid; align-content: center; gap: 20px; }
-  .download-release__facts div { display: grid; gap: 5px; }
-  .download-release__facts span { color: var(--loom-site-text-subtle); font: 8px var(--loom-site-font-mono); letter-spacing: .14em; }
-  .download-release__facts b { font-size: 13px; font-weight: 560; }
-  .download-release__facts a { display: inline-flex; width: fit-content; align-items: center; gap: 8px; margin-top: 12px; color: var(--loom-site-accent-strong); font-size: 12px; }
-  .download-boundaries { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .download-boundaries article { min-height: 210px; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
-  .download-boundaries span { color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); }
-  .download-boundaries h3 { margin: 52px 0 10px; font-size: 20px; }
-  .download-boundaries p { margin: 0; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.7; }
-  @media (max-width: 760px) {
-    .download-platforms,
-    .download-boundaries,
-    .download-release { grid-template-columns: 1fr; }
-  }
+  .download-start, .download-details { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: clamp(28px, 5vw, 76px); }
+  .download-start h2, .download-details h2 { font: 580 clamp(28px, 3.5vw, 42px)/1.3 var(--loom-site-font-display); margin: 24px 0; }
+  .download-start p, .download-details p, .download-steps p, .download-note { color: var(--loom-site-text-muted); font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
+  .download-links { display: flex; flex-wrap: wrap; gap: 18px; margin-block: 24px; }
+  .download-links a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; text-decoration: underline; text-underline-offset: 5px; }
+  .download-command { min-width: 0; border: 1px solid var(--loom-site-border-strong); border-radius: 22px; padding: 24px; background: var(--loom-site-bg); }
+  .download-command__heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; font-size: 12px; }
+  .download-command__heading span { display: inline-flex; align-items: center; gap: 8px; }
+  .download-command button { min-height: 44px; padding: 0 16px; border: 1px solid var(--loom-site-border-strong); border-radius: 999px; background: var(--loom-site-surface); color: var(--loom-site-text); cursor: pointer; }
+  .download-command button:hover { background: var(--loom-site-surface-raised); }
+  .download-command button:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: 4px; }
+  pre { max-width: 100%; overflow-x: auto; padding: 20px 0; font: 12px/1.9 var(--loom-site-font-mono); }
+  code { font-family: var(--loom-site-font-mono); }
+  .download-command p, .download-copy-status { font-size: 12px; }
+  .download-copy-status { display: block; min-height: 20px; color: var(--loom-site-text-muted); }
+  .download-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .download-steps article { border-top: 1px solid var(--loom-site-border); padding-top: 24px; }
+  .download-steps span, .download-details small { font: 11px var(--loom-site-font-mono); color: var(--loom-site-text-muted); }
+  .download-steps h3 { font-size: 20px; margin: 24px 0 14px; }
+  .download-note { margin-top: 32px; font-size: 12px; }
+  .download-details article { min-width: 0; }
+  @media (max-width: 760px) { .download-start, .download-details, .download-steps { grid-template-columns: 1fr; } .download-command { padding: 20px; } }
 </style>
