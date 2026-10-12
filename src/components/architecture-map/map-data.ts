@@ -1,4 +1,4 @@
-export type Source = { path: string; line: number };
+export type Source = { path: string; line: number; endLine?: number };
 export type RegionId = 'client' | 'server' | 'runtime' | 'storage' | 'extensions' | 'external';
 export type MapItem = {
   id: string;
@@ -22,19 +22,19 @@ export type Journey = {
   title: string;
   summary: string;
   boundary: string;
-  steps: { edge: string; title: string; detail: string }[];
+  steps: { edge: string; title: string; detail: string; source?: Source }[];
 };
 
 export const snapshot = {
-  date: '2026-10-01',
-  baseline: 'efc45a4fe140686459e46f48da3de7c32672c5b0',
-  note: '本地工作区核对，含未提交改动。公开源码仅为基线参考，可能与当前实现不同。',
+  date: '2026-10-13',
+  baseline: 'faeaba7001be77bb1b046ace483ccae069ea462c',
+  note: '依据固定提交 faeaba7 核对；包含 Lore 命名切换，不包含后续未提交修改。',
 };
 
 export const regions: { id: RegionId; title: string; subtitle: string; x: number; y: number; width: number; height: number }[] = [
   { id: 'client', title: 'Studio Client', subtitle: '界面、选择与调用入口', x: 0, y: 0, width: 760, height: 600 },
   { id: 'server', title: 'Studio Server', subtitle: '本地服务 · 传输与组合根', x: 1040, y: 0, width: 760, height: 600 },
-  { id: 'runtime', title: 'Application Runtime', subtitle: '领域流程 · Prompt 与 Agent', x: 2080, y: 0, width: 760, height: 1120 },
+  { id: 'runtime', title: 'Application Runtime', subtitle: '领域流程 · Prompt 与 Agent', x: 2080, y: 0, width: 760, height: 1380 },
   { id: 'external', title: '外部 Provider', subtitle: '所选模型服务 · 外部网络边界', x: 2080, y: 1620, width: 760, height: 320 },
   { id: 'extensions', title: 'Extension', subtitle: '安装身份 · 授权 · 能力贡献', x: 1400, y: 840, width: 340, height: 600 },
   { id: 'storage', title: '本地权威数据', subtitle: 'SQLite 保存结构化状态，Blob 保存字节', x: 0, y: 840, width: 1180, height: 600 },
@@ -46,42 +46,42 @@ export const items: MapItem[] = [
     summary: '媒体与角色包走不同的 HTTP 入口。',
     detail: '媒体使用 POST /assets；Loom 角色包使用 /cards/import/loomcard 或 /cards/import/png。文件字节不通过 JSON-RPC base64 传送。',
     boundary: '导入角色不等于开始游玩，也不会在这一步自动创建 Agent Session。',
-    source: { path: 'apps/studio-server/src/http/http-server.ts', line: 128 },
+    source: { path: 'apps/studio-server/src/http/http-server.ts', line: 141 },
   },
   {
     id: 'play', region: 'client', title: '剧情工作区', kind: 'CLIENT',
     summary: '选择 Card，创建 Timeline，提交用户正文。',
-    detail: '创建 Timeline 调用 narratives.create。发送正文时先 appendInput，再确保 Agent Session，最后以已提交 inputNodeId 创建 Run。',
+    detail: '创建 Timeline 调用 narratives.create。发送正文时先 appendInput，再校验已有主写作 Agent Session，最后以已提交 inputNodeId 创建 Run。',
     boundary: '界面状态不是权威存储；创建 Timeline 后会重置当前 Session 选择，不代表删除历史 Session。',
-    source: { path: 'apps/studio-client/src/features/narrative-runtime/model/use-narrative-runtime.ts', line: 350 },
+    source: { path: 'apps/studio-client/src/features/narrative-runtime/model/use-narrative-runtime.ts', line: 466 },
   },
   {
     id: 'api', region: 'client', title: 'Typed API / Bridge', kind: 'TRANSPORT',
     summary: '业务类型映射与 HTTP JSON-RPC 传输分离。',
     detail: 'studio-api 定义具体业务调用；client-bridge 封装 fetch、RPC ID 和错误映射。浏览器 401 时可进行一次应用会话刷新。',
     boundary: '会话刷新不是业务重试、提交幂等或防丢失保证。',
-    source: { path: 'apps/studio-client/src/shared/api/studio-api.ts', line: 739 },
+    source: { path: 'apps/studio-client/src/shared/api/studio-api.ts', line: 635 },
   },
   {
     id: 'extension-ui', region: 'client', title: '扩展管理', kind: 'CLIENT',
     summary: '显式安装、导入资源、启用模块与授权。',
     detail: '用户操作进入 extensions API。安装目标区分全局与 Card；模块启用和资源导入并非同一动作。',
     boundary: '界面列出包不意味着它的模块正在运行。',
-    source: { path: 'apps/studio-client/src/shared/api/studio-api.ts', line: 386 },
+    source: { path: 'apps/studio-client/src/shared/api/studio-api.ts', line: 661 },
   },
   {
     id: 'http', region: 'server', title: 'HTTP / 应用会话', kind: 'BOUNDARY',
     summary: '校验应用会话与 Origin，接收原始字节。',
     detail: 'POST /auth/session 建立应用会话；其余受保护入口验证会话。文件路由负责将字节交给媒体存储或角色包解析器。',
     boundary: '这不是账户注册、订阅付款或访客通行证系统。',
-    source: { path: 'apps/studio-server/src/http/http-server.ts', line: 86 },
+    source: { path: 'apps/studio-server/src/http/http-server.ts', line: 88 },
   },
   {
     id: 'codec', region: 'server', title: 'Card Bundle Codec', kind: 'IMPORT',
     summary: '校验并解析 ZIP / PNG 角色包。',
     detail: '识别 Loom PNG 载荷并解码 ZIP。没有 Loom 载荷的 PNG 才进入启用的第三方转换入口；损坏的 Loom 包直接失败。',
     boundary: '路径、CRC、引用和解压预算在领域导入前校验。CRC 不是来源认证。',
-    source: { path: 'apps/studio-server/src/main.ts', line: 648 },
+    source: { path: 'apps/studio-server/src/codecs/card-transfer-service.ts', line: 78 },
   },
   {
     id: 'router', region: 'server', title: 'Studio RPC Router', kind: 'ROUTING',
@@ -102,21 +102,21 @@ export const items: MapItem[] = [
     summary: '创建 Card、Prompt Resources 和绑定。',
     detail: '角色包解析结果进入 importCardBundle。资源、脚本与文本规则复用领域导入事务；媒体由 Server 在调用前创建。',
     boundary: '创建新 Card 不是覆盖原 Card，也不自动执行包内代码。',
-    source: { path: 'packages/application-runtime/src/cards/workspace.ts', line: 130 },
+    source: { path: 'packages/application-runtime/src/cards/workspace.ts', line: 124 },
   },
   {
     id: 'timeline-create', region: 'runtime', title: '创建 Timeline', kind: 'DOMAIN',
     summary: '物化初始 State、Branch 与 Opening。',
-    detail: '以 Card 当前声明生成初始状态和 Opening，并在共享 SQLite 事务中创建 State 与 Narrative。运行依赖与动态文本引用具有不同生命周期。',
+    detail: '按 Card 的 extensionAdoptions 校验安装身份、版本与已注册 State 贡献，物化初始 State 和所选 Opening；共享事务保存 Timeline 采用记录、Branch 与 State Revision。',
     boundary: '创建 Timeline 不自动复制整套资源，也不创建 Agent Session。',
-    source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 415 },
+    source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 349 },
   },
   {
     id: 'narrative-input', region: 'runtime', title: '提交用户正文', kind: 'DOMAIN',
     summary: '先保存 Narrative Input，再交给 Session。',
     detail: 'appendNarrativeInput 使用目标 Branch、节点身份与预期 Head 追加用户正文。Client 将提交后的节点 ID 作为 Run 输入身份。',
     boundary: '后续 Session 投递失败不会回滚已经提交的用户节点。',
-    source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 221 },
+    source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 230 },
   },
   {
     id: 'tools', region: 'runtime', title: '受控 Tool 执行', kind: 'CAPABILITY',
@@ -130,21 +130,35 @@ export const items: MapItem[] = [
     summary: '持久化工作身份，引用 Preset 与可选 Timeline。',
     detail: 'Session Header 保存 agentPresetId 和可选 timelineId。Transcript 保存 message、reasoning、Invocation、Result、Observation 与 Run 状态。',
     boundary: 'Session 与 Timeline 关联但不互相拥有。可无 Timeline 创建 Session。',
-    source: { path: 'packages/application-runtime/src/runtime/agents-runtime.ts', line: 180 },
+    source: { path: 'packages/application-runtime/src/runtime/agents-runtime.ts', line: 200 },
   },
   {
     id: 'prompt', region: 'runtime', title: 'PromptBuild', kind: 'COMPOSITION',
-    summary: '组合 Preset、Settings、历史与 Tool 描述。',
+    summary: '组合 Preset、Lore、历史与 Tool 描述。',
     detail: '采集来源、求值 Activation、展开宏并按 Anchor / Slot 编排。Content Tools 参与正文构建；Native Tools 以独立 tools 数组交给 Gateway。',
-    boundary: 'enabled 是作者配置，active 是本轮求值。构建不会改写原始资源。',
-    source: { path: 'packages/application-runtime/src/agents/agent-turn.ts', line: 52 },
+    boundary: 'enabled 是作者配置，active 是本轮求值。当前主链使用 Application DFS，不执行 Loom Core 的 materialize / order / emit Pass；原始资源不改写。',
+    source: { path: 'packages/application-runtime/src/agents/agent-turn.ts', line: 145 },
   },
   {
     id: 'loop', region: 'runtime', title: 'Agent Run / Loop', kind: 'EXECUTION',
     summary: 'Provider Step → Tool → Result → 下一步。',
     detail: 'Loop 记录实际 Provider Observation 并决定完成、失败或继续。Invocation 的存在决定是否执行 Tool，不仅依赖 Provider Stop Reason。',
     boundary: '持久化执行记录不等于 Server 重启后能自动恢复未完成 Run。',
-    source: { path: 'packages/application-runtime/src/agents/tool-loop.ts', line: 333 },
+    source: { path: 'packages/application-runtime/src/agents/tool-loop.ts', line: 291 },
+  },
+  {
+    id: 'lore-selection', region: 'runtime', title: 'Lore 来源选择', kind: 'CONTEXT',
+    summary: '合并 Preset 显式挂载与可选 Card Lore。',
+    detail: '读取当前 Preset 的 LoreMount，并在 useCardLore 未关闭时读取 Card 的 promptResourceIds；仅选 lore 分类，去重并检查扩展安装作用域。缺失的可选资源会跳过并留下诊断。',
+    boundary: '全局手动挂载不自动进入所有 Agent；Card 内联 lore.entries 不在这条自动消费路径中。Lore 是设定，应用偏好仍叫 Settings。',
+    source: { path: 'packages/application-runtime/src/agents/agent-turn.ts', line: 74, endLine: 109 },
+  },
+  {
+    id: 'processors', region: 'runtime', title: '作者正文加工', kind: 'PROCESSING',
+    summary: '显式选择处理器后执行 prepare / render。',
+    detail: 'Preset / Lore Entry 通过 processorId 采用已注册处理器。prepare 修改本轮候选正文或激活条件；按 DFS 顺序 render 实际采用的条目，再展开普通宏，输出模型消息。未采用处理器的条目走普通编排。',
+    boundary: '处理失败阻断构建；不能复活 enabled: false 的条目。Resume 复用已接受的消息与加工快照，不重新执行作者模板。',
+    source: { path: 'packages/application-runtime/src/prompt/process-prompt.ts', line: 22, endLine: 110 },
   },
   {
     id: 'gateway', region: 'runtime', title: 'AI Gateway', kind: 'ADAPTER',
@@ -165,7 +179,7 @@ export const items: MapItem[] = [
     summary: '验证包，记录安装目标与模块授权。',
     detail: '安装、发现、导入声明式资源与启用模块是不同操作。enableModule 验证授权并以安装目标启动对应模块。',
     boundary: '全局安装与 Card 安装身份分开；安装不等于本轮实际消费。',
-    source: { path: 'apps/studio-server/src/extensions/extension-manager.ts', line: 478 },
+    source: { path: 'apps/studio-server/src/extensions/extension-manager.ts', line: 880 },
   },
   {
     id: 'host', region: 'extensions', title: 'Extension Host', kind: 'CAPABILITY',
@@ -184,16 +198,16 @@ export const items: MapItem[] = [
   {
     id: 'resources', region: 'storage', title: 'Card / Prompt Resource', kind: 'SQLITE',
     summary: '作者配置、正文树与资源绑定的权威状态。',
-    detail: 'Card、Preset、Settings 与关联记录进入结构化存储。后续编辑修改 canonical state，PromptBuild 不读取导入的原始 Blob 作为当前正文。',
+    detail: 'Card、Preset、Lore 与关联记录进入结构化存储。后续编辑修改 canonical state，PromptBuild 不读取导入的原始 Blob 作为当前正文。',
     boundary: '导出的文件与 ZIP 是分发投影，不是第二套运行数据库。',
-    source: { path: 'packages/application-runtime/src/cards/workspace.ts', line: 138 },
+    source: { path: 'packages/application-runtime/src/cards/workspace.ts', line: 260 },
   },
   {
     id: 'narratives', region: 'storage', title: 'Narrative / State', kind: 'SQLITE',
     summary: '故事节点、Branch Head 与结构化 Revision。',
     detail: 'Narrative 保存故事权威树；State 保存可校验的结构化快照与版本。分支通过 Head 引用节点及对应 State Revision。',
     boundary: '不是 Provider message array，也不是 Agent Transcript。',
-    source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 426 },
+    source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 519 },
   },
   {
     id: 'transcript', region: 'storage', title: 'Agent Transcript', kind: 'SQLITE',
@@ -207,14 +221,14 @@ export const items: MapItem[] = [
     summary: '本地凭据引用与受控使用。',
     detail: 'Server 创建 Secret Store 与系统 Keyring Backend。SQLite 保存相关结构化记录，Gateway 通过授权路径使用凭据。',
     boundary: '扩展和界面不因持有 Profile ID 就能获得明文 API Key。',
-    source: { path: 'apps/studio-server/src/main.ts', line: 122 },
+    source: { path: 'apps/studio-server/src/server.ts', line: 116 },
   },
   {
     id: 'directory', region: 'storage', title: '角色目录投影', kind: 'FILES',
     summary: '导入成功后保存可编辑的角色文件。',
     detail: '新 Card 导入后调用 saveImportedCard。目录提供文件化编辑与分发入口；SQLite 仍是运行权威状态。',
     boundary: '目录保存可能在 Card 提交后失败。报错会提示已导入的 Card ID，不应直接重新导入。',
-    source: { path: 'apps/studio-server/src/main.ts', line: 612 },
+    source: { path: 'apps/studio-server/src/server.ts', line: 325 },
   },
 ];
 
@@ -237,7 +251,7 @@ export const connections: Connection[] = [
   { id: 'narrative-session', source: 'narratives', target: 'session', label: '提交后再投递', kind: 'call' },
   { id: 'session-transcript', source: 'session', target: 'transcript', label: '独立工作身份', kind: 'write' },
   { id: 'session-prompt', source: 'session', target: 'prompt', label: '准备本轮输入', kind: 'call' },
-  { id: 'resources-prompt', source: 'resources', target: 'prompt', label: 'Preset / Settings', kind: 'read' },
+  { id: 'resources-prompt', source: 'resources', target: 'prompt', label: 'Preset / Lore', kind: 'read' },
   { id: 'narratives-prompt', source: 'narratives', target: 'prompt', label: '授权故事投影', kind: 'read' },
   { id: 'transcript-prompt', source: 'transcript', target: 'prompt', label: '工作历史', kind: 'read' },
   { id: 'prompt-loop', source: 'prompt', target: 'loop', label: 'messages + tools', kind: 'return' },
@@ -255,9 +269,33 @@ export const connections: Connection[] = [
   { id: 'host-kernel', source: 'host', target: 'kernel', label: '注册平台能力', kind: 'call' },
   { id: 'manager-resources', source: 'manager', target: 'resources', label: '显式导入资源', kind: 'write' },
   { id: 'host-tools', source: 'host', target: 'tools', label: '贡献受控能力', kind: 'call' },
+  { id: 'resources-lore', source: 'resources', target: 'lore-selection', label: '引用与挂载', kind: 'read' },
+  { id: 'lore-processors', source: 'lore-selection', target: 'processors', label: '候选作者正文', kind: 'call' },
+  { id: 'processors-prompt', source: 'processors', target: 'prompt', label: '编排与消息投影', kind: 'return' },
+  { id: 'host-timeline', source: 'host', target: 'timeline-create', label: 'Card 显式采用', kind: 'call' },
 ];
 
 export const journeys: Journey[] = [
+  {
+    id: 'lore', title: 'Lore 进入提示词', summary: '从设定资源的采用，到本轮模型上下文。',
+    boundary: '资源存在、已挂载、条目 enabled 与本轮 active 是不同事实；加工的是本轮投影，不会覆盖作者正文。',
+    steps: [
+      { edge: 'resources-lore', title: '选择本轮来源', detail: '读取 Preset 的显式 LoreMount；useCardLore 未关闭时加入当前 Card 引用的 Lore，再按安装作用域过滤。', source: { path: 'packages/application-runtime/src/runtime/agents-runtime.ts', line: 781, endLine: 797 } },
+      { edge: 'lore-processors', title: '准备作者正文', detail: '将资源树、历史与当前输入组成构建模型。只有指定 processorId 的 Preset / Lore 条目才交给对应处理器。', source: { path: 'packages/application-runtime/src/agents/agent-turn.ts', line: 111, endLine: 151 } },
+      { edge: 'processors-prompt', title: '按顺序编排与加工', detail: '可选 prepare 先处理候选条目，Activation 与 DFS 确定发送顺序，再 render 被采用的正文并展开普通宏。未采用处理器时直接编排。', source: { path: 'packages/application-runtime/src/prompt/process-prompt.ts', line: 59, endLine: 109 } },
+      { edge: 'prompt-loop', title: '交付模型上下文', detail: '消息投影进入 Agent Run；Native tools 单独传递。恢复时复用已接受消息及加工快照。', source: { path: 'packages/application-runtime/src/agents/agent-turn.ts', line: 152, endLine: 167 } },
+    ],
+  },
+  {
+    id: 'adoption', title: '扩展参与故事', summary: '从安装和注册，到 Card 显式采用与 Timeline 初始化。',
+    boundary: '声明 Timeline participation 的扩展需要 Card 显式采用。采用关系属于 Timeline，Branch 保存各自的 State Revision。',
+    steps: [
+      { edge: 'extension-manager', title: '确定安装身份', detail: '扩展安装到全局或指定 Card；资源导入与模块启用分别管理。' },
+      { edge: 'manager-host', title: '授权并注册贡献', detail: '启用模块后由 Host 注册贡献；仅安装包不代表贡献已经可供故事使用。', source: { path: 'apps/studio-server/src/extensions/extension-manager.ts', line: 880, endLine: 922 } },
+      { edge: 'host-timeline', title: '按 Card 采用声明校验', detail: '创建故事时读取 extensionAdoptions，检查安装身份、参与声明、State 贡献作用域与版本，并运行初始化。Host 不会自行创建 Timeline。', source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 361, endLine: 441 } },
+      { edge: 'create-narrative', title: '提交故事与采用记录', detail: '在共享事务中再次检查版本，保存 Timeline 采用记录、初始 State、Branch 和 Opening。', source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 480, endLine: 537 } },
+    ],
+  },
   {
     id: 'import', title: '导入角色', summary: '从一个角色文件到本地 Card 与资源。',
     boundary: '媒体、领域提交和目录保存不是一个跨存储原子事务；导入不启动 Agent。',
@@ -290,7 +328,7 @@ export const journeys: Journey[] = [
       { edge: 'api-router', title: '调用本地 API', detail: '先调用 appendInput，而不是直接请求模型。' },
       { edge: 'router-input', title: '检查目标分支', detail: 'Narrative Runtime 执行节点追加。' },
       { edge: 'input-narrative', title: '持久化用户正文', detail: '检查 Head 并提交节点；后续失败不撤销这一步。' },
-      { edge: 'narrative-session', title: '确保工作 Session', detail: 'Client 选择或创建关联 Session，再投递已提交 inputNodeId。' },
+      { edge: 'narrative-session', title: '校验主写作 Session', detail: 'Client 要求已有属于当前 Timeline 的主写作 Session，再投递已提交 inputNodeId；缺失时正文仍已提交。' },
       { edge: 'session-prompt', title: '准备本轮上下文', detail: 'Run 使用明确的 Timeline、Branch 和输入节点身份。' },
       { edge: 'prompt-loop', title: '开始 Agent Run', detail: '编译后的输入进入模型与工具循环。' },
     ],
@@ -322,5 +360,5 @@ export const journeys: Journey[] = [
 ];
 
 export function sourceUrl(source: Source) {
-  return `https://github.com/The-LoomStudio/LoomStudio/blob/${snapshot.baseline}/${source.path}#L${source.line}`;
+  return `https://github.com/The-LoomStudio/LoomStudio/blob/${snapshot.baseline}/${source.path}#L${source.line}${source.endLine ? `-L${source.endLine}` : ''}`;
 }

@@ -39,6 +39,7 @@
   pointer-events: none;
 }
 .am-toolbar > * { pointer-events: auto; }
+.am-step-source { display: inline-flex; align-items: center; gap: 4px; margin: 4px 0 8px 40px; font-size: 12px; color: inherit; text-underline-offset: 3px; }
 .am-brand, .am-view-switch, .am-journeys, .am-search, .am-sidebar-toggle, .am-controls, .am-status > span {
   background: var(--am-glass);
   backdrop-filter: blur(14px);
@@ -125,6 +126,8 @@
 .am-node { position: relative; height: 140px; border: 0; border-radius: 24px; background: var(--am-surface); pointer-events: auto; }
 .am-node.is-highlighted { box-shadow: 0 2px 0 var(--am-border); }
 .am-node.is-inspected { box-shadow: 0 0 0 3px var(--am-highlight); }
+.am-node.is-muted { opacity: 0.4; }
+.am-node.is-muted:hover, .am-node.is-muted:focus-within { opacity: 1; }
 .am-node-content { border: 0; background: none; border-radius: inherit; padding: 18px 20px; width: 100%; height: 100%; text-align: left; display: flex; flex-direction: column; gap: 9px; }
 .am-node-title { border: 0; padding: 0; background: transparent; text-align: left; min-width: 0; }
 .am-node:hover, .am-node:focus-within { box-shadow: 0 0 0 2px var(--am-border); }
@@ -233,6 +236,14 @@
 .am-neighbors button { display: block; text-align: left; width: 100%; border: 0; border-bottom: 1px solid var(--am-border); padding: 11px 0; background: none; }
 .am-neighbors span, .am-neighbors small { display: block; font-size: 12px; }
 .am-neighbors small { color: var(--am-muted); font-size: 10px; margin-top: 5px; }
+.am-reach-switch { display: flex; gap: 4px; flex-wrap: wrap; }
+.am-reach-switch button, .am-reach-fit { border: 1px solid var(--am-border); border-radius: 999px; padding: 7px 10px; background: var(--am-paper); font: inherit; font-size: 12px; }
+.am-reach-switch button[aria-pressed='true'] { background: var(--am-highlight); color: var(--am-on-highlight); border-color: var(--am-highlight); }
+.am-sidebar .am-reach-note { margin: 12px 0; font-size: 11px; }
+.am-reach-fit { display: inline-flex; align-items: center; gap: 6px; }
+.am-relation { display: flex; align-items: center; border-bottom: 1px solid var(--am-border); gap: 8px; }
+.am-relation > button { border-bottom: 0; min-width: 0; }
+.am-relation .am-route-button { flex: 0 0 auto; width: auto; display: inline-flex; align-items: center; gap: 2px; font-size: 11px; padding: 10px 4px; }
 .am-node-index button { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 0; background: none; border-bottom: 1px solid var(--am-border); padding: 11px 0; text-align: left; font-size: 12px; }
 .am-source code { display: block; font: 10px/1.7 var(--loom-site-font-mono); overflow-wrap: anywhere; color: var(--am-muted); }
 .am-source a { display: flex; align-items: center; gap: 4px; margin: 12px 0; color: var(--am-highlight); font-size: 12px; }
@@ -280,4 +291,33 @@
 @media (prefers-reduced-motion: reduce) {
   .am-node { transition: none; }
   .am-app .react-flow__edge.am-signal-current .react-flow__edge-path { animation: none; }
+}
+
+/* Semantic diagrams share the map's paper, typography and interaction controls. */
+.am-semantic-frame { width: 100%; height: 100%; box-sizing: border-box; border: 1px dashed var(--am-border); border-radius: 18px; background: color-mix(in srgb, var(--am-surface) 45%, transparent); padding: 17px 22px; pointer-events: none; }
+.am-semantic-frame strong { font-size: 15px; display: block; }
+.am-semantic-frame span { display: block; font-size: 12px; color: var(--am-muted); margin-top: 5px; }
+.am-semantic-card { width: 240px; height: 112px; box-sizing: border-box; border: 1.5px solid var(--am-border); background: var(--am-surface); border-radius: 12px; box-shadow: 3px 4px 0 color-mix(in srgb, var(--am-border) 18%, transparent); }
+.am-semantic-card button { text-align: left; width: 100%; height: 100%; border: 0; background: none; padding: 12px 16px; border-radius: inherit; display: flex; flex-direction: column; gap: 6px; }
+.am-semantic-card small { font: 10px var(--loom-site-font-mono); color: var(--am-muted); }
+.am-semantic-card strong { font-family: var(--am-heading-font); font-size: 19px; line-height: 1.2; }
+.am-semantic-card span { font-size: 12px; color: var(--am-muted); }
+.am-semantic-card.is-data { border-radius: 5px; border-top-width: 4px; }
+.am-semantic-card.is-decision { border-style: dashed; }
+.am-semantic-card.is-state { border-radius: 28px; }
+.am-semantic-card.is-success { border-width: 4px; border-style: double; }
+.am-semantic-card.is-failure { border-width: 4px; border-style: double; }
+.am-semantic-card.is-waiting { border-style: dashed; }
+.am-semantic-card.is-inspected { border-color: var(--am-highlight); }
+.am-semantic-edge { position: absolute; pointer-events: all; border: 1px solid transparent; border-radius: 5px; background: var(--am-paper); padding: 4px 7px; font: 11px var(--am-round-font); white-space: nowrap; }
+.am-semantic-edge:hover, .am-semantic-edge.is-inspected { border-color: var(--am-highlight); }
+.am-semantic-lifeline { height: 100%; border-left: 1px dashed var(--am-line); opacity: .5; }
+.am-semantic .react-flow__node-frame, .am-semantic .react-flow__node-lifeline { pointer-events: none; }
+.am-view-switch { max-width: 100%; overflow-x: auto; }
+.am-semantic .am-node-index small { font-size: 10px; color: var(--am-muted); }
+.am-semantic .am-canvas { top: 108px; bottom: 46px; }
+.am-semantic[data-sidebar-open='true'] .am-canvas { right: 352px; }
+@media (max-width: 700px) {
+  .am-semantic .am-canvas { top: 140px; }
+  .am-semantic[data-sidebar-open='true'] .am-canvas { right: 0; }
 }

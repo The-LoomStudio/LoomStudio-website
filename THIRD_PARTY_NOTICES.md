@@ -1,5 +1,13 @@
 # Third-party notices
 
+## Archify (repository-local development skill)
+
+This repository includes `tt-a1i/archify` at commit `58ab0b98d2d0def8e49dced705c7b566936723ec` under `.agents/skills/archify` for architecture-map development.
+
+Source: <https://github.com/tt-a1i/archify>
+
+The upstream MIT license and bundled third-party notices are preserved in [.agents/skills/archify/LICENSE](.agents/skills/archify/LICENSE) and [.agents/skills/archify/THIRD_PARTY_NOTICES.md](.agents/skills/archify/THIRD_PARTY_NOTICES.md).
+
 ## Clouds using CSS 3D Transforms
 
 The cloud presentation in this website uses a cloud sprite and visual technique derived from “Clouds using CSS 3D Transforms” by Jaume Sanchez:

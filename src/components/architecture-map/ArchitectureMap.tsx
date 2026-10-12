@@ -4,15 +4,19 @@ import {
   ReactFlow, ReactFlowProvider, useReactFlow, type Edge, type EdgeProps, type Node, type NodeProps,
 } from '@xyflow/react';
 import { ArrowLeft, ArrowUpRight, ChevronRight, Cloud, Database, Focus, Map as MapIcon, MessageCircle, Minus, Monitor, PanelRightClose, PanelRightOpen, Plus, Puzzle, Search, SendHorizontal, Server, ShieldCheck, Square, Workflow, X } from 'lucide-react';
-import { connections, items, journeys, regions, snapshot, sourceUrl, type MapItem, type RegionId } from './map-data';
+import { connections, items, journeys, regions, snapshot, sourceUrl, type MapItem, type RegionId, type Journey, type Connection } from './map-data';
 import { concepts } from './concepts';
+import { MapViewTabs, type MapView } from './MapViewTabs';
+import { SemanticMap } from './SemanticMap';
+import { semanticScenes } from './semantic-scenes';
+import { exploreConnections, type ReachDirection } from './explore';
 import type { DisplayImage } from '../../lib/site-images';
 import '@xyflow/react/dist/style.css';
 import './architecture-map.css';
 
 type MapProps = { nom: DisplayImage; cardCover: DisplayImage };
 type DetailNode = Node<MapItem & {
-  highlighted: boolean; inspected: boolean; inspect: () => void;
+  highlighted: boolean; inspected: boolean; muted: boolean; inspect: () => void;
   sourceSide: Position; targetSide: Position;
   cardCover: DisplayImage;
   explain: (term: string) => void;
@@ -29,7 +33,7 @@ const regionLabels = { client: '界面入口', server: '本地服务', runtime: 
 const regionIcons = { client: Monitor, server: Server, runtime: Workflow, storage: Database, extensions: Puzzle, external: Cloud };
 
 function TermText({ text, explain }: { text: string; explain: (term: string) => void }) {
-  return <>{text.split(/\b(Settings|Preset|Timeline|Session|Run|inputNodeId)\b/g).map((part, index) =>
+  return <>{text.split(/\b(Lore|Preset|Timeline|Branch|State|Session|Run|inputNodeId)\b/g).map((part, index) =>
     concepts[part] ? <button key={index} className="am-term" onClick={() => explain(part)} aria-label={`解释 ${part}`} data-definition={concepts[part].summary}>{part}</button> : part,
   )}</>;
 }
@@ -47,7 +51,7 @@ function Detail({ data }: NodeProps<DetailNode>) {
     : data.region === 'external' || data.id === 'gateway' ? 'signal'
     : 'note';
   return (
-    <div className={`am-node am-shape-${shape}${data.simulation ? ' am-simulation-node' : ''}${data.highlighted ? ' is-highlighted' : ''}${data.inspected ? ' is-inspected' : ''}${data.delivery ? ` is-${data.delivery}` : ''}`} aria-busy={data.delivery === 'processing'}>
+    <div className={`am-node am-shape-${shape}${data.simulation ? ' am-simulation-node' : ''}${data.highlighted ? ' is-highlighted' : ''}${data.inspected ? ' is-inspected' : ''}${data.muted ? ' is-muted' : ''}${data.delivery ? ` is-${data.delivery}` : ''}`} aria-busy={data.delivery === 'processing'}>
       <Handle type="target" position={data.targetSide} />
       <div className="am-node-content nopan" onClick={event => { if (!(event.target as Element).closest('button, textarea, form')) data.inspect(); }}>
         {data.simulation ? <>
@@ -167,6 +171,8 @@ const connectionKinds = { call: '调用', write: '写入', read: '读取', retur
 const regionColumns = { client: 2, server: 2, runtime: 2, storage: 3, extensions: 1, external: 1 };
 
 const examples: Record<string, { title: string; text: string }> = {
+  lore: { title: '让 Nom 记得图书馆规则', text: '把“借阅规则”作为 Lore 挂到故事助手的 Preset。它是否进入这一轮，还取决于条目启用、激活与编排；保存资源并不等于已经发送给模型。' },
+  adoption: { title: '让扩展加入 Nom 的故事', text: 'Card 显式采用一个参与 Timeline 的扩展。新故事初始化它的 State；仅在全局安装这个扩展，不会自动替所有故事添加状态。' },
   import: { title: 'Nom 的角色包', text: '假设选中 nom.loomcard.zip：媒体先保存为 Blob，随后导入 Card 与资源。此时还没有故事线或 Session。' },
   timeline: { title: '让 Nom 的故事开始', text: '从已导入的 Card 开始游玩，生成 Timeline、初始状态和 Opening；Agent 的工作历史仍独立存在。' },
   submit: { title: '“Nom，打开那本书。”', text: '这句话先成为 Narrative Input，再把该节点的身份交给 Session 创建 Run。投递失败不会抹去这句话。' },
@@ -174,9 +180,8 @@ const examples: Record<string, { title: string; text: string }> = {
   extension: { title: '为故事加一个扩展', text: '假设安装一个扩展包：安装记录、资源导入、模块启用各自独立，安装成功不等于当前故事正在使用它。' },
 };
 
-function MapCanvas({ nom, cardCover }: MapProps) {
+function MapCanvas({ nom, cardCover, view, setView }: MapProps & { view: 'modules' | 'flows'; setView: (view: MapView) => void }) {
   const flow = useReactFlow<DetailNode | RegionNode, Edge>();
-  const [view, setView] = useState<'modules' | 'flows'>('modules');
   const [journeyId, setJourneyId] = useState('import');
   const [selectedId, setSelectedId] = useState<string>();
   const [selectedConcept, setSelectedConcept] = useState<string>();
@@ -186,7 +191,9 @@ function MapCanvas({ nom, cardCover }: MapProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [draft, setDraft] = useState('Nom，打开那本书。');
   const [simulationStep, setSimulationStep] = useState<number>();
-  const journey = view === 'flows' ? journeys.find(value => value.id === journeyId) : undefined;
+  const [reachDirection, setReachDirection] = useState<ReachDirection>('direct');
+  const [exploredJourney, setExploredJourney] = useState<Journey>();
+  const journey = view === 'flows' ? exploredJourney ?? journeys.find(value => value.id === journeyId) : undefined;
   const concept = selectedConcept ? concepts[selectedConcept] : undefined;
   const simulationActive = journey?.id === 'submit' && simulationStep !== undefined;
   const simulationPlaying = simulationActive && simulationStep < journey.steps.length;
@@ -200,6 +207,11 @@ function MapCanvas({ nom, cardCover }: MapProps) {
     return () => window.clearTimeout(timer);
   }, [simulationStep, simulationPlaying]);
   const selected = items.find(item => item.id === selectedId);
+  const reachable = selected ? exploreConnections(selected.id, reachDirection, connections) : new Map<string, Connection[]>();
+  const relatedJourneys = selected ? journeys.filter(value => value.steps.some(step => {
+    const edge = connectionById.get(step.edge)!;
+    return edge.source === selected.id || edge.target === selected.id;
+  })) : [];
   const selectedRegion = regions.find(region => region.id === selectedId);
   const pathItems = new Set(journey?.steps.flatMap(step => {
     const edge = connectionById.get(step.edge)!;
@@ -229,7 +241,7 @@ function MapCanvas({ nom, cardCover }: MapProps) {
     };
   });
   const matches = query.trim() ? items.filter(item =>
-    `${item.title} ${item.kind} ${item.summary} ${item.source.path}`.toLowerCase().includes(query.trim().toLowerCase()),
+    `${item.id} ${item.title} ${item.kind} ${item.summary} ${item.detail} ${item.boundary} ${item.source.path}`.toLowerCase().includes(query.trim().toLowerCase()),
   ) : [];
 
   function focusNodes(ids: string[]) {
@@ -243,6 +255,7 @@ function MapCanvas({ nom, cardCover }: MapProps) {
 
   function inspect(id: string, focus = false) {
     setSelectedId(id);
+    setReachDirection('direct');
     setSelectedConcept(undefined);
     setSidebarOpen(true);
     if (focus) {
@@ -265,8 +278,9 @@ function MapCanvas({ nom, cardCover }: MapProps) {
   }
 
   function chooseJourney(id: string) {
+    setExploredJourney(undefined);
     setView(id === 'overview' ? 'modules' : 'flows');
-    if (id !== 'overview') setJourneyId(id);
+    if (id !== 'overview' && id !== 'explored') setJourneyId(id);
     setSelectedId(undefined);
     setSelectedConcept(undefined);
     setActiveStep(undefined);
@@ -276,9 +290,27 @@ function MapCanvas({ nom, cardCover }: MapProps) {
     if (chosen) {
       const rowCount = Math.ceil((chosen.steps.length + 1) / 3);
       void flow.fitBounds({ x: 20, y: 40, width: 1100, height: (rowCount - 1) * 310 + 140 }, { padding: 0.12, duration: 320 });
-    } else {
+    } else if (id === 'overview') {
       void flow.fitBounds({ x: 0, y: 0, width: 2840, height: 1940 }, { padding: 0.12, duration: 320 });
     }
+  }
+
+  function showRoute(targetId: string) {
+    const route = reachable.get(targetId);
+    if (!route?.length) return;
+    const first = items.find(item => item.id === route[0].source)!;
+    const last = items.find(item => item.id === route[route.length - 1].target)!;
+    chooseJourney('explored');
+    setExploredJourney({
+      id: 'explored', title: `${first.title} → ${last.title}`,
+      summary: `沿地图中已记录的箭头连接，展示一条 ${route.length} 步的最短关系路径。`,
+      boundary: '这是架构关系导航，不表示每次请求必经此路径，也不表示故障影响范围。条件与权限以节点边界和具体业务流程为准。',
+      steps: route.map(edge => ({ edge: edge.id, title: edge.label,
+        detail: `${items.find(item => item.id === edge.source)!.title} → ${items.find(item => item.id === edge.target)!.title} · ${connectionKinds[edge.kind]}` })),
+    });
+    setSidebarOpen(true);
+    const rowCount = Math.ceil((route.length + 1) / 3);
+    void flow.fitBounds({ x: 20, y: 40, width: 1100, height: (rowCount - 1) * 310 + 140 }, { padding: 0.12, duration: 320 });
   }
 
   const nodes: (DetailNode | RegionNode)[] = [
@@ -305,6 +337,7 @@ function MapCanvas({ nom, cardCover }: MapProps) {
           onStop: () => setSimulationStep(undefined), playing: simulationPlaying, status: simulationStatus,
         } : undefined,
         highlighted: Boolean(journey), inspected: selectedId === record.item.id,
+        muted: !journey && Boolean(selected) && selectedId !== record.item.id && !reachable.has(record.item.id),
         sourceSide: record.sourceSide, targetSide: record.targetSide,
         inspect: () => inspect(record.item.id),
       },
@@ -350,12 +383,13 @@ function MapCanvas({ nom, cardCover }: MapProps) {
           <img src="/brand/website_logo.png" width="26" height="26" alt="" />
           <h1>Loom Studio <span>架构地图</span></h1>
         </div>
-        <nav className="am-view-switch" aria-label="架构视图">
-          <button type="button" aria-pressed={view === 'modules'} onClick={() => chooseJourney('overview')}><MapIcon size={15} />全局模块</button>
-          <button type="button" aria-pressed={view === 'flows'} onClick={() => chooseJourney(journeyId)}><Workflow size={15} />操作流程</button>
-        </nav>
+        <MapViewTabs view={view} onChange={next => {
+          if (next === 'modules') chooseJourney('overview');
+          else if (next === 'flows') chooseJourney(exploredJourney ? 'import' : journeyId);
+          else setView(next);
+        }} />
         {journey && <nav className="am-journeys" aria-label="架构路径">
-          {journeys.map(value => <button key={value.id} type="button" aria-pressed={journeyId === value.id} onClick={() => chooseJourney(value.id)}>{value.title}</button>)}
+          {journeys.map(value => <button key={value.id} type="button" aria-pressed={journey?.id === value.id} onClick={() => chooseJourney(value.id)}>{value.title}</button>)}
         </nav>}
         <div className="am-search">
           <Search size={15} aria-hidden="true" />
@@ -409,7 +443,7 @@ function MapCanvas({ nom, cardCover }: MapProps) {
               <section><p>{concept.detail}</p></section>
               <section className="am-model"><h3>结构示例 · 字段节选</h3><pre><code>{JSON.stringify(concept.example, null, 2)}</code></pre><p>示例身份与正文是虚构的，不是正在运行的数据。</p></section>
               <section><h3>字段含义</h3><dl className="am-model-fields">{concept.fields.map(field => <div key={field.name}><dt>{field.name}</dt><dd>{field.meaning}</dd></div>)}</dl></section>
-              <section className="am-source"><h3>源码依据</h3><code>{concept.source.path}:{concept.source.line}</code><a href={sourceUrl(concept.source)} target="_blank" rel="noreferrer">查看公开基线 <ArrowUpRight size={14} /></a><p>{snapshot.note}</p></section>
+              <section className="am-source"><h3>源码依据</h3><code>{concept.source.path}:{concept.source.line}</code><a href={sourceUrl(concept.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a><p>{snapshot.note}</p></section>
             </> : selected ? <>
               <button className="am-back" onClick={() => setSelectedId(undefined)}><ArrowLeft size={14} />{journey ? '返回路径' : '返回总览'}</button>
               <p className={`am-category am-region-${selected.region}`}>{selected.kind}</p>
@@ -418,19 +452,29 @@ function MapCanvas({ nom, cardCover }: MapProps) {
               <section><h3>当前职责</h3><p><TermText text={selected.detail} explain={explain} /></p></section>
               <section className="am-boundary"><h3>边界</h3><p><TermText text={selected.boundary} explain={explain} /></p></section>
               <section>
-                <h3>关联节点</h3>
-                <div className="am-neighbors">{connections.filter(edge => edge.source === selected.id || edge.target === selected.id).map(edge => {
-                  const outgoing = edge.source === selected.id;
-                  const other = items.find(item => item.id === (outgoing ? edge.target : edge.source))!;
-                  return <button key={edge.id} onClick={() => inspect(other.id, true)}>
-                    <span>{outgoing ? '→' : '←'} {other.title}</span><small>{edge.label}</small>
-                  </button>;
+                <h3>探索关系</h3>
+                <div className="am-reach-switch" role="group" aria-label="关系方向">
+                  {([['direct', '直接关联'], ['upstream', '上游'], ['downstream', '下游']] as const).map(([direction, label]) =>
+                    <button key={direction} aria-pressed={reachDirection === direction} onClick={() => setReachDirection(direction)}>{label}</button>)}
+                </div>
+                <p className="am-reach-note" aria-live="polite">{reachable.size} 个关联模块 · {reachDirection === 'direct' ? '与当前模块直接相连' : reachDirection === 'upstream' ? '沿箭头可到达当前模块' : '从当前模块沿箭头可到达'}。关系包含读取、写入和返回，不代表运行时影响范围。</p>
+                {!journey && <button className="am-reach-fit" onClick={() => focusNodes([selected.id, ...reachable.keys()])}><Focus size={14} />定位这些模块</button>}
+                <div className="am-neighbors">{[...reachable].map(([id, route]) => {
+                  const other = items.find(item => item.id === id)!;
+                  return <div className="am-relation" key={id}>
+                    <button onClick={() => inspect(id, true)}><span>{other.title}</span><small>{regionLabels[other.region]} · {route.length === 1 ? route[0].label : `${route.length} 步关系`}</small></button>
+                    <button className="am-route-button" onClick={() => showRoute(id)} aria-label={`查看与${other.title}之间的关系路径`}>看路径 <ChevronRight size={13} /></button>
+                  </div>;
                 })}</div>
+                {!reachable.size && <p>地图尚未记录这个方向的关系。可以切换方向，或查看下方源码。</p>}
               </section>
+              {relatedJourneys.length > 0 && <section><h3>相关操作流程</h3><div className="am-overview-paths">{relatedJourneys.map(value =>
+                <button key={value.id} onClick={() => chooseJourney(value.id)}><span><strong>{value.title}</strong><small>{value.summary}</small></span><ChevronRight size={16} /></button>,
+              )}</div></section>}
               <section className="am-source">
                 <h3>源码依据</h3>
                 <code>{selected.source.path}:{selected.source.line}</code>
-                <a href={sourceUrl(selected.source)} target="_blank" rel="noreferrer">查看公开基线 <ArrowUpRight size={14} /></a>
+                <a href={sourceUrl(selected.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a>
                 <p>{snapshot.note}</p>
               </section>
             </> : selectedRegion ? <>
@@ -443,10 +487,10 @@ function MapCanvas({ nom, cardCover }: MapProps) {
             </> : journey ? <>
               <h2>{journey.title}</h2>
               <p className="am-lead">{journey.summary}</p>
-              <section className="am-example">
+              {examples[journey.id] && <section className="am-example">
                 <img src={nom.src} srcSet={nom.srcSet} sizes="72px" width="72" height="72" alt="抱着书的 Nom" />
                 <div><h3>示例 · {examples[journey.id].title}</h3><p>{examples[journey.id].text}</p></div>
-              </section>
+              </section>}
               <section className="am-boundary"><h3>先记住这个边界</h3><p><TermText text={journey.boundary} explain={explain} /></p></section>
               <ol className="am-steps">
                 {journey.steps.map((step, index) => <li key={step.edge}>
@@ -457,6 +501,7 @@ function MapCanvas({ nom, cardCover }: MapProps) {
                     <span className="am-step-number">{index + 1}</span>
                     <span><strong>{step.title}</strong><span>{step.detail}</span></span>
                   </button>
+                  {step.source && <a className="am-step-source" href={sourceUrl(step.source)} target="_blank" rel="noreferrer" aria-label={`${step.title}的源码依据`}>源码依据 <ArrowUpRight size={12} /></a>}
                 </li>)}
               </ol>
               <section><h3>路径节点</h3><div className="am-node-index">{items.filter(item => pathItems.has(item.id)).map(item =>
@@ -466,6 +511,7 @@ function MapCanvas({ nom, cardCover }: MapProps) {
               <div className="am-nom-intro"><img src={nom.src} srcSet={nom.srcSet} sizes="110px" width="110" height="110" alt="Nom 抱着故事书" /><span>Nom 的创作小地图</span></div>
               <h2>从界面到数据，<br />Loom 如何运转</h2>
               <p className="am-lead">本地优先的创作系统。故事、智能体工作和上下文装配，各自有明确的权威边界。</p>
+              <section><h3>怎么读这张地图</h3><p>先从全局模块了解职责，再选择一个模块探索直接关联或上下游。点击“看路径”可逐步追踪关系；操作流程则解释真实业务的条件与边界。搜索支持术语、职责、边界和源码路径。</p></section>
               <section className="am-facts">
                 <h3>三个关键区别</h3>
                 <p><strong>故事 ≠ 聊天记录</strong>Narrative Timeline 保存剧情；Agent Session 保存执行与工作历史。</p>
@@ -476,10 +522,10 @@ function MapCanvas({ nom, cardCover }: MapProps) {
                 <button key={value.id} onClick={() => chooseJourney(value.id)}><span><strong>{value.title}</strong><small>{value.summary}</small></span><ChevronRight size={16} /></button>,
               )}</div></section>
               <section><h3>数据概念</h3><div className="am-concept-list">{Object.keys(concepts).map(term => <button key={term} onClick={() => explain(term)}>{term}<ChevronRight size={14} /></button>)}</div></section>
-              <section className="am-boundary"><h3>尚未覆盖</h3><p>未完成 Run 的重启恢复、Client Renderer 细节及摘要内部流程不在这张首版地图中。注册、付款、Convex、Modal 与 R2 不是本图描述的架构。</p></section>
+              <section className="am-boundary"><h3>尚未覆盖</h3><p>未完成 Run 的重启恢复、Client Renderer 细节及摘要内部流程不在本图中。注册、付款、Convex、Modal 与 R2 不是本图描述的架构。</p></section>
             </>}
           </div>
-          <footer className="am-snapshot"><span>核对于 {snapshot.date}</span><span>本地工作区 · 只读文档</span></footer>
+          <footer className="am-snapshot"><span>核对于 {snapshot.date}</span><span>{snapshot.baseline.slice(0, 7)} · 只读文档</span></footer>
         </aside>
       </div>
       <footer className="am-status">
@@ -491,5 +537,8 @@ function MapCanvas({ nom, cardCover }: MapProps) {
 }
 
 export default function ArchitectureMap(props: MapProps) {
-  return <ReactFlowProvider><MapCanvas {...props} /></ReactFlowProvider>;
+  const [view, setView] = useState<MapView>('modules');
+  return view === 'modules' || view === 'flows'
+    ? <ReactFlowProvider key="legacy"><MapCanvas {...props} view={view} setView={setView} /></ReactFlowProvider>
+    : <ReactFlowProvider key={view}><SemanticMap scene={semanticScenes[view]} onViewChange={setView} /></ReactFlowProvider>;
 }
