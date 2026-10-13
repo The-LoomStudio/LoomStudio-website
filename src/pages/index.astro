@@ -650,6 +650,7 @@ const features = [
     position: relative;
     min-height: 850px;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     place-items: center;
     overflow: hidden;
     background: var(--loom-site-bg);
@@ -659,6 +660,7 @@ const features = [
   }
   .architecture__inner {
     position: relative;
+    min-width: 0;
     z-index: 1;
     border-radius: 30px;
     padding: 56px 40px;
@@ -757,6 +759,7 @@ const features = [
     .manifesto__features article { min-height: auto; }
     .product__legend > div { padding: 24px 12px; }
     .architecture { padding: 110px 0; }
+    .architecture__inner { padding: 32px 0; }
     .card-stack-banner,
     .card-stack-banner__stage { min-height: 620px; }
     [data-chapter]::after { display: none; }

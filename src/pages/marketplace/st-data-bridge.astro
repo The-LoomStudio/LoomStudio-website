@@ -1,0 +1,84 @@
+---
+import ExtensionLayout from '../../layouts/ExtensionLayout.astro';
+import ExtensionArtwork from '../../components/extensions/ExtensionArtwork.astro';
+import BridgeShowcase from '../../components/extensions/BridgeShowcase.astro';
+import { ArrowUpRight } from '@lucide/astro';
+const repository = 'https://github.com/The-LoomStudio/LS_STBridge';
+---
+
+<ExtensionLayout
+  name="ST Data Bridge"
+  description="将 SillyTavern 角色卡、世界书、预设与聊天记录带入 Loom Studio。了解 ST Data Bridge 的资源迁移、EJS / MVU 兼容与使用方式。"
+  headline="熟悉的角色，故事的下一站。"
+  intro="那些认真写下的设定，不必从头再来。把 SillyTavern 中的角色、世界书、预设与聊天记录带进 Loom Studio，接着写下一段故事。"
+  category="DATA BRIDGE"
+  tags={['PNG / JSON 角色卡', '世界书与预设', 'JSONL 会话', 'EJS / MVU 兼容']}
+  repository={repository}
+  related={{ name: 'The World', href: '/marketplace/the-world', copy: '为带来的故事，添上持续变化的时间、地点和天气。' }}
+>
+  <ExtensionArtwork slot="visual" kind="bridge" />
+
+  <section class="extension-section container" id="overview">
+    <div class="extension-section__heading">
+      <div><p class="eyebrow">BRING YOUR STORIES</p><h2>把创作积累，<br />变成新的起点。</h2></div>
+      <p>从一张角色卡开始，也可以迁移整个数据目录。导入后的内容成为 Loom Studio 的原生资源，可以继续编辑、组合和使用。</p>
+    </div>
+    <div class="extension-features">
+      <article><small>01 / CHARACTERS</small><h3>带上角色的来处</h3><p>识别 PNG 与 JSON 角色卡，支持 V2 / V3 格式。角色描述、性格、场景、默认与替代开场，以及内嵌世界书，按对应字段转换。</p></article>
+      <article><small>02 / CONTEXT</small><h3>保留世界的设定</h3><p>世界书转为 Lore，保留正文、顺序、启停和支持的触发规则。预设转为原生提示词编排，随附正则转换为可支持的文本规则。</p></article>
+      <article><small>03 / CONTINUITY</small><h3>接上已经发生的故事</h3><p>整体迁移时，将能够匹配到本批角色的 JSONL 聊天记录转为故事时间线。已有对话进入新工作台，成为继续创作的上下文。</p></article>
+    </div>
+  </section>
+
+  <section class="extension-section container" id="showcase">
+    <div class="extension-section__heading">
+      <div><p class="eyebrow">ONE BRIDGE, MANY STORIES</p><h2>带来的内容，<br />在这里找到位置。</h2></div>
+      <p>角色卡、世界书、预设与会话各有去处。切换下面的资源类型，看一段雾港故事如何落入 Loom Studio。</p>
+    </div>
+    <BridgeShowcase />
+  </section>
+
+  <section class="extension-section container" aria-labelledby="bridge-compatibility-title">
+    <div class="extension-section__heading">
+      <div><p class="eyebrow">EJS / MVU</p><h2 id="bridge-compatibility-title">让一部分动态设定，<br />也能接着运转。</h2></div>
+      <p>对于采用 EJS / MVU 兼容能力的导入内容，模板可以读取当前变量，受支持的变量更新会写入 Loom State。实际兼容程度取决于卡片使用的语法和 API。</p>
+    </div>
+    <div class="compat-example">
+      <div><small>当前变量</small><code>好感度 = 42</code></div>
+      <div><small>EJS 世界书模板</small><code>{"当前好感度：<%= getvar('stat_data.好感度') %>"}</code></div>
+      <div><small>构建后的提示词 · 示意</small><strong>当前好感度：42</strong></div>
+    </div>
+    <p class="extension-note">兼容当前分支的最新状态；历史变量快照、历史候选回复、作者后台脚本和 UI / 状态栏桥接不在当前范围内。</p>
+  </section>
+
+  <section class="extension-section container" id="get-started">
+    <div class="extension-section__heading">
+      <div><p class="eyebrow">GET STARTED</p><h2>先看清，再迁移。</h2></div>
+      <p>保留好原有 SillyTavern 数据。首次可以先导入一张角色卡，检查字段和开场，再进行更大范围的迁移。</p>
+    </div>
+    <ol class="extension-steps">
+      <li><h3>安装并启用扩展</h3><p>在 Loom Studio 的扩展中心安装可用的扩展包，按提示授权并启用 Server 模块；Client 模块提供整体迁移界面。应用内可能显示为 SillyTavern Data Importer 或 ST 数据导入。</p></li>
+      <li><h3>选择内容，查看扫描结果</h3><p>单独导入角色卡、世界书或预设；整体迁移则填写 Studio Server 可访问的 SillyTavern Data 或 default-user 目录，先扫描角色、设定、预设与会话。</p></li>
+      <li><h3>确认迁移，检查新资源</h3><p>确认扫描结果后执行迁移，再检查角色开场、世界书关联、预设和故事时间线。为使用的预设配置好模型与账户，就可以继续创作。</p></li>
+    </ol>
+    <div class="extension-source"><p>官方源码：<code>The-LoomStudio / LS_STBridge</code><br />安装来源需包含完整构建产物；具体可用版本与安装说明以扩展仓库为准。</p><a class="button" href={repository} target="_blank" rel="noreferrer">前往扩展仓库 <ArrowUpRight size={16} aria-hidden="true" /></a></div>
+  </section>
+
+  <section class="extension-section container" id="questions">
+    <div class="extension-section__heading"><div><p class="eyebrow">GOOD TO KNOW</p><h2>迁移之前，你可能想知道。</h2></div><p>已有创作值得被认真对待。下面这些边界，决定了一张卡迁移后是否还需要调整。</p></div>
+    <div class="extension-faq">
+      <details><summary>所有 SillyTavern 卡片都能原样运行吗？</summary><p>不能保证。ST Data Bridge 负责资源转换和部分 EJS / MVU 兼容，并未复刻完整的 SillyTavern 运行环境。依赖作者脚本、事件回调、状态栏 UI、文件 include 或特殊激活语义的卡片，需要逐项检查与适配。</p></details>
+      <details><summary>聊天记录中的候选回复和历史变量会保留吗？</summary><p>当前迁移读取每条消息选中的正文。历史候选回复（swipes）、历史变量快照与完整的历史状态恢复不在范围内；聊天记录还需要匹配到本批次导入的角色。</p></details>
+      <details><summary>多张角色卡共用的世界书会重复吗？</summary><p>同一次整体迁移会按内容复用世界书，让角色关联到共享 Lore。同批次之外，重复导入仍可能创建新资源，不能当作持续同步或增量备份使用。</p></details>
+      <details><summary>导入预设后，需要重新配置什么？</summary><p>请检查提示词顺序、触发方式、文本规则，以及模型和账户绑定。并非所有 SillyTavern 参数都有等价转换；例如正则的 trimStrings 没有等价转换，runOnEdit 不会沿用。</p></details>
+    </div>
+  </section>
+</ExtensionLayout>
+
+<style>
+  .compat-example { display: grid; grid-template-columns: .65fr 1.65fr 1fr; border-radius: var(--loom-site-radius-lg); background: var(--loom-site-bg-soft); }
+  .compat-example > div { min-width: 0; padding: 28px 24px; }
+  .compat-example small { display: block; margin-bottom: 18px; font-size: 11px; color: var(--loom-site-text-muted); }
+  .compat-example code, .compat-example strong { display: block; font: 12px/1.9 var(--loom-site-font-mono); overflow-wrap: anywhere; }
+  @media (max-width: 800px) { .compat-example { grid-template-columns: 1fr; } }
+</style>

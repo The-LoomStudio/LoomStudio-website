@@ -1,6 +1,12 @@
+<div align="center">
+
+<img src="public/images/nom/stickers/fullbody/welcome.png" alt="挥手欢迎的 Nom" width="128" />
+
 # Loom Studio Website
 
 Loom Studio 的独立产品官网与公开文档站。首版使用 Astro 静态生成，发布页、Markdown 文档和站点资产全部由本仓库维护。
+
+</div>
 
 ## 本地运行
 
@@ -51,6 +57,26 @@ public/
   brand/        Logo 等品牌资产
   images/       Hero 与文档插图
 ~~~
+
+## Nom 贴纸
+
+Nom 是 Loom Studio 的看板娘。网站、项目 README 和社区内容共用这套透明贴纸：全身、带手与道具的大头、纯头表情各 8 张，图片按动作和情绪命名。
+
+- [浏览素材与用途](public/images/nom/stickers/README.md)
+- 下载仓库后打开 [离线预览](public/images/nom/stickers/preview.html)，可切换深浅背景、试配气泡。
+- README 直接用 `<img>` 指定展示宽度；对白保留为普通文字，标题与贴纸分别成行。跨仓库引用使用本仓库固定提交的原始图片链接。
+
+## 官方扩展展示
+
+- `/marketplace`：官方扩展目录。
+- `/marketplace/st-data-bridge`：ST Data Bridge 介绍、现有角色卡素材与四类资源迁移示意。
+- `/marketplace/the-world`：The World 介绍、可切换时间的模拟天空，以及页尾“回家路上”场景 / 地点示例。示例可切换下班、回家、晚饭后三个片段，并同步背景天色。
+
+市场目录采用 News 同系的纸卡、便签和贴纸样式；共用 `global.css` 中的 `--loom-site-note-*` 颜色与字体变量。ST 与 The World 使用各自源仓库的正式图标，来源记录见 `public/brand/README.md`。
+
+扩展页面复用 `ExtensionLayout.astro` 与网站主题；功能示例均为网页样例，不连接 Studio Server 或执行导入。说明依据产品仓库的 `extensions/st-data-compat`、`extensions/the-world` 当前实现核准，安装来源链接取自官方扩展配置；页面不承诺远端构建包已可安装。
+
+模拟天空只在 The World 详情页显式挂载。它响应演示时间与暂停按钮，不修改网站主题；系统减少动态效果、后台标签页和离开展示区时停止动态。恢复记录见 [天空效果归档与恢复](docs/archive/home-atmosphere.md)。
 
 ## 网站全局搜索
 

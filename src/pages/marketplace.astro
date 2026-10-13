@@ -1,112 +1,91 @@
 ---
-import PortalLayout from '../layouts/PortalLayout.astro';
-import { ArrowRight, Files, Package, Palette } from '@lucide/astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import NomSticker from '../components/NomSticker.astro';
+import ExtensionArtwork from '../components/extensions/ExtensionArtwork.astro';
+import { ArrowUpRight, ArrowRight, Puzzle } from '@lucide/astro';
 
-const entries = [
+const extensions = [
   {
-    type: 'EXTENSION / STRUCTURE PREVIEW',
-    title: 'Extension Package',
-    id: 'package.id · 0.1.0',
-    copy: '展示插件说明、版本、作者、能力声明与兼容范围。正式目录开放前，不提供虚假的在线安装入口。',
-    tags: ['SERVER', 'CAPABILITY', 'LOCAL'],
+    kind: 'bridge' as const, name: 'ST Data Bridge', label: '带着角色，继续出发',
+    headline: '熟悉的角色，故事的下一站。',
+    copy: '把 SillyTavern 里的角色卡、世界书、预设与聊天记录带进 Loom Studio，让已有创作成为新的起点。',
+    tags: ['角色卡迁移', '世界书与预设', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
   },
   {
-    type: 'TEMPLATE / RESERVED',
-    title: 'Narrative Template',
-    id: 'template.worldline',
-    copy: '预留给世界设定、角色结构和长篇工作流模板。它们是可检查的创作起点，不是不可解释的整包提示词。',
-    tags: ['WORLD', 'CHARACTER', 'WORKFLOW'],
-  },
-  {
-    type: 'RESOURCE / RESERVED',
-    title: 'Portable Resource Pack',
-    id: 'resource.portable',
-    copy: '未来承载可移植资源与扩展数据。页面会明确来源、权限和兼容性，而不是把资源混进应用本体。',
-    tags: ['PORTABLE', 'VERSIONED', 'LOCAL-FIRST'],
+    kind: 'world' as const, name: 'The World', label: '装下一整个小世界',
+    headline: '每一段故事，都有自己的天色。',
+    copy: '记下时间、天气、地点与场景，让 AI 参与世界维护。推开工作台，也能看见故事里的黄昏。',
+    tags: ['世界状态', '地点与场景', '天气氛围'], href: '/marketplace/the-world',
   },
 ];
 ---
 
-<PortalLayout
-  title="Marketplace"
-  description="Loom Studio Marketplace 页面草稿：用于发现插件、模板与可移植资源。"
-  eyebrow="Loom Studio Marketplace"
-  marker="PAGE / 02 · FOUNDATION DRAFT"
-  headline="扩展工作台 别替故事做决定"
-  intro="Marketplace 将成为插件、模板与资源包的公开入口。当前版本只建立信息结构与视觉基建，所有能力都必须诚实标注来源、权限和兼容范围。"
->
-  <section class="portal-section portal-section--soft">
-    <div class="container">
-      <div class="portal-section__heading">
-        <div><small>CATALOG / TYPES</small><h2>三类内容 三种边界</h2></div>
-        <p>插件增加运行能力，模板提供创作起点，资源包负责可移植内容。它们不会被包装成一种含混的“万能预设”。</p>
-      </div>
-      <div class="market-types">
-        <article>
-          <Package size={25} stroke-width={1.5} />
-          <span>01</span><h3>Extensions</h3><p>声明能力、运行位置、版本与 Studio 兼容范围。</p>
+<BaseLayout title="官方扩展 · Marketplace" description="探索 Loom Studio 官方扩展：用 ST Data Bridge 迁移 SillyTavern 资源，用 The World 为故事建立时间、地点、场景与天气。">
+  <SiteHeader />
+  <main class="marketplace">
+    <header class="market-heading">
+      <span class="market-sticker"><Puzzle size={17} aria-hidden="true" />给工作台的一点新灵感</span>
+      <h1>Extensions <span>/ 官方扩展</span></h1>
+      <p>带来熟悉的角色，或为故事添上一整个世界。</p>
+    </header>
+    <section class="extension-board" aria-label="官方扩展">
+      {extensions.map((extension) => (
+        <article class:list={['extension-tile', `extension-tile--${extension.kind}`]}>
+          <a class="extension-tile__art" href={extension.href} aria-label={`了解 ${extension.name}`}><ExtensionArtwork kind={extension.kind} compact /></a>
+          <div class="extension-tile__copy">
+            <span class="extension-tile__tag">{extension.label}</span>
+            <span class="extension-tile__official">Loom Studio 官方扩展</span>
+            <h2><a href={extension.href}>{extension.name}</a></h2>
+            <h3>{extension.headline}</h3>
+            <p>{extension.copy}</p>
+            <ul>{extension.tags.map((tag) => <li>{tag}</li>)}</ul>
+            <a class="extension-tile__link" href={extension.href}>认识 {extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
+          </div>
         </article>
-        <article>
-          <Files size={25} stroke-width={1.5} />
-          <span>02</span><h3>Templates</h3><p>世界、角色与创作工作流的结构化起点。</p>
-        </article>
-        <article>
-          <Palette size={25} stroke-width={1.5} />
-          <span>03</span><h3>Resources</h3><p>可移植、可追踪、不会污染核心数据边界的内容包。</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="portal-section">
-    <div class="container">
-      <div class="portal-section__heading">
-        <div><small>CATALOG / PREVIEW</small><h2>目录结构草稿</h2></div>
-        <p>以下条目只用于确定市场页的信息密度，并不代表已经公开发布的产品内容。</p>
-      </div>
-      <div class="market-list">
-        {entries.map((entry) => (
-          <article class="market-entry">
-            <div class="market-entry__meta"><span>{entry.type}</span><b>DRAFT</b></div>
-            <div class="market-entry__body">
-              <div><h3>{entry.title}</h3><code>{entry.id}</code></div>
-              <p>{entry.copy}</p>
-            </div>
-            <div class="market-entry__footer">
-              <div>{entry.tags.map((tag) => <span class="portal-tag">{tag}</span>)}</div>
-              <span class="market-entry__placeholder">详情结构待接入 <ArrowRight size={14} stroke-width={1.6} /></span>
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-</PortalLayout>
+      ))}
+    </section>
+    <aside class="market-help">
+      <div class="market-help__nom"><NomSticker src="/images/nom/stickers/bust/gift.png" size="small" /></div>
+      <div class="market-help__copy"><h2>慢慢搭出自己的工作台。</h2><p>从扩展中心安装与管理。每个扩展页都有功能介绍、使用步骤和源码入口。</p></div>
+      <a href="/docs/concepts/extension-system">了解扩展体系 <ArrowRight size={16} aria-hidden="true" /></a>
+    </aside>
+  </main>
+  <SiteFooter />
+</BaseLayout>
 
 <style>
-  .market-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .market-types article { min-height: 260px; display: flex; flex-direction: column; align-items: flex-start; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
-  .market-types svg { color: var(--loom-site-accent); }
-  .market-types span { margin-top: auto; color: var(--loom-site-text-subtle); font: 9px var(--loom-site-font-mono); }
-  .market-types h3 { margin: 12px 0 8px; font-size: 22px; }
-  .market-types p { margin: 0; color: var(--loom-site-text-muted); font-size: 13px; line-height: 1.75; }
-  .market-list { display: grid; gap: 12px; }
-  .market-entry { padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
-  .market-entry:last-child { border-bottom: 1px solid var(--loom-site-border); }
-  .market-entry__meta,
-  .market-entry__footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-  .market-entry__meta { color: var(--loom-site-text-subtle); font: 8px var(--loom-site-font-mono); letter-spacing: 0.12em; }
-  .market-entry__meta b { font-weight: 600; }
-  .market-entry__body { display: grid; grid-template-columns: minmax(220px, .72fr) minmax(280px, 1fr); gap: 48px; padding: 34px 0; }
-  .market-entry h3 { margin: 0 0 8px; font-size: 24px; }
-  .market-entry code { color: var(--loom-site-text-subtle); font: 10px var(--loom-site-font-mono); }
-  .market-entry p { margin: 0; color: var(--loom-site-text-muted); font-size: 13px; line-height: 1.8; }
-  .market-entry__footer > div { display: flex; flex-wrap: wrap; gap: 6px; }
-  .market-entry__placeholder { display: inline-flex; align-items: center; gap: 8px; color: var(--loom-site-text-subtle); font-size: 11px; }
-  @media (max-width: 760px) {
-    .market-types { grid-template-columns: 1fr; }
-    .market-types article { min-height: 210px; }
-    .market-entry__body { grid-template-columns: 1fr; gap: 22px; }
-    .market-entry__footer { align-items: flex-start; flex-direction: column; }
-  }
+  .marketplace { width: min(1060px, calc(100% - 160px)); margin-inline: auto; padding: 118px 0 76px; font-family: var(--loom-site-note-body); }
+  .market-heading { text-align: center; margin-bottom: 52px; }
+  .market-sticker { display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px; border-radius: 999px; background: var(--loom-site-note-yellow); color: var(--loom-site-note-ink); font-size: 12px; transform: rotate(-3deg); }
+  .market-heading h1 { margin: 24px 0 12px; font: 500 38px/1.4 var(--loom-site-note-heading); }
+  .market-heading h1 span { font-size: 23px; }
+  .market-heading p { margin: 0; font-size: 14px; line-height: 1.8; color: var(--loom-site-text-muted); }
+  .extension-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; align-items: start; }
+  .extension-tile { min-width: 0; background: var(--loom-site-note-paper); color: var(--loom-site-note-ink); border-radius: var(--loom-site-radius-lg); }
+  .extension-tile--world { margin-top: 36px; }
+  .extension-tile__art { display: block; border-radius: var(--loom-site-radius-lg) var(--loom-site-radius-lg) 0 0; }
+  .extension-tile__copy { position: relative; padding: 0 32px 30px; }
+  .extension-tile__tag { position: relative; display: table; margin: -16px 0 20px; padding: 8px 14px; border: 5px solid var(--loom-site-note-paper); border-radius: 999px; background: var(--loom-site-note-yellow); font-size: 11px; font-weight: 700; transform: rotate(-3deg); }
+  .extension-tile--world .extension-tile__tag { background: var(--loom-site-note-lilac); transform: rotate(2deg); }
+  .extension-tile__official { display: block; color: var(--loom-site-note-muted); font-size: 10px; }
+  .extension-tile h2 { margin: 12px 0 14px; font: 500 clamp(28px, 3.2vw, 36px)/1.2 var(--loom-site-note-heading); }
+  .extension-tile h3 { margin: 0 0 12px; font-size: 15px; line-height: 1.7; font-weight: 700; }
+  .extension-tile p { margin: 0; color: var(--loom-site-note-muted); font-size: 14px; line-height: 1.9; }
+  .extension-tile ul { display: flex; flex-wrap: wrap; gap: 7px; padding: 0; margin: 24px 0; list-style: none; }
+  .extension-tile li { padding: 6px 10px; border-radius: 999px; background: #f5f3ef; color: var(--loom-site-note-muted); font-size: 10px; }
+  .extension-tile__link { display: inline-flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; padding: 10px 16px; border-radius: 999px; background: var(--loom-site-note-yellow); font-size: 12px; font-weight: 700; }
+  .extension-tile--world .extension-tile__link { background: var(--loom-site-note-mint); }
+  .extension-tile__link:hover { box-shadow: inset 0 0 0 1px currentColor; }
+  .extension-tile :focus-visible { outline-color: var(--loom-site-note-ink); }
+  .market-help { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin: 48px 0 0; padding: 26px 30px; background: var(--loom-site-note-lilac); color: var(--loom-site-note-ink); border-radius: var(--loom-site-radius-lg); }
+  .market-help__nom { flex: none; }
+  .market-help__copy { flex: 1 1 320px; }
+  .market-help h2 { margin: 0 0 8px; font: 500 22px/1.4 var(--loom-site-note-heading); }
+  .market-help p { margin: 0; color: var(--loom-site-note-muted); font-size: 12px; line-height: 1.9; }
+  .market-help a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 12px; }
+  .market-help a:focus-visible { outline-color: var(--loom-site-note-ink); }
+  @media (max-width: 1100px) { .marketplace { width: calc(100% - 80px); } }
+  @media (max-width: 760px) { .marketplace { width: calc(100% - 40px); padding-top: 110px; } .extension-board { grid-template-columns: 1fr; max-width: 510px; margin-inline: auto; gap: 32px; } .extension-tile--world { margin-top: 0; } .market-heading h1 { font-size: 32px; } .market-heading h1 span { font-size: 20px; } .extension-tile__copy { padding-inline: 24px; } .market-help { max-width: 510px; margin-inline: auto; padding: 24px; } }
 </style>

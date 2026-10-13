@@ -10,6 +10,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const activeRoute = path === '/docs/architecture'
   ? 'architecture'
   : path.startsWith('/docs') ? 'docs'
+  : path.startsWith('/marketplace/') ? 'marketplace'
   : routes.find((route) => route.href === path)?.id ?? 'home';
 const activeRouteIndex = routes.findIndex((route) => route.id === activeRoute);
 const images = await Promise.all(routes.map((route) => siteImage(`/images/nom/${route.image}`, [480, 960])));

@@ -1,0 +1,166 @@
+---
+import { MapPin, Sun, Sunset, Moon, Clock3, CornerDownRight, Earth } from '@lucide/astro';
+const moments = [
+  {
+    id: 'shop', label: '下班买东西', minutes: 1040, Icon: Sun,
+    heading: ['顺路买点东西，', '再慢慢走回家。'],
+    story: '便利店的门叮咚一声。你从冰柜里拿了一盒牛奶，又在收银台旁挑了两串关东煮。窗外还有阳光，今天可以不用急着赶路。',
+    scene: '下班后，顺路买点东西', place: '街角便利店', weather: '晴', hint: '阳光穿过街边的梧桐树',
+  },
+  {
+    id: 'homeward', label: '回家路上', minutes: 1120, Icon: Sunset,
+    heading: ['街灯亮了，', '晚饭也快好了。'],
+    story: '你拎着牛奶走到小区门口，手机亮了一下：“到哪了？饭快好了。”保安正和遛狗的邻居聊天。刷卡进门，再走几分钟就到家。',
+    scene: '穿过小区门口，准备回家', place: '小区门口', weather: '晴 · 日落', hint: '傍晚的风有一点凉',
+  },
+  {
+    id: 'home', label: '晚饭之后', minutes: 1250, Icon: Moon,
+    heading: ['碗已经洗好了，', '今晚就慢一点。'],
+    story: '你把洗好的碗放回柜子，端着一杯温水坐到沙发上。窗外只剩路灯和零星亮着的窗，厨房里还留着一点饭菜的香气。',
+    scene: '吃过晚饭，在家歇一会儿', place: '家', weather: '晴 · 入夜', hint: '窗外的天空已经暗下来',
+  },
+];
+const initialMoment = 'homeward';
+const formatTime = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+---
+
+<fieldset class="world-demo" data-world-showcase>
+  <legend>探索一个故事中的世界</legend>
+  <div class="world-demo__glass">
+  <div class="world-demo__bar">
+    <span><Earth size={18} aria-hidden="true" />回家路上</span>
+    <div class="world-demo__choices">
+      <label><input type="radio" name="world-view" value="scene" checked /><span>场景</span></label>
+      <label><input type="radio" name="world-view" value="map" /><span>地图</span></label>
+    </div>
+    <small>示例世界</small>
+  </div>
+  <div class="world-demo__moments" role="group" aria-label="选择回家路上的片段">
+    {moments.map((moment) => (
+      <button type="button" data-world-moment={moment.id} data-minutes={moment.minutes} aria-pressed={moment.id === initialMoment}>
+        <span>{moment.label}</span><small>{formatTime(moment.minutes)}</small>
+      </button>
+    ))}
+  </div>
+  <div class="world-demo__panel" data-world-view="scene">
+    {moments.map(({ id, minutes, Icon, heading, story, scene, place, weather, hint }) => <div class="world-scene" data-world-scene={id} hidden={id !== initialMoment} aria-live="polite" aria-atomic="true">
+      <div class="world-scene__story">
+        <span class="world-demo__label"><MapPin size={14} aria-hidden="true" />梧桐街区 / {place}</span>
+        <h3>{heading[0]}<br />{heading[1]}</h3>
+        <p>{story}</p>
+        <span class="world-scene__foot">当前场景 · {scene}</span>
+      </div>
+      <dl class="world-scene__state">
+        <div><dt><Clock3 size={16} aria-hidden="true" />世界时间</dt><dd class="world-scene__clock">{formatTime(minutes)}</dd><dd>10 月 13 日 · 星期二</dd></div>
+        <div><dt><Icon size={16} aria-hidden="true" />当前天气</dt><dd>{weather}</dd><dd class="world-scene__hint">{hint}</dd></div>
+        <div><dt><MapPin size={16} aria-hidden="true" />当前地点</dt><dd>{place}</dd><dd class="world-scene__hint">属于梧桐街区</dd></div>
+      </dl>
+    </div>)}
+  </div>
+  <div class="world-demo__panel" data-world-view="map">
+    <div class="world-map">
+      <div class="world-map__intro"><span class="world-demo__label">PLACE / HIERARCHY</span><h3>沿着地点，认识世界。</h3><p>地点可以归属于更大的区域。展开地点，查看留在这里的设定。</p></div>
+      <div class="world-map__places">
+        <div class="world-map__parent"><Earth size={22} aria-hidden="true" /><span>梧桐街区<small>住了很久的街区，从车站到家，要经过便利店和小区门口。</small></span></div>
+        <div class="world-map__children">
+          <CornerDownRight size={20} aria-hidden="true" />
+          <div>
+            <details><summary>街角便利店 <span data-current-place="shop" hidden>当前地点</span></summary><p>门口摆着两张小凳子。冰柜里的牛奶刚补满，收银台旁飘着关东煮的热气。</p></details>
+            <details open><summary>小区门口 <span data-current-place="homeward">当前地点</span></summary><p>保安正和遛狗的邻居聊天。刷卡进门，沿着花坛再走一小段就是家。</p></details>
+            <details><summary>家 <span data-current-place="home" hidden>当前地点</span></summary><p>窗户透出暖黄的灯光，厨房里有饭菜的香气。玄关的拖鞋摆在老地方。</p></details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <p class="world-demo__caption">虚构的日常场景 · 根据现有场景与地点能力制作的网页示意，不是运行中的工作台。</p>
+</fieldset>
+
+<script>
+  const showcase = document.querySelector<HTMLElement>('[data-world-showcase]')!;
+  const moments = showcase.querySelectorAll<HTMLButtonElement>('[data-world-moment]');
+  const scenes = showcase.querySelectorAll<HTMLElement>('[data-world-scene]');
+  const places = showcase.querySelectorAll<HTMLElement>('[data-current-place]');
+
+  const publishTime = () => {
+    const selected = showcase.querySelector<HTMLButtonElement>('[data-world-moment][aria-pressed="true"]')!;
+    window.dispatchEvent(new CustomEvent('loom:story-time', { detail: { minutes: Number(selected.dataset.minutes) } }));
+  };
+  moments.forEach((button) => button.addEventListener('click', () => {
+    const moment = button.dataset.worldMoment;
+    moments.forEach((option) => option.setAttribute('aria-pressed', String(option === button)));
+    scenes.forEach((scene) => { scene.hidden = scene.dataset.worldScene !== moment; });
+    places.forEach((place) => { place.hidden = place.dataset.currentPlace !== moment; });
+    publishTime();
+  }));
+
+  // Each visit to the example restores the sky to the selected story moment.
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) publishTime();
+  }, { threshold: .15 });
+  observer.observe(showcase);
+</script>
+
+<style>
+  .world-demo { min-width: 0; padding: 0; margin: 0; border: 0; }
+  legend { margin-bottom: 18px; color: var(--loom-site-text-muted); font-size: 12px; }
+  .world-demo__glass {
+    --loom-site-text: #f8fafc;
+    --loom-site-text-muted: #e2e7eb;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / .18);
+    border-radius: var(--loom-site-radius-lg);
+    background: rgb(0 0 0 / .18);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 16px 48px rgb(0 0 0 / .08);
+    color: var(--loom-site-text);
+    font-family: var(--loom-site-note-body);
+  }
+  .world-demo__glass :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .world-demo__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 24px; }
+  .world-demo__bar > span { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; }
+  .world-demo__bar > small { font-size: 10px; color: var(--loom-site-text-muted); }
+  .world-demo__choices { display: flex; gap: 4px; }
+  .world-demo__moments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 20px 24px 0; }
+  .world-demo__moments button { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 64px; padding: 12px 8px; border: 1px solid transparent; border-radius: var(--loom-site-radius-md); background: rgb(255 255 255 / .04); color: var(--loom-site-text); font: 12px var(--loom-site-note-body); cursor: pointer; }
+  .world-demo__moments button:hover { background: rgb(255 255 255 / .1); }
+  .world-demo__moments button[aria-pressed='true'] { background: rgb(255 255 255 / .15); border-color: rgb(255 255 255 / .26); }
+  .world-demo__moments small { color: var(--loom-site-text-muted); font: 10px var(--loom-site-font-mono); }
+  label { position: relative; cursor: pointer; }
+  label span { display: inline-flex; min-height: 44px; align-items: center; padding: 0 24px; border-radius: var(--loom-site-radius-md); color: var(--loom-site-text-muted); font-size: 12px; }
+  input { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); }
+  input:checked + span { background: rgb(255 255 255 / .15); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .26); color: var(--loom-site-text); }
+  input:focus-visible + span { outline: 2px solid #fff; outline-offset: 3px; }
+  .world-demo__panel { display: none; }
+  .world-demo:has(input[value='scene']:checked) [data-world-view='scene'],
+  .world-demo:has(input[value='map']:checked) [data-world-view='map'] { display: block; }
+  .world-scene, .world-map { display: grid; grid-template-columns: 1.2fr 1fr; min-height: 380px; }
+  .world-scene[hidden] { display: none; }
+  .world-scene__story { display: flex; flex-direction: column; padding: clamp(26px, 4vw, 48px); }
+  .world-demo__label { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: .07em; color: var(--loom-site-text-muted); }
+  h3 { margin: 30px 0 22px; font: 500 clamp(26px, 3vw, 36px)/1.6 var(--loom-site-note-heading); }
+  p { color: var(--loom-site-text-muted); font-size: 13px; line-height: 1.95; }
+  .world-scene__foot { margin-top: auto; padding-top: 30px; font-size: 11px; color: var(--loom-site-text-muted); }
+  .world-scene__state { display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 30px 24px; padding: 36px; margin: 24px 24px 24px 0; border-radius: var(--loom-site-radius-md); background: rgb(255 255 255 / .04); }
+  .world-scene__state > div:first-child { grid-column: 1 / -1; padding-bottom: 16px; }
+  dt { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--loom-site-text-muted); }
+  dd { margin: 12px 0 0; font-size: 13px; }
+  .world-scene__clock { font: 48px var(--loom-site-font-mono); letter-spacing: -.07em; }
+  .world-scene__hint { font-size: 10px; line-height: 1.6; color: var(--loom-site-text-muted); }
+  .world-map { padding: clamp(24px, 4vw, 48px); gap: 48px; grid-template-columns: .8fr 1.2fr; }
+  .world-map__intro h3 { max-width: 250px; }
+  .world-map__parent { display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: var(--loom-site-radius-md); background: rgb(255 255 255 / .08); font-size: 16px; }
+  .world-map__parent svg { flex: none; }
+  .world-map__parent small { display: block; margin-top: 8px; font-size: 11px; line-height: 1.8; color: var(--loom-site-text-muted); }
+  .world-map__children { display: grid; grid-template-columns: 20px 1fr; gap: 14px; margin: 20px 0 0 14px; }
+  .world-map__children > svg { margin-top: 16px; }
+  details { background: rgb(255 255 255 / .04); border-radius: var(--loom-site-radius-md); }
+  details + details { margin-top: 8px; }
+  summary { padding: 16px; cursor: pointer; font-size: 13px; }
+  summary span { margin-left: 16px; color: var(--loom-site-text-muted); font-size: 9px; }
+  details p { padding: 0 16px 18px; margin: 0; font-size: 12px; }
+  .world-demo__caption { font-size: 11px; margin: 18px 0 0; }
+  @media (max-width: 760px) { .world-scene, .world-map { grid-template-columns: 1fr; } .world-scene__state { margin: 0 24px 24px; padding: 24px; } .world-map { gap: 24px; } .world-map__intro h3 { max-width: none; margin-block: 16px; } .world-demo__bar { padding: 14px 18px; } .world-demo__bar > small { display: none; } }
+</style>

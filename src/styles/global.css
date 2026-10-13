@@ -25,6 +25,11 @@
   --loom-site-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --loom-site-note-paper: #fff;
   --loom-site-note-ink: #293238;
+  --loom-site-note-muted: #58646a;
+  --loom-site-note-yellow: #f4d06f;
+  --loom-site-note-mint: #d9eee4;
+  --loom-site-note-lilac: #e8def3;
+  --loom-site-note-heading: "Fredoka", "ZCOOL KuaiLe", var(--loom-site-font-display);
   --loom-site-note-body: "Nunito", var(--loom-site-font-sans);
   --loom-site-radius-sm: 6px;
   --loom-site-radius-md: 12px;
@@ -182,10 +187,6 @@ img, svg { display: block; max-width: 100%; }
 :focus-visible {
   outline: 2px solid var(--loom-site-accent-strong);
   outline-offset: 4px;
-}
-
-@view-transition {
-  navigation: auto;
 }
 
 ::view-transition-old(root),

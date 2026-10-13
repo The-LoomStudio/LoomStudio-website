@@ -1,0 +1,88 @@
+---
+import { ArrowRight, Check } from '@lucide/astro';
+
+const examples = [
+  {
+    id: 'card', label: '角色卡', source: 'CHARACTER / JSON', target: 'CARD / 角色卡',
+    input: `name: 林舟\ndescription: 在雾港守着旧灯塔的领航员。\nfirst_mes: 雾港的灯亮了，要上来看看吗？\nalternate_greetings:\n  - 你也在等那艘迟到的船？`,
+    title: '林舟', description: '在雾港守着旧灯塔的领航员。',
+    rows: [['默认开场', '雾港的灯亮了，要上来看看吗？'], ['替代开场', '你也在等那艘迟到的船？']],
+    note: '角色设定和开场分别落入原生字段；内嵌世界书转换为可关联的 Lore。',
+  },
+  {
+    id: 'lore', label: '世界书', source: 'WORLD INFO / JSON', target: 'LORE / 世界设定',
+    input: `comment: 雾港早市\nkeys: [港口, 早市]\ncontent: 港口每天清晨开市，鸣钟后收摊。\nconstant: false\ndisable: false`,
+    title: '雾港早市', description: '港口每天清晨开市，鸣钟后收摊。',
+    rows: [['激活方式', '关键词 · 港口 / 早市'], ['条目状态', '已启用']],
+    note: '条目正文、关键词、顺序与启停信息按支持的规则转换。',
+  },
+  {
+    id: 'preset', label: '预设', source: 'OPENAI PRESET / JSON', target: 'PRESET / 提示词编排',
+    input: `prompts:\n  - name: 叙事约定\n    role: system\n    content: 保持人物视角，让行动推动故事。\nprompt_order: 按原预设顺序`,
+    title: '叙事约定', description: '保持人物视角，让行动推动故事。',
+    rows: [['消息角色', 'System'], ['编排方式', '转换提示词顺序与支持的锚点']],
+    note: '导入后在 Loom Studio 配置模型与账户；不同应用的参数并非全部等价。',
+  },
+  {
+    id: 'chat', label: '聊天记录', source: 'CHAT / JSONL', target: 'NARRATIVE / 故事时间线',
+    input: `角色: 林舟\n\n用户: 我推开了灯塔的门。\n林舟: 灯还亮着。进来吧，外面起雾了。\n\n每条消息读取当前正文 mes`,
+    title: '灯还亮着', description: '与本批次导入的角色匹配后，创建故事时间线。',
+    rows: [['你', '我推开了灯塔的门。'], ['林舟', '灯还亮着。进来吧，外面起雾了。']],
+    note: '整体迁移支持匹配角色的 JSONL 会话；历史候选回复与变量快照不在恢复范围内。',
+  },
+];
+---
+
+<fieldset class="bridge-demo">
+  <legend>选择一种资源，查看迁移示意</legend>
+  <div class="bridge-demo__choices">
+    {examples.map((example, index) => (
+      <label><input type="radio" name="bridge-example" value={example.id} checked={index === 0} /><span>{example.label}</span></label>
+    ))}
+  </div>
+  <div class="bridge-demo__panels">
+    {examples.map((example) => (
+      <section class="bridge-demo__panel" data-example={example.id} aria-label={`${example.label}迁移示例`}>
+        <div class="bridge-demo__comparison">
+          <div class="bridge-demo__source"><small>{example.source}</small><h3>从 SillyTavern 带来</h3><pre>{example.input}</pre></div>
+          <div class="bridge-demo__arrow" aria-hidden="true"><ArrowRight size={24} stroke-width={1.4} /></div>
+          <div class="bridge-demo__result"><small>{example.target}</small><h3>{example.title}</h3><p>{example.description}</p><dl>{example.rows.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}</dl></div>
+        </div>
+        <p class="bridge-demo__note"><Check size={16} aria-hidden="true" />{example.note}</p>
+      </section>
+    ))}
+  </div>
+  <p class="bridge-demo__caption">虚构内容 · 字段节选与结果示意，未在网页中执行导入。</p>
+</fieldset>
+
+<style>
+  .bridge-demo { min-width: 0; margin: 0; padding: 0; border: 0; }
+  legend { margin-bottom: 18px; color: var(--loom-site-text-muted); font-size: 12px; }
+  .bridge-demo__choices { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  label { position: relative; cursor: pointer; }
+  label span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 22px; background: var(--loom-site-bg-soft); border-radius: 999px; color: var(--loom-site-text-muted); font-size: 13px; }
+  input { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); }
+  input:checked + span { color: var(--loom-site-note-ink); background: var(--loom-site-note-yellow); }
+  input:focus-visible + span { outline: 2px solid var(--loom-site-accent-strong); outline-offset: 4px; }
+  .bridge-demo__panel { display: none; }
+  .bridge-demo:has(input[value='card']:checked) [data-example='card'],
+  .bridge-demo:has(input[value='lore']:checked) [data-example='lore'],
+  .bridge-demo:has(input[value='preset']:checked) [data-example='preset'],
+  .bridge-demo:has(input[value='chat']:checked) [data-example='chat'] { display: block; }
+  .bridge-demo__comparison { display: grid; grid-template-columns: 1fr 54px 1fr; align-items: stretch; font-family: var(--loom-site-note-body); }
+  .bridge-demo__source, .bridge-demo__result { --loom-site-text-muted: var(--loom-site-note-muted); min-width: 0; padding: clamp(22px, 3vw, 36px); border-radius: var(--loom-site-radius-lg); color: var(--loom-site-note-ink); }
+  .bridge-demo__source { background: var(--loom-site-note-paper); }
+  .bridge-demo__result { background: var(--loom-site-note-mint); }
+  .bridge-demo__arrow { display: grid; place-items: center; }
+  small { font: 9px var(--loom-site-font-mono); letter-spacing: .1em; color: var(--loom-site-text-muted); }
+  h3 { margin: 22px 0; font: 500 25px/1.4 var(--loom-site-note-heading); }
+  pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/2 var(--loom-site-font-mono); color: var(--loom-site-text-muted); }
+  .bridge-demo__result p { font-size: 13px; line-height: 1.9; color: var(--loom-site-text-muted); }
+  dl { display: grid; gap: 18px; margin: 26px 0 0; }
+  dt { font-size: 10px; color: var(--loom-site-text-muted); }
+  dd { margin: 8px 0 0; font-size: 13px; line-height: 1.8; }
+  .bridge-demo__note { display: flex; align-items: flex-start; gap: 8px; margin: 20px 0 0; font-size: 12px; line-height: 1.8; color: var(--loom-site-text-muted); }
+  .bridge-demo__note svg { flex: none; margin-top: 2px; }
+  .bridge-demo__caption { margin: 16px 0 0; color: var(--loom-site-text-muted); font-size: 11px; line-height: 1.8; }
+  @media (max-width: 680px) { .bridge-demo__comparison { grid-template-columns: 1fr; } .bridge-demo__arrow { height: 46px; transform: rotate(90deg); } label span { padding-inline: 16px; } }
+</style>

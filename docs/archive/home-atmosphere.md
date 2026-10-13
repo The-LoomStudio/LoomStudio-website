@@ -1,31 +1,54 @@
 # Home 天空系统归档
 
-归档日期：2026-09-16。状态：停用，保留源码与资源，尚未接入插画。
+归档日期：2026-09-16。局部恢复日期：2026-10-13。
 
-Home 不再挂载 SkyBackdrop，也不再从剧情模拟发送故事时间事件。
-剧情内的时钟与流式输出保持独立。页面背景使用现有主题底色。
+Home 继续停用 SkyBackdrop，剧情内的时钟与流式输出保持独立。
+天空目前只供 `/marketplace/the-world` 使用：通过 ExtensionLayout 的背景 slot
+挂载为 body 子元素，固定在页面背景层；标记 `data-sky-intro` 的 Hero 或页尾示例区可见时运行动画，
+中间介绍区域使用不透明底色。页尾示例通过布局的 `closing` slot 放在实底正文之后，
+上下边缘分别渐变衔接正文和 Footer。
 
-保留原路径以免破坏内部引用：
+保留的源码与资源：
 
-- `src/components/SkyBackdrop.astro`：天空色、星空、真实时间及故事时间监听、樱花入口。
-- `src/scripts/cloud-field.ts`：云场。
-- `src/scripts/sakura.js`：樱花效果。
-- `public/images/cloud.png`：云纹理。
+- `src/components/SkyBackdrop.astro`：昼夜配色、星空、真实时间及故事时间监听。
+- `src/scripts/cloud-field.ts`：云场与可取消的动画帧循环，由天空组件加载。
+- `src/scripts/sakura.js`：继续归档，本次不加载，也没有樱花入口。
+- `public/images/cloud.png`：沿用的云纹理。
 
-恢复时需显式挂载 SkyBackdrop，在需要天空的区块标记
-`data-sky-intro` / `data-sky-final`，并恢复下述剧情联动。
-`minutes: null` 表示回到真实时间。
+组件接受 `initialMinutes`，默认 `1110`（18:30）。The World 页的时段按钮和滑块
+通过 `window` 上的 `loom:story-time` 事件传入 `{ detail: { minutes } }`。
+有限数值 `0..1439` 有效；越界或其他类型忽略，`null` 恢复用户设备的真实时间。
+该页面只发送数值，不接业务 API，不持久化。页尾“回家路上”示例提供 17:20、18:40、20:50
+三个片段，切换时同步场景、地点和演示时间；示例进入视口时恢复所选片段的天空。
+顶部时间控件监听同一事件更新显示，不重复派发。
 
-```tsx
-useEffect(() => {
-  const root = rootRef.current!
-  const publish = (visible: boolean) => window.dispatchEvent(new CustomEvent('loom:story-time', {
-    detail: { minutes: visible ? minutes : null },
-  }))
-  const observer = new IntersectionObserver(([entry]) => publish(entry.isIntersecting), { threshold: 0 })
-  observer.observe(root)
-  return () => { observer.disconnect(); publish(false) }
-}, [minutes])
+```js
+window.dispatchEvent(new CustomEvent('loom:story-time', {
+  detail: { minutes: 1110 },
+}));
 ```
 
-归档不代表动画已验收：历史反馈中的颜色跳变、中断后反向过渡仍需在再次启用前验证。
+恢复实现保留原有颜色、云纹理和星星视觉。颜色改为单一 800ms 插值，快速切换会取消
+上一帧请求，并从当前呈现色继续；天空、云色与星星透明度同步变化。
+组件不再改写 `html[data-theme]`、`colorScheme`、`theme-color` 或任何全站文字色。
+Hero 和页尾示例区的文字对比度由页面布局负责。
+
+两个天空区域均离开视口、隐藏文档或启用系统减少动态效果时，云场取消 RAF，星星动画暂停，
+颜色过渡直接落到最新目标；恢复可见后续播。`pagehide` 暂停活动并保留云场，
+`pageshow` 重新检查可见性，支持 BFCache 返回。减少动态效果时直接更新最终颜色。
+
+页面内的“暂停天空动态”按钮通过 `loom:sky-motion` 事件传入 `{ detail: { paused: boolean } }`。
+暂停云移动与星星闪烁时仍可切换时间，并直接显示目标颜色；按钮只保存本页状态，
+在 `pageshow` 重发，不改写系统减少动态效果设置，也不持久化。
+
+2026-10-13 集成验证：Astro check 无错误，静态构建通过；产物确认只有 The World 页
+包含天空入口，首页、市场目录与 ST Data Bridge 页均不加载。浏览器定向检查确认
+快速切换最终颜色与时间一致、不改变网站主题，暂停时云层位置固定且星星动画暂停，
+滚出 Hero 停止动态、返回 Hero 恢复。场景 / 地图与地点详情交互通过。
+
+隐藏文档、系统减少动态效果和 BFCache 路径完成源码核查，未做对应浏览器专项验证。
+各时段 Hero 文字对比度与云层观感仍待人工确认；本地构建与交互检查不代表线上部署。
+
+页尾示例联动验证：Astro check 无错误；浏览器确认三个片段只显示各自场景，地图当前地点、
+顶部时间和天空同步，20:50 对应夜空与星星。回到中间实底介绍区停止天空动态，返回示例区恢复；
+现有 671px 窄屏预览无横向溢出。新增布局的主观观感仍由人工确认。

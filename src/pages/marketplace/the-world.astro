@@ -1,0 +1,73 @@
+---
+import ExtensionLayout from '../../layouts/ExtensionLayout.astro';
+import SkyBackdrop from '../../components/SkyBackdrop.astro';
+import SkyTimeControl from '../../components/extensions/SkyTimeControl.astro';
+import WorldShowcase from '../../components/extensions/WorldShowcase.astro';
+import { ArrowUpRight } from '@lucide/astro';
+import { siteImage } from '../../lib/site-images';
+const icon = await siteImage('/brand/the-world-icon.png', [64, 128]);
+const repository = 'https://github.com/The-LoomStudio/LS_The_World';
+---
+
+<ExtensionLayout
+  name="The World"
+  description="让时间、天气、地点与场景成为可持续维护的故事状态。探索 The World 官方扩展的世界仪表盘、地点层级与 AI 世界维护能力。"
+  headline="让故事，拥有自己的此时此地。"
+  intro="现在几点，天气如何，人物走到了哪条街。The World 把这些世界事实留在故事中，让变化有迹可循，也让下一轮叙事有据可依。"
+  category="WORLD STATE"
+  tags={['世界与场景', '地点层级', '时间与天气', 'AI 状态维护']}
+  repository={repository}
+  sky
+  related={{ name: 'ST Data Bridge', href: '/marketplace/st-data-bridge', copy: '把 SillyTavern 中熟悉的角色与设定，带入 Loom Studio。' }}
+>
+  <img slot="identity" src={icon.src} srcset={icon.srcSet} width={icon.width} height={icon.height} sizes="64px" alt="The World 图标" />
+  <SkyBackdrop slot="background" initialMinutes={1110} />
+  <SkyTimeControl slot="visual" />
+
+  <section class="extension-section container" id="overview">
+    <div class="extension-section__heading"><div><p class="eyebrow">A LIVING CONTEXT</p><h2>故事往前走，<br />世界也留下变化。</h2></div><p>为每段故事维护一份世界状态。从世界到当前场景，再到人物所在的地点，把散落在对话里的事实组织起来。</p></div>
+    <div class="extension-features">
+      <article><small>01 / HERE & NOW</small><h3>知道此时，身在何处</h3><p>在世界仪表盘里查看日期、时间、天气、当前地点与场景描述。场景可以拥有自己的天气，覆盖世界的默认设定。</p></article>
+      <article><small>02 / PLACES</small><h3>从一个地点，展开世界</h3><p>从生活的街区，到街角的便利店、小区门口和家。地图页以地点分组呈现父子关系，帮助你浏览每个地方的描述。</p></article>
+      <article><small>03 / ATMOSPHERE</small><h3>看见故事里的天色</h3><p>客户端可以跟随有效的世界时间与天气，呈现昼夜、雨雪、雾和雷电等效果。叙事中的环境变化，也能成为工作台的氛围。</p></article>
+    </div>
+  </section>
+
+  <section class="extension-section container" aria-labelledby="world-maintenance-title">
+    <div class="extension-section__heading"><div><p class="eyebrow">WITH YOUR STORY AGENT</p><h2 id="world-maintenance-title">让 AI 参与维护，<br />让事实保持连贯。</h2></div><p>为实际使用的 Agent 预设采用维护规则和读写工具后，模型可以在绑定故事的回合中读取世界状态，并更新已确认的变化。</p></div>
+    <div class="extension-features">
+      <article><small>READ</small><h3>先了解当前世界</h3><p>读取已有场景、地点与状态版本，沿用已经确认的事实，减少凭空补全世界的需要。</p></article>
+      <article><small>UPDATE</small><h3>只写下发生的变化</h3><p>场景转移、时间推进、天气变化，都可以通过工具局部更新。维护规则引导模型把推测与已发生的事件分开。</p></article>
+      <article><small>FOLLOW</small><h3>在面板里看到结果</h3><p>客户端订阅当前故事分支的世界状态，场景信息与可识别的天气表现随状态更新。</p></article>
+    </div>
+    <p class="extension-note">AI 维护需要相应预设、工具与权限，实际更新仍取决于模型调用。未绑定故事的独立 Agent 会话不能直接调用这些世界状态工具。</p>
+  </section>
+
+  <section class="extension-section container" id="get-started">
+    <div class="extension-section__heading"><div><p class="eyebrow">GET STARTED</p><h2>把 The World，<br />放进你正在写的故事。</h2></div><p>安装扩展后，还需要让具体故事采用它。你可以为角色设置默认采用，也可以在已有故事的 Timeline 中加入。</p></div>
+    <ol class="extension-steps">
+      <li><h3>启用模块与权限</h3><p>安装可用的 The World 扩展包，启用 Server 模块并授权 State 读写；启用 Client 模块，使用世界仪表盘和天气表现。</p></li>
+      <li><h3>让故事采用世界状态</h3><p>通过角色的默认配置，或已有 Timeline 的扩展采用面板加入 The World。初始状态是空世界，需要按自己的故事建立内容。</p></li>
+      <li><h3>为 Agent 配好维护能力</h3><p>在实际使用的预设中采用世界维护 Lore 与读取、更新工具。建立世界、地点和当前场景后，面板就能呈现相应状态。</p></li>
+    </ol>
+    <div class="extension-source"><p>官方源码：<code>The-LoomStudio / LS_The_World</code><br />可用安装包、模块要求和作者说明，以扩展仓库为准。</p><a class="button" href={repository} target="_blank" rel="noreferrer">前往扩展仓库 <ArrowUpRight size={16} aria-hidden="true" /></a></div>
+  </section>
+
+  <section class="extension-section container" id="questions">
+    <div class="extension-section__heading"><div><p class="eyebrow">GOOD TO KNOW</p><h2>属于你自己的世界。</h2></div><p>从状态组织开始，按故事的需要逐步搭建。了解现有面板的范围，也能更好地规划自己的界面。</p></div>
+    <div class="extension-faq">
+      <details><summary>安装后，每个故事都会自动拥有 The World 吗？</summary><p>不会。安装让能力可用，Timeline 采用才让它参与具体故事。角色默认采用可以影响新建故事；已有故事可自行加入。采用时只创建空世界，不会自动导入示例设定。</p></details>
+      <details><summary>地图页是一套可视化地图编辑器吗？</summary><p>当前地图页按父地点与直接子地点展示卡片和描述，不提供坐标地图编辑、路线连线或点击旅行。地点数据支持更丰富的结构，作者可以据此编写适合自己故事的 Renderer。</p></details>
+      <details><summary>它能直接提供游戏 HUD、手机界面或状态栏吗？</summary><p>官方面板主要用于查看和调试世界状态。面向具体故事的地图、HUD 或手机界面需要作者制作；环境音与背景资源引用也不等于已经接通完整的播放与展示界面。</p></details>
+      <details><summary>可以使用架空历法吗？</summary><p>状态模型支持自定义月份、月长、星期与纪元，并提供相应的日期格式化能力。当前世界仪表盘显示日期与时间，没有独立的日历应用。</p></details>
+      <details><summary>天气效果在什么情况下生效？</summary><p>需要启用客户端模块，并让当前世界包含有效时间和可识别的天气。场景天气可以覆盖世界默认值；无法识别的数据不会被猜成某种天气。工作台天色表现目前使用实验性的宿主接口。</p></details>
+    </div>
+  </section>
+
+  <section slot="closing" class="extension-sky-showcase" id="showcase" data-sky-intro aria-labelledby="world-showcase-title">
+    <div class="extension-section container">
+      <div class="extension-section__heading"><div><p class="eyebrow">A WINDOW INTO YOUR WORLD</p><h2 id="world-showcase-title">回家的路，<br />也有故事发生。</h2></div><p>从下班到晚饭之后，选一段日常，看看故事里的时间、地点和背后的天色一起变化。切换“场景”和“地图”，也能找到沿途熟悉的地方。</p></div>
+      <WorldShowcase />
+    </div>
+  </section>
+</ExtensionLayout>

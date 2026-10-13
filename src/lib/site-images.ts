@@ -17,6 +17,7 @@ const sources = import.meta.glob<ImageMetadata>([
   '/public/images/nom/stickers/{fullbody,bust,heads}/*.png',
   '/public/images/nom/layers/nom-layer-{002,004,composite-002-004}.png',
   '/public/brand/banner.png',
+  '/public/brand/the-world-icon.png',
 ], { eager: true, import: 'default' })
 
 export async function siteImage(path: string, widths: number[], quality = 82): Promise<DisplayImage> {

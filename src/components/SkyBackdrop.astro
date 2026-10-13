@@ -1,4 +1,9 @@
 ---
+interface Props {
+  initialMinutes?: number;
+}
+
+const { initialMinutes = 1110 } = Astro.props;
 const stars = Array.from({ length: 72 }, (_, index) => ({
   x: (index * 47 + 11) % 100,
   y: (index * 29 + 7) % 92,
@@ -9,9 +14,8 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
 }));
 ---
 
-<div class="sky-backdrop" data-sky-backdrop aria-hidden="true">
+<div class="sky-backdrop" data-sky-backdrop data-initial-minutes={initialMinutes} aria-hidden="true">
   <div class="sky-backdrop__tone" data-sky-tone></div>
-  <div class="sky-backdrop__tone sky-backdrop__tone--next" data-sky-tone-next></div>
   <div class="sky-backdrop__stars" data-sky-stars>
     {stars.map((star) => (
       <i
@@ -22,11 +26,8 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
   <div class="sky-backdrop__clouds" data-sky-clouds></div>
 </div>
 
-<div class="sakura-foreground" data-sakura-foreground aria-hidden="true"></div>
-
 <script>
   import { CloudField } from '../scripts/cloud-field';
-  import { SakuraFX } from '../scripts/sakura.js';
 
   type RGB = readonly [number, number, number];
   type CloudTone = {
@@ -93,22 +94,20 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
 
   const backdrop = document.querySelector<HTMLElement>('[data-sky-backdrop]');
   const tone = backdrop?.querySelector<HTMLElement>('[data-sky-tone]');
-  const toneNext = backdrop?.querySelector<HTMLElement>('[data-sky-tone-next]');
   const stars = backdrop?.querySelector<HTMLElement>('[data-sky-stars]');
   const cloudViewport = backdrop?.querySelector<HTMLElement>('[data-sky-clouds]');
-  const sakuraForeground = document.querySelector<HTMLElement>('[data-sakura-foreground]');
-  const sakuraTrigger = document.querySelector<HTMLButtonElement>('[data-sakura-trigger]');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  if (backdrop && tone && toneNext && stars && cloudViewport && sakuraForeground) {
+  if (backdrop && tone && stars && cloudViewport) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const cloudField = new CloudField(cloudViewport, {
       density: window.innerWidth < 720 ? 0.9 : 1.35,
       motionScale: 0.32,
     });
+    cloudField.setPaused(true);
     cloudField.start();
 
     const skySections = Array.from(document.querySelectorAll<HTMLElement>('[data-sky-intro]'));
-    const finalSection = document.querySelector<HTMLElement>('[data-sky-final]');
+    const visibleSections = new Set<HTMLElement>();
     const timeStops: Array<{ hour: number; scene: SceneName }> = [
       { hour: 0, scene: 'night' },
       { hour: 4.5, scene: 'night' },
@@ -120,26 +119,19 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
       { hour: 20.5, scene: 'night' },
       { hour: 24, scene: 'night' },
     ];
-    let frame = 0;
-    let toneBackground = '';
-    let toneLayer = tone;
-    let toneOverlay = toneNext;
-    let sakuraActive = false;
+    let transitionFrame = 0;
     let minuteTimer = 0;
-    let storyTimeMinutes: number | undefined;
+    let pageHidden = false;
+    let userPaused = false;
+    let motionActive = false;
+    let storyTimeMinutes: number | undefined = Number(backdrop.dataset.initialMinutes);
 
     const mix = (from: number, to: number, amount: number) => from + (to - from) * amount;
-    const mixRgb = (from: RGB, to: RGB, amount: number): RGB =>
-      from.map((channel, index) => Math.round(mix(channel, to[index], amount))) as unknown as RGB;
-    const mixColor = (from: RGB, to: RGB, amount: number) =>
-      `rgb(${mixRgb(from, to, amount).join(' ')})`;
-    const relativeLuminance = (color: RGB) => {
-      const [red, green, blue] = color.map((channel) => {
-        const value = channel / 255;
-        return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-      });
-      return red * 0.2126 + green * 0.7152 + blue * 0.0722;
-    };
+    const mixRgb = (from: RGB, to: RGB, amount: number): RGB => [
+      mix(from[0], to[0], amount),
+      mix(from[1], to[1], amount),
+      mix(from[2], to[2], amount),
+    ];
     const mixCloud = (from: CloudTone, to: CloudTone, amount: number): CloudTone => ({
       brightness: mix(from.brightness, to.brightness, amount),
       contrast: mix(from.contrast, to.contrast, amount),
@@ -147,6 +139,14 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
       sepia: mix(from.sepia, to.sepia, amount),
       saturate: mix(from.saturate, to.saturate, amount),
       hue: mix(from.hue, to.hue, amount),
+    });
+    const mixScene = (from: Scene, to: Scene, amount: number): Scene => ({
+      top: mixRgb(from.top, to.top, amount),
+      middle: mixRgb(from.middle, to.middle, amount),
+      bottom: mixRgb(from.bottom, to.bottom, amount),
+      cloud: mixCloud(from.cloud, to.cloud, amount),
+      cloudOpacity: mix(from.cloudOpacity, to.cloudOpacity, amount),
+      starOpacity: mix(from.starOpacity, to.starOpacity, amount),
     });
 
     const formatCloudFilter = (cloud: CloudTone) => [
@@ -158,169 +158,145 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
       `hue-rotate(${cloud.hue.toFixed(2)}deg)`,
     ].join(' ');
 
-    const getTimeScenePair = (date: Date) => {
-      const hour = date.getHours() + date.getMinutes() / 60 + date.getSeconds() / 3600;
+    const getTimeScene = (): Scene => {
+      const now = new Date();
+      const hour = storyTimeMinutes === undefined
+        ? now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600
+        : storyTimeMinutes / 60;
       for (let index = 0; index < timeStops.length - 1; index += 1) {
         const from = timeStops[index];
         const to = timeStops[index + 1];
         if (hour <= to.hour) {
           const linearAmount = (hour - from.hour) / (to.hour - from.hour);
           const amount = linearAmount * linearAmount * (3 - 2 * linearAmount);
-          return { from: from.scene, to: to.scene, amount };
+          return mixScene(scenes[from.scene], scenes[to.scene], amount);
         }
       }
-      return { from: 'night' as SceneName, to: 'night' as SceneName, amount: 0 };
+      return scenes.night;
     };
 
-    const syncSakuraTrigger = () => {
-      if (!sakuraTrigger) return;
-      const label = sakuraActive ? '关闭樱花彩蛋' : '触发樱花彩蛋';
-      sakuraTrigger.disabled = reduceMotion.matches;
-      sakuraTrigger.setAttribute('aria-pressed', String(sakuraActive));
-      sakuraTrigger.setAttribute('aria-label', reduceMotion.matches ? '已根据减少动态效果设置禁用樱花彩蛋' : label);
-      sakuraTrigger.title = reduceMotion.matches ? '已根据系统设置禁用动态效果' : label;
+    let currentScene = getTimeScene();
+    let targetScene = currentScene;
+
+    const paintScene = (scene: Scene) => {
+      const color = (rgb: RGB) => `rgb(${rgb.map((channel) => channel.toFixed(2)).join(' ')})`;
+      tone.style.background = `linear-gradient(180deg, ${color(scene.top)} 0%, ${color(scene.middle)} 58%, ${color(scene.bottom)} 100%)`;
+      stars.style.opacity = String(scene.starOpacity);
+      cloudField.setAtmosphere(formatCloudFilter(scene.cloud), scene.cloudOpacity);
+      currentScene = scene;
     };
 
-    const stopSakura = () => {
-      if (sakuraActive) SakuraFX.stop();
-      sakuraForeground.replaceChildren();
-      sakuraActive = false;
-      syncSakuraTrigger();
+    const finishTransition = () => {
+      window.cancelAnimationFrame(transitionFrame);
+      transitionFrame = 0;
+      paintScene(targetScene);
     };
 
-    const startSakura = () => {
-      if (sakuraActive || reduceMotion.matches || document.hidden) return;
-      sakuraForeground.replaceChildren();
-      const canvas = document.createElement('canvas');
-      canvas.className = 'sakura-foreground__canvas';
-      sakuraForeground.append(canvas);
-      SakuraFX.init(canvas, {
-        density: window.innerWidth < 720 ? 'sparse' : 'dense',
-        windStrength: 0.3,
-      });
-      sakuraActive = true;
-      syncSakuraTrigger();
-    };
+    const updateScene = () => {
+      window.cancelAnimationFrame(transitionFrame);
+      transitionFrame = 0;
+      targetScene = getTimeScene();
+      if (!motionActive) {
+        paintScene(targetScene);
+        return;
+      }
 
-    const toggleSakura = () => sakuraActive ? stopSakura() : startSakura();
+      // Capture the last painted scene so rapid input continues without stale callbacks.
+      const from = currentScene;
+      const to = targetScene;
+      const startedAt = performance.now();
+      const tick = (now: number) => {
+        const progress = Math.min((now - startedAt) / 800, 1);
+        const amount = 1 - (1 - progress) ** 3;
+        paintScene(mixScene(from, to, amount));
+        transitionFrame = progress < 1 ? window.requestAnimationFrame(tick) : 0;
+      };
+      transitionFrame = window.requestAnimationFrame(tick);
+    };
 
     const syncSkyActivity = () => {
-      const nearViewport = (section: HTMLElement | null) => {
-        if (!section) return false;
-        const rect = section.getBoundingClientRect();
-        return rect.top < window.innerHeight * 1.35 && rect.bottom > -window.innerHeight * 0.35;
-      };
-      const active = skySections.some(nearViewport) || nearViewport(finalSection);
+      const active = visibleSections.size > 0;
+      motionActive = active && !document.hidden && !pageHidden && !reduceMotion.matches && !userPaused;
       backdrop.toggleAttribute('data-active', active);
-      cloudField.setPaused(document.hidden || reduceMotion.matches || !active);
-      if (!active && sakuraActive) stopSakura();
-      return active;
+      backdrop.toggleAttribute('data-motion-active', motionActive);
+      cloudField.setPaused(!motionActive);
+      if (!motionActive && transitionFrame) finishTransition();
     };
 
-    const render = () => {
-      frame = 0;
-      const currentDate = new Date();
-      const storyMinutes = storyTimeMinutes;
-      const isStoryTime = storyMinutes !== undefined;
-      if (isStoryTime) currentDate.setHours(Math.floor(storyMinutes / 60), storyMinutes % 60, 0, 0);
-      const pair = getTimeScenePair(currentDate);
-      const from = scenes[pair.from];
-      const to = scenes[pair.to];
-      const cloud = mixCloud(from.cloud, to.cloud, pair.amount);
-      const topColor = mixRgb(from.top, to.top, pair.amount);
-      const bottomColor = mixRgb(from.bottom, to.bottom, pair.amount);
-
-      const nextToneBackground = `linear-gradient(180deg, ${mixColor(from.top, to.top, pair.amount)} 0%, ${mixColor(from.middle, to.middle, pair.amount)} 58%, ${mixColor(from.bottom, to.bottom, pair.amount)} 100%)`;
-      if (toneBackground && toneBackground !== nextToneBackground) {
-        toneOverlay.style.background = nextToneBackground;
-        toneOverlay.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: 10000, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards',
-        }).onfinish = () => {
-          toneLayer.style.background = nextToneBackground;
-          toneLayer.style.opacity = '1';
-          toneOverlay.style.opacity = '0';
-          [toneLayer, toneOverlay] = [toneOverlay, toneLayer];
-        };
-      } else {
-        toneLayer.style.background = nextToneBackground;
+    const refreshVisibleSections = () => {
+      visibleSections.clear();
+      for (const section of skySections) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) visibleSections.add(section);
       }
-      toneBackground = nextToneBackground;
-      stars.style.opacity = String(mix(from.starOpacity, to.starOpacity, pair.amount));
-      cloudField.setAtmosphere(
-        formatCloudFilter(cloud),
-        mix(from.cloudOpacity, to.cloudOpacity, pair.amount),
-      );
-      backdrop.dataset.scene = pair.amount < 0.5 ? pair.from : pair.to;
-      const introTextTone = relativeLuminance(topColor) > 0.42 ? 'dark' : 'light';
-      const textTone = relativeLuminance(bottomColor) > 0.42 ? 'dark' : 'light';
-      for (const section of skySections) section.dataset.skyText = introTextTone;
-      if (finalSection) finalSection.dataset.skyText = textTone;
-      document.documentElement.dataset.skyText = textTone;
-
-      // Story time belongs to the atmospheric backdrop only. It must not
-      // change the publication site's container theme while the demo is open.
-      if (!isStoryTime) {
-        const isDarkSky = pair.from === 'night' || pair.from === 'sunset' || pair.to === 'night';
-        const dynamicTheme = isDarkSky ? 'dark' : 'light';
-        document.documentElement.dataset.theme = dynamicTheme;
-        document.documentElement.style.colorScheme = dynamicTheme;
-        document.querySelector('[data-theme-color]')?.setAttribute('content', dynamicTheme === 'dark' ? '#252b31' : '#82919b');
-      }
-
       syncSkyActivity();
     };
 
-    const requestRender = () => {
-      if (!frame) frame = window.requestAnimationFrame(render);
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const section = entry.target as HTMLElement;
+        if (entry.isIntersecting) visibleSections.add(section);
+        else visibleSections.delete(section);
+      }
+      syncSkyActivity();
+    });
+    for (const section of skySections) observer.observe(section);
+
+    const syncMinuteTimer = () => {
+      window.clearInterval(minuteTimer);
+      minuteTimer = 0;
+      if (storyTimeMinutes === undefined && !document.hidden && !pageHidden) {
+        minuteTimer = window.setInterval(updateScene, 60_000);
+      }
     };
 
     const handleStoryTime = (event: Event) => {
       const minutes = (event as CustomEvent<{ minutes?: number | null }>).detail?.minutes;
-      if (minutes === null) {
-        storyTimeMinutes = undefined;
-        requestRender();
-        return;
-      }
-      if (typeof minutes !== 'number' || !Number.isFinite(minutes)) return;
-      storyTimeMinutes = Math.max(0, Math.min(1439, minutes));
-      requestRender();
+      if (minutes === null) storyTimeMinutes = undefined;
+      else if (typeof minutes === 'number' && Number.isFinite(minutes) && minutes >= 0 && minutes <= 1439) {
+        storyTimeMinutes = minutes;
+      } else return;
+      syncMinuteTimer();
+      updateScene();
     };
 
-    const handleResize = () => {
-      requestRender();
+    const handleSkyMotion = (event: Event) => {
+      const paused = (event as CustomEvent<{ paused?: boolean }>).detail?.paused;
+      if (typeof paused !== 'boolean') return;
+      userPaused = paused;
+      syncSkyActivity();
     };
 
     const handleVisibility = () => {
-      if (document.hidden || reduceMotion.matches) stopSakura();
-      else syncSakuraTrigger();
-      requestRender();
+      syncSkyActivity();
+      syncMinuteTimer();
+      if (!document.hidden && storyTimeMinutes === undefined) updateScene();
     };
 
-    const cleanup = () => {
-      window.cancelAnimationFrame(frame);
-      window.clearInterval(minuteTimer);
-      cloudField.destroy();
-      stopSakura();
-      window.removeEventListener('scroll', requestRender);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('loom:story-time', handleStoryTime);
-      document.removeEventListener('visibilitychange', handleVisibility);
-      reduceMotion.removeEventListener('change', handleVisibility);
-      sakuraTrigger?.removeEventListener('click', toggleSakura);
+    const handlePageHide = () => {
+      pageHidden = true;
+      syncSkyActivity();
+      syncMinuteTimer();
     };
 
-    window.addEventListener('scroll', requestRender, { passive: true });
-    window.addEventListener('resize', handleResize);
+    const handlePageShow = () => {
+      pageHidden = false;
+      refreshVisibleSections();
+      syncMinuteTimer();
+      if (storyTimeMinutes === undefined) updateScene();
+    };
+
     window.addEventListener('loom:story-time', handleStoryTime);
+    window.addEventListener('loom:sky-motion', handleSkyMotion);
     document.addEventListener('visibilitychange', handleVisibility);
-    reduceMotion.addEventListener('change', handleVisibility);
-    sakuraTrigger?.addEventListener('click', toggleSakura);
-    window.addEventListener('pagehide', cleanup, { once: true });
+    reduceMotion.addEventListener('change', syncSkyActivity);
+    // Preserve the cloud field and listeners while this document is in BFCache.
+    window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('pageshow', handlePageShow);
 
-    minuteTimer = window.setInterval(requestRender, 60_000);
-    syncSakuraTrigger();
-    handleVisibility();
-    render();
+    paintScene(currentScene);
+    refreshVisibleSections();
+    syncMinuteTimer();
   }
 </script>
 
@@ -342,15 +318,12 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
     position: absolute;
     z-index: 0;
     inset: -2px;
-    transition: background 10000ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .sky-backdrop__tone--next { opacity: 0; }
 
   .sky-backdrop__stars {
     position: absolute;
     z-index: 1;
     inset: 0;
-    transition: opacity 10000ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .sky-backdrop__stars > i {
@@ -363,7 +336,10 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
     opacity: var(--star-alpha);
     background: #f2f6ff;
     animation: sky-star-twinkle var(--star-duration) ease-in-out var(--star-delay) infinite alternate;
+    animation-play-state: paused;
   }
+
+  .sky-backdrop[data-motion-active] .sky-backdrop__stars > i { animation-play-state: running; }
 
   .sky-backdrop__clouds {
     position: absolute;
@@ -372,7 +348,6 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
     overflow: hidden;
     perspective: 1000px;
     transform: translateZ(0);
-    transition: opacity 180ms linear;
     backface-visibility: hidden;
   }
 
@@ -409,24 +384,9 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
     height: 256px;
     margin: -128px 0 0 -128px;
     background: url('/images/cloud.png') center / contain no-repeat;
-    transition: filter 2200ms ease, opacity 10000ms cubic-bezier(0.22, 1, 0.36, 1);
     transform-style: flat;
     backface-visibility: hidden;
     will-change: transform, opacity, filter;
-  }
-
-  .sakura-foreground {
-    position: fixed;
-    z-index: 20;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .sakura-foreground__canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
   }
 
   @keyframes sky-star-twinkle {
@@ -441,6 +401,6 @@ const stars = Array.from({ length: 72 }, (_, index) => ({
 
   @media (prefers-reduced-motion: reduce) {
     .sky-backdrop__stars > i { animation: none; }
-    .sakura-foreground { display: none; }
+    .sky-backdrop { transition: none; }
   }
 </style>

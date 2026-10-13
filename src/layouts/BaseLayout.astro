@@ -26,6 +26,10 @@ const pageTitle = title === 'Loom Studio'
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <!-- Declare opt-in before first paint; dev stylesheets arrive through Vite modules. -->
+    <style is:inline>
+      @view-transition { navigation: auto; }
+    </style>
     <meta name="theme-color" content={Astro.url.pathname === '/' ? '#252b31' : '#82919b'} data-theme-color />
     <script is:inline>
       try {
@@ -73,7 +77,7 @@ const pageTitle = title === 'Loom Studio'
     <link rel="icon" type="image/png" href="/brand/website_logo.png" />
     <link rel="apple-touch-icon" href="/brand/website_logo.png" />
     <title>{pageTitle}</title>
-    {(['/', '/docs/architecture', '/news'].includes(Astro.url.pathname)) && <>
+    {(['/', '/docs/architecture', '/news', '/marketplace'].includes(Astro.url.pathname) || Astro.url.pathname.startsWith('/marketplace/')) && <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />

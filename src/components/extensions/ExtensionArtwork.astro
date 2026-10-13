@@ -1,0 +1,85 @@
+---
+import { ArrowRight, MapPin, Sparkles, Sun } from '@lucide/astro';
+import { siteImage } from '../../lib/site-images';
+
+interface Props { kind: 'bridge' | 'world'; compact?: boolean; }
+const { kind, compact = false } = Astro.props;
+const cards = kind === 'bridge' ? await Promise.all([
+  siteImage('/images/cards/display/card-007.png', [188, 376]),
+  siteImage('/images/cards/display/card-001.png', [188, 376]),
+]) : [];
+const worldIcon = kind === 'world' ? await siteImage('/brand/the-world-icon.png', [200, 400]) : undefined;
+---
+
+<div class:list={['extension-art', `extension-art--${kind}`, { 'extension-art--compact': compact }]} aria-hidden="true">
+  {kind === 'bridge' ? (
+    <>
+      <span class="art-sticker art-sticker--bridge">Bring your stories</span>
+      <div class="bridge-photos">
+        {cards.map((card, index) => (
+          <div class:list={['bridge-photo', `bridge-photo--${index}`]}>
+            <span class="photo-tape"></span>
+            <img src={card.src} srcset={card.srcSet} width={card.width} height={card.height} sizes="(max-width: 440px) 135px, 165px" alt="" loading={compact ? 'lazy' : 'eager'} decoding="async" />
+            <span class="photo-caption">{index === 0 ? '熟悉的角色' : '新的故事'}</span>
+          </div>
+        ))}
+      </div>
+      <div class="bridge-transfer">
+        <span><img src="/brand/sillytavern-icon.png" width="32" height="32" alt="" /><b>SillyTavern</b></span>
+        <ArrowRight size={18} stroke-width={1.6} />
+        <span><img src="/brand/loom-logo.png" width="26" height="26" alt="" /><b>Loom Studio</b></span>
+      </div>
+    </>
+  ) : (
+    <>
+      <span class="art-sticker art-sticker--world">Every little world</span>
+      <Sparkles class="world-sparkle world-sparkle--one" size={27} stroke-width={1.5} />
+      <Sparkles class="world-sparkle world-sparkle--two" size={18} stroke-width={1.5} />
+      {worldIcon && <img class="world-icon" src={worldIcon.src} srcset={worldIcon.srcSet} width={worldIcon.width} height={worldIcon.height} sizes="200px" alt="" loading="lazy" decoding="async" />}
+      <div class="world-postcard">
+        <span><Sun size={21} stroke-width={1.5} /><b>18:30<small>故事里的黄昏</small></b></span>
+        <span><MapPin size={17} stroke-width={1.5} />下一站，回家</span>
+      </div>
+    </>
+  )}
+</div>
+
+<style>
+  .extension-art { position: relative; display: flex; flex-direction: column; align-items: center; min-height: 390px; padding: 30px 24px 24px; border-radius: var(--loom-site-radius-lg); color: var(--loom-site-note-ink); font-family: var(--loom-site-note-body); }
+  .extension-art--bridge { background: #f7eedc; }
+  .extension-art--world { background: var(--loom-site-note-mint); }
+  .extension-art--compact { min-height: 366px; border-radius: var(--loom-site-radius-lg) var(--loom-site-radius-lg) 0 0; }
+  .art-sticker { position: relative; z-index: 2; align-self: flex-start; font: 500 25px/1.2 var(--loom-site-note-heading); -webkit-text-stroke: 5px var(--loom-site-note-paper); paint-order: stroke fill; transform: rotate(-5deg); }
+  .art-sticker--bridge { color: #8a4f38; }
+  .art-sticker--world { color: #527d6b; transform: rotate(-4deg); }
+  .bridge-photos { position: relative; width: min(310px, 100%); height: 266px; margin-top: 17px; }
+  .bridge-photo { position: absolute; top: 0; width: 53%; padding: 7px 7px 0; background: var(--loom-site-note-paper); border-radius: var(--loom-site-radius-md); box-shadow: 0 5px 14px rgb(97 74 45 / .1); }
+  .bridge-photo--0 { left: 2%; transform: rotate(-8deg); }
+  .bridge-photo--1 { top: 12px; right: 3%; transform: rotate(7deg); }
+  .bridge-photo img { width: 100%; height: auto; aspect-ratio: 376 / 524; object-fit: cover; border-radius: var(--loom-site-radius-sm); }
+  .photo-tape { position: absolute; z-index: 1; top: -8px; left: calc(50% - 27px); width: 54px; height: 17px; background: #f4d06fc9; transform: rotate(5deg); }
+  .bridge-photo--1 .photo-tape { background: #d5c6e8d9; transform: rotate(-5deg); }
+  .photo-caption { display: block; padding: 9px 0 10px; text-align: center; font-size: 10px; color: var(--loom-site-note-muted); }
+  .bridge-transfer { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: auto; padding: 10px 16px; border-radius: 999px; background: var(--loom-site-note-paper); }
+  .bridge-transfer > span { display: inline-flex; align-items: center; gap: 8px; }
+  .bridge-transfer img, .bridge-transfer > :global(svg) { flex: none; }
+  .bridge-transfer img { border-radius: var(--loom-site-radius-sm); }
+  .bridge-transfer b { font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .world-icon { width: 200px; height: 200px; object-fit: contain; margin: 15px 0 20px; transform: rotate(-7deg); }
+  .world-sparkle { position: absolute; color: #719c87; }
+  .world-sparkle--one { top: 108px; right: 14%; transform: rotate(12deg); }
+  .world-sparkle--two { top: 232px; left: 17%; }
+  .world-postcard { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 22px; width: min(330px, 100%); margin-top: auto; padding: 16px 20px; background: var(--loom-site-note-paper); border-radius: var(--loom-site-radius-md); transform: rotate(2deg); }
+  .world-postcard > span { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+  .world-postcard b { font: 500 23px/1.1 var(--loom-site-note-heading); }
+  .world-postcard small { display: block; margin-top: 5px; color: var(--loom-site-note-muted); font: 10px var(--loom-site-note-body); }
+  @media (max-width: 440px) {
+    .extension-art { padding-inline: 18px; }
+    .bridge-photos { max-width: 270px; height: 250px; }
+    .bridge-transfer { gap: 10px; padding-inline: 12px; }
+    .bridge-transfer > span { gap: 6px; }
+    .bridge-transfer b { font-size: 10px; }
+    .art-sticker { font-size: 23px; }
+    .world-sparkle--one { right: 10%; }
+  }
+</style>

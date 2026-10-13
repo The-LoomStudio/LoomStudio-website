@@ -1,0 +1,78 @@
+---
+import { Sunrise, Sun, Sunset, Moon } from '@lucide/astro';
+const presets = [
+  { label: '黎明', minutes: 360, Icon: Sunrise },
+  { label: '白昼', minutes: 780, Icon: Sun },
+  { label: '黄昏', minutes: 1110, Icon: Sunset },
+  { label: '夜晚', minutes: 1350, Icon: Moon },
+];
+---
+
+<div class="sky-time" data-sky-time-control>
+  <div class="sky-time__heading"><span>此刻，故事的天空</span><span>LIVE SKY</span></div>
+  <div class="sky-time__clock"><output for="world-sky-time" data-sky-time-output>18:30</output><span>拨动时间，看天色流转。</span></div>
+  <label class="sky-time__range-label" for="world-sky-time">演示时间 <span>00:00 — 23:59</span></label>
+  <input id="world-sky-time" type="range" min="0" max="1439" step="1" value="1110" aria-valuetext="18:30" />
+  <div class="sky-time__presets" role="group" aria-label="选择天空时段">
+    {presets.map(({ label, minutes, Icon }) => <button type="button" data-sky-minutes={minutes} aria-pressed={minutes === 1110}><Icon size={18} stroke-width={1.4} aria-hidden="true" /><span>{label}</span></button>)}
+  </div>
+  <button class="sky-time__pause" type="button" data-sky-motion aria-pressed="false">暂停天空动态</button>
+  <p>昼夜、云层与星空的交互演示。<br />这里的时间只改变本页天空，不连接你的故事。</p>
+</div>
+
+<script>
+  const control = document.querySelector<HTMLElement>('[data-sky-time-control]')!;
+  const slider = control.querySelector<HTMLInputElement>('input[type="range"]')!;
+  const output = control.querySelector<HTMLOutputElement>('[data-sky-time-output]')!;
+  const presets = control.querySelectorAll<HTMLButtonElement>('[data-sky-minutes]');
+  const pause = control.querySelector<HTMLButtonElement>('[data-sky-motion]')!;
+  const renderTime = (minutes: number) => {
+    const time = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+    slider.value = String(minutes);
+    slider.setAttribute('aria-valuetext', time);
+    output.value = time;
+    presets.forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.skyMinutes) === minutes)));
+  };
+  const setTime = (minutes: number) => {
+    renderTime(minutes);
+    window.dispatchEvent(new CustomEvent('loom:story-time', { detail: { minutes } }));
+  };
+  window.addEventListener('loom:story-time', (event: Event) => {
+    const minutes = (event as CustomEvent<{ minutes?: number | null }>).detail?.minutes;
+    if (typeof minutes !== 'number' || !Number.isFinite(minutes) || minutes < 0 || minutes > 1439) return;
+    renderTime(minutes);
+  });
+  slider.addEventListener('input', () => setTime(Number(slider.value)));
+  presets.forEach((button) => button.addEventListener('click', () => setTime(Number(button.dataset.skyMinutes))));
+  pause.addEventListener('click', () => {
+    const paused = pause.getAttribute('aria-pressed') !== 'true';
+    pause.setAttribute('aria-pressed', String(paused));
+    pause.textContent = paused ? '继续天空动态' : '暂停天空动态';
+    window.dispatchEvent(new CustomEvent('loom:sky-motion', { detail: { paused } }));
+  });
+  // A restored form control must agree with the sky after browser back navigation.
+  window.addEventListener('pageshow', () => {
+    setTime(Number(slider.value));
+    window.dispatchEvent(new CustomEvent('loom:sky-motion', { detail: { paused: pause.getAttribute('aria-pressed') === 'true' } }));
+  });
+</script>
+
+<style>
+  .sky-time { width: 100%; max-width: 430px; margin-inline: auto; padding: 30px; background: var(--loom-site-note-paper); color: var(--loom-site-note-ink); border-radius: var(--loom-site-radius-lg); font-family: var(--loom-site-note-body); }
+  .sky-time :focus-visible { outline-color: var(--loom-site-note-ink); }
+  .sky-time__heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--loom-site-note-muted); font-size: 11px; }
+  .sky-time__heading > span:last-child { padding: 7px 10px; border-radius: 999px; background: var(--loom-site-note-mint); font: 8px var(--loom-site-font-mono); letter-spacing: .14em; }
+  .sky-time__clock { display: flex; flex-direction: column; gap: 12px; margin: 42px 0; }
+  output { font: 400 clamp(58px, 6.5vw, 80px)/1 var(--loom-site-note-heading); letter-spacing: -.04em; }
+  .sky-time__clock > span { color: var(--loom-site-note-muted); font-size: 12px; }
+  .sky-time__range-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--loom-site-note-muted); }
+  .sky-time__range-label span { font-family: var(--loom-site-font-mono); }
+  input { width: 100%; height: 36px; margin: 8px 0 22px; accent-color: #527d6b; cursor: pointer; }
+  .sky-time__presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sky-time__presets button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 70px; padding: 10px 6px; border: 0; border-radius: var(--loom-site-radius-md); background: #f5f7f4; color: var(--loom-site-note-ink); font-size: 11px; cursor: pointer; }
+  .sky-time__presets button:hover { background: var(--loom-site-note-mint); }
+  .sky-time__presets button[aria-pressed='true'] { background: var(--loom-site-note-yellow); }
+  .sky-time__pause { display: block; margin: 18px 0 0; min-height: 36px; padding: 0; background: none; border: 0; color: var(--loom-site-note-muted); font-size: 11px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+  .sky-time p { margin: 12px 0 0; color: var(--loom-site-note-muted); font-size: 10px; line-height: 1.9; }
+  @media (max-width: 440px) { .sky-time { padding: 24px; } }
+</style>

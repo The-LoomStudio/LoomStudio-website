@@ -14,6 +14,7 @@ export class CloudField {
   private elapsed = 0;
   private lastFrameTime = 0;
   private paused = false;
+  private started = false;
 
   constructor(viewport: HTMLElement, options: CloudFieldOptions = {}) {
     this.viewport = viewport;
@@ -25,21 +26,31 @@ export class CloudField {
   }
 
   start() {
+    if (this.started) return;
     this.generate();
-    this.updateLoop(performance.now());
+    this.started = true;
+    if (!this.paused) this.animationFrameId = window.requestAnimationFrame(this.updateLoop);
   }
 
   destroy() {
     window.cancelAnimationFrame(this.animationFrameId);
     this.animationFrameId = 0;
+    this.started = false;
     this.bases.length = 0;
     this.layers.length = 0;
     this.world.remove();
   }
 
   setPaused(paused: boolean) {
+    if (this.paused === paused) return;
     this.paused = paused;
-    if (!paused) this.lastFrameTime = performance.now();
+    this.lastFrameTime = 0;
+    if (paused) {
+      window.cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = 0;
+    } else if (this.started) {
+      this.animationFrameId = window.requestAnimationFrame(this.updateLoop);
+    }
   }
 
   setAtmosphere(filter: string, opacity: number) {
@@ -90,11 +101,6 @@ export class CloudField {
       const angle = Math.random() * 360;
       const scale = 0.5 + Math.random();
 
-      cloud.dataset.x = String(layerX);
-      cloud.dataset.y = String(layerY);
-      cloud.dataset.z = String(layerZ);
-      cloud.dataset.angle = String(angle);
-      cloud.dataset.scale = String(scale);
       cloud.style.transform = `translate3d(${layerX}px, ${layerY}px, ${layerZ}px) rotateZ(${angle}deg) scale(${scale})`;
 
       base.append(cloud);
@@ -105,35 +111,25 @@ export class CloudField {
   }
 
   private updateLoop = (now: number) => {
-    const deltaSeconds = this.lastFrameTime ? Math.min((now - this.lastFrameTime) / 1000, 0.05) : 0.016;
+    this.animationFrameId = 0;
+    if (this.paused || !this.started) return;
+    const deltaSeconds = this.lastFrameTime ? Math.min((now - this.lastFrameTime) / 1000, 0.05) : 0;
     this.lastFrameTime = now;
+    this.elapsed += deltaSeconds;
+    const horizontalSpeed = 5 * 0.55 * this.motionScale;
 
-    if (!this.paused) {
-      this.elapsed += deltaSeconds;
-      const horizontalSpeed = 5 * 0.55 * this.motionScale;
+    for (const base of this.bases) {
+      const baseX = Number(base.dataset.baseX) || 0;
+      const baseY = Number(base.dataset.baseY) || 0;
+      const baseZ = Number(base.dataset.baseZ) || 0;
+      const drift = Number(base.dataset.drift) || 0;
+      const bobPhase = Number(base.dataset.bobPhase) || 0;
+      const bobAmount = Number(base.dataset.bobAmount) || 0;
 
-      for (const base of this.bases) {
-        const baseX = Number(base.dataset.baseX) || 0;
-        const baseY = Number(base.dataset.baseY) || 0;
-        const baseZ = Number(base.dataset.baseZ) || 0;
-        const drift = Number(base.dataset.drift) || 0;
-        const bobPhase = Number(base.dataset.bobPhase) || 0;
-        const bobAmount = Number(base.dataset.bobAmount) || 0;
-
-        let x = baseX + this.elapsed * drift * horizontalSpeed;
-        while (x > 980) x -= 1960;
-        const y = baseY + Math.sin(this.elapsed * 0.05 + bobPhase) * bobAmount * 0.7;
-        base.style.transform = `translate3d(${x}px, ${y}px, ${baseZ}px)`;
-      }
-
-      for (const cloud of this.layers) {
-        const x = Number(cloud.dataset.x) || 0;
-        const y = Number(cloud.dataset.y) || 0;
-        const z = Number(cloud.dataset.z) || 0;
-        const angle = Number(cloud.dataset.angle) || 0;
-        const scale = Number(cloud.dataset.scale) || 1;
-        cloud.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateZ(${angle}deg) scale(${scale})`;
-      }
+      let x = baseX + this.elapsed * drift * horizontalSpeed;
+      while (x > 980) x -= 1960;
+      const y = baseY + Math.sin(this.elapsed * 0.05 + bobPhase) * bobAmount * 0.7;
+      base.style.transform = `translate3d(${x}px, ${y}px, ${baseZ}px)`;
     }
 
     this.animationFrameId = window.requestAnimationFrame(this.updateLoop);
