@@ -28,26 +28,26 @@ const brand = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
 const features = [
   {
     index: '01',
-    title: '故事，好好读',
+    title: '翻开正文，接着上回读',
     sticker: '/images/nom/stickers/fullbody/reading.png',
-    copy: '把确认的情节留在正文里，把推演草稿交给后台。沿着角色的脚步，一页一页读下去。',
+    paragraphs: ['剧情正文和 Agent 的工作记录分开呈现，阅读时只看故事，需要时再展开工作过程。', '故事读到一半，不会突然夹进一长串工具调用。'],
   },
   {
     index: '02',
-    title: '幕后，有帮手',
+    title: 'Agent 忙了些什么',
     sticker: '/images/nom/stickers/fullbody/working.png',
-    copy: 'Agent 在自己的工作区整理线索、调用工具。想知道它忙了什么？打开面板就能看看。',
+    paragraphs: ['整理线索、调用工具、生成回复，Agent 的工作记录留在独立面板里。', '出了岔子，也有记录可查。'],
   },
   {
     index: '03',
-    title: '灵感，有来处',
+    title: '这一轮，模型看到了什么',
     sticker: '/images/nom/stickers/bust/thinking.png',
-    copy: '这次对话用到了哪些设定，又带上了哪段记忆？展开提示词构建过程，把故事的来龙去脉看清楚。',
+    paragraphs: ['哪些设定进入了上下文、提示词怎样排列，可以展开构建记录查看。', '模型漏了设定？先从这里找找原因。'],
   },
 ];
 ---
 
-<BaseLayout title="Loom Studio" description="专为长篇角色扮演与互动叙事打造的桌面工具：分离剧情正文、推演过程与提示词构建，让每一次选择都能延展成清晰的世界线">
+<BaseLayout title="Loom Studio" description="Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台，将角色、世界设定、故事分支和 Agent 工具放在一起。">
   <SiteHeader />
 
   <main>
@@ -59,7 +59,7 @@ const features = [
         <a href="#architecture">03 架构</a>
       </nav>
       <HeroBanner client:load images={topImages} layers={layers} />
-      <a class="hero__scroll" href="#story"><span>向下滚动探索</span><i></i></a>
+      <a class="hero__scroll" href="#story"><span>往下看看</span><i></i></a>
     </section>
 
     <div class="home-content">
@@ -67,17 +67,17 @@ const features = [
       <CardStack client:visible images={stackImages} />
       <div class="brand-banner__sticker">
         <img data-static-image style="opacity: 0" src={brand.src} srcset={brand.srcSet} width={brand.width} height={brand.height}
-          sizes="(max-width: 680px) 70vw, 480px" alt="Loom Studio" loading="lazy" decoding="async" />
+          sizes="(max-width: 800px) 80vw, 640px" alt="Loom Studio" loading="lazy" decoding="async" />
       </div>
-      <div class="brand-banner__copy"><p>编织世界，交织故事。<br />把下一段旅程留给你自己。</p><a class="brand-banner__download" href="/download">下载与启动 <ArrowUpRight size={18} aria-hidden="true" /></a></div>
+      <div class="brand-banner__copy"><p>编织世界，交织故事。</p><a class="brand-banner__download" href="/download">下载与启动 <ArrowUpRight size={18} aria-hidden="true" /></a></div>
     </section>
 
     <section class="card-banner card-banner--top" aria-labelledby="card-banner-title">
       <div class="container card-banner__heading">
         <div class="card-banner__copy">
           <p class="eyebrow">A gallery of possibilities</p>
-          <h2 id="card-banner-title">每一张卡面<br />都可以是一个新的角色</h2>
-          <div class="card-banner__nom"><NomSticker src="/images/nom/stickers/fullbody/welcome.png" /></div>
+          <h2 id="card-banner-title">故事从谁开始？</h2>
+          <div class="card-banner__nom"><NomSticker src="/images/nom/stickers/fullbody/welcome.png" message="唔……都想认识一下。选谁好呢？" /></div>
         </div>
       </div>
       <CardMarquee client:visible images={cardImages} />
@@ -87,10 +87,10 @@ const features = [
       <div class="container manifesto__grid">
         <div class="manifesto__sticky" data-chapter="01 / NARRATIVE">
           <p class="eyebrow">A home for your stories</p>
-          <h2>故事还长<br />我们慢慢讲</h2>
+          <h2>正文归正文<br />幕后也有地方放</h2>
           <p>
-            一封来信、一位老朋友，或是一条没走过的小路。<br />
-            把它们放进你的世界，让正文、设定和幕后推演各有自己的位置，陪故事走得更远。
+            读故事时看正文，调整设定时打开工作区。<br />
+            Agent 的工作记录、工具结果和提示词构建也各有位置，需要时再展开。
           </p>
         </div>
         <div class="manifesto__features">
@@ -99,7 +99,7 @@ const features = [
               <div class="manifesto__feature-art"><NomSticker src={feature.sticker} /></div>
               <span>{feature.index}</span>
               <h3>{feature.title}</h3>
-              <p>{feature.copy}</p>
+              {feature.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
             </article>
           ))}
         </div>
@@ -111,20 +111,20 @@ const features = [
         <div class="section-heading" data-chapter="02 / SYSTEM">
           <div>
             <p class="eyebrow">Inside the studio</p>
-            <h2>你的小小工作室<br />装得下大大的世界</h2>
+            <h2>故事写到哪儿<br />工作台就开在哪儿</h2>
           </div>
           <p>
-            角色的秘密、世界的规则，还有刚刚发生的冒险，都在这里。<br />
-            先试试下面这段小故事，再打开工作区，看看它是怎样被编织出来的。
+            角色、设定和对话放在同一个工作台里，不用来回翻找。<br />
+            下面是一段交互演示，可以读读故事，也可以展开工作区看看。
           </p>
         </div>
         <div class="product__stage">
           <ProductPreview />
         </div>
         <div class="product__legend">
-          <div><span>01</span><b>故事时间线</b><p>沿着正文，找回每一次选择</p></div>
-          <div><span>02</span><b>Agent 工作区</b><p>看看幕后帮手的思路和工具记录</p></div>
-          <div><span>03</span><b>提示词构建</b><p>看清哪些设定参与了这一轮对话</p></div>
+          <div><span>01</span><b>故事时间线</b><p>阅读剧情，查看故事分支</p></div>
+          <div><span>02</span><b>Agent 工作区</b><p>查看对话、工具调用与运行记录</p></div>
+          <div><span>03</span><b>提示词构建</b><p>检查本轮上下文用了哪些设定</p></div>
         </div>
       </div>
     </section>
@@ -132,14 +132,14 @@ const features = [
     <section class="architecture" id="architecture">
       <div class="container architecture__inner" data-chapter="03 / ARCHITECTURE">
         <p class="eyebrow">A little look backstage</p>
-        <h2>好故事的背后<br />也有小小的分工</h2>
+        <h2>工作台里面<br />是怎么运转的</h2>
         <ArchitecturePreview />
         <p class="architecture__note">
-          正文讲故事，Agent 理线索，构建器把需要的设定送给模型。<br />
-          每一步都有迹可循，你可以安心游玩，也可以随时掀开幕布，动手改一改。
+          故事正文、Agent 会话和提示词构建由不同模块负责。<br />
+          架构地图把它们连起来，方便沿着一次操作查找对应的代码。
         </p>
         <div class="architecture__guide">
-          <NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message="想知道它们怎么协作？来地图里逛逛。" />
+          <NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message="啊，里面还有这么多……我先从认识的地方看起。" />
           <a class="architecture__map" href="/docs/architecture">开发者架构地图 <ArrowUpRight size={18} aria-hidden="true" /></a>
         </div>
       </div>
@@ -457,7 +457,7 @@ const features = [
   .banner-footer { position: absolute; z-index: 4; inset: auto 0 0; }
   .adventure :global(.hero-banner__controls) { bottom: 12%; }
   @media (max-width: 760px) {
-    .brand-banner { min-height: 500px; }
+    .brand-banner { min-height: 660px; }
     .brand-banner :global(.card-showcase__stack) {
       width: 100%;
       transform: none;
@@ -483,13 +483,12 @@ const features = [
       --card-x: clamp(92px, 31vw, 130px) !important;
       --card-y: 125px !important;
     }
-    .brand-banner__sticker { width: 160px; }
     .adventure :global(.hero-banner__controls) { bottom: 16%; }
   }
   .brand-banner__sticker {
     position: relative;
     z-index: 20;
-    width: min(240px, 62vw);
+    width: min(440px, 60vw);
     filter: drop-shadow(0 14px 22px rgb(8 12 16 / .24));
   }
   .brand-banner__sticker img {
@@ -532,9 +531,8 @@ const features = [
   }
   .card-banner__copy { position: relative; }
   .card-banner__nom { display: flex; justify-content: center; margin-top: 24px; pointer-events: none; }
-  @media (min-width: 1100px) {
-    .card-banner__nom { position: absolute; left: calc(100% + 24px); top: 50%; margin-top: 0; transform: translateY(-50%); width: 144px; }
-  }
+  .card-banner__nom :global(.nom-sticker--speaking) { width: min(100%, 400px); }
+  .card-banner__nom :global(.nom-sticker__bubble) { flex: 1; }
   .card-banner__heading h2 {
     margin: 0;
     font: 540 clamp(38px, 5vw, 64px)/1.18 var(--loom-site-font-display);
@@ -591,6 +589,8 @@ const features = [
     font-size: 15px;
     line-height: 1.85;
   }
+  .manifesto__features h3 + p { min-height: 3.7em; }
+  .manifesto__features p + p { margin-top: 12px; }
   .product { position: relative; z-index: 2; padding: 150px 0 170px; background: transparent; }
   .product::before {
     content: '';
@@ -743,9 +743,13 @@ const features = [
     .manifesto__grid, .section-heading { grid-template-columns: 1fr; gap: 54px; }
     .manifesto__sticky { position: static; }
     .manifesto__features { grid-template-columns: 1fr; justify-items: center; gap: 40px; }
+    .manifesto__features h3 + p { min-height: 0; }
     .product__legend { grid-template-columns: 1fr; }
   }
   @media (max-width: 680px) {
+    .hero { height: clamp(440px, 100vw, 600px); min-height: 0; }
+    .home-content::before { top: -80px; height: 80px; }
+    .hero__scroll { display: none; }
     .hero__banner img { width: 54vw; max-width: 240px; }
     .hero__heading-row { left: calc(50% + min(27vw, 120px) + 10px); }
     .hero__sections { width: calc(100% - 28px); gap: 12px; font-size: 8px; letter-spacing: 0.08em; }

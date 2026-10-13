@@ -111,22 +111,32 @@
 }
 
 .hero-banner__copy .eyebrow {
-  color: rgba(255, 255, 255, .76);
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / .85), 0 2px 8px rgb(0 0 0 / .55);
 }
 
 .hero-banner__copy h1 {
   max-width: 540px;
   margin: 0;
   color: #fff;
-  font: 540 clamp(46px, 6.8vw, 94px)/1.05 var(--loom-site-font-display);
+  -webkit-text-stroke: 1px rgb(20 26 31 / .8);
+  paint-order: stroke fill;
+  text-shadow: 0 2px 4px rgb(0 0 0 / .5), 0 5px 18px rgb(0 0 0 / .3);
+  font: 540 clamp(28px, 4.5vw, 64px)/1.15 var(--loom-site-font-display);
   letter-spacing: -0.025em;
-  text-wrap: balance;
+  text-wrap: initial;
+}
+
+.hero-banner__copy h1 > span {
+  display: block;
+  white-space: nowrap;
 }
 
 .hero-banner__copy > p:last-child {
   max-width: 480px;
   margin: 28px 0 0;
-  color: rgba(255, 255, 255, .86);
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / .85), 0 2px 8px rgb(0 0 0 / .55);
   font-size: 16px;
   line-height: 1.85;
 }
@@ -184,6 +194,29 @@
 }
 
 @media (max-width: 680px) {
+  .hero-banner--top {
+    position: absolute;
+    height: 100%;
+  }
+
+  .hero-banner--top .layered-illustration__foreground {
+    object-fit: cover;
+    object-position: center;
+    transform: none;
+  }
+
+  .hero-banner--top .hero-banner__copy {
+    bottom: 70px;
+  }
+
+  .hero-banner--top .hero-banner__copy > p:last-child {
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .hero-banner--top .hero-banner__controls { bottom: 18px; }
+
   .hero-banner__slide > img,
   .hero-banner__zoom .zoom-image__trigger img {
     object-position: var(--hero-mobile-position, 50%) var(--hero-image-y);
@@ -201,7 +234,7 @@
   }
 
   .hero-banner__copy h1 {
-    font-size: 48px;
+    font-size: clamp(24px, 6vw, 40px);
   }
 
   .hero-banner__copy > p:last-child {

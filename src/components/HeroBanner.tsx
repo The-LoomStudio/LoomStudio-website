@@ -13,8 +13,8 @@ export const slides = [
     mobilePosition: '58%',
     layered: true,
     eyebrow: 'LOOM STUDIO / 01',
-    title: '让故事拥有自己的世界',
-    copy: '从一个角色开始，把设定、选择和每一次回望编织成一条可以继续走下去的世界线。',
+    title: '一个角色\n一段未完的故事',
+    copy: 'Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台。角色、世界设定、故事分支，都在这里接着写。',
   },
   {
     src: '/images/nom/banners/nom-banner-015.png',
@@ -189,7 +189,7 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
           <div className="hero-banner__shade" aria-hidden="true" />
           <div className="hero-banner__copy">
             <p className="eyebrow">{slide.eyebrow}</p>
-            <h1>{slide.title}</h1>
+            <h1>{slide.title.split('\n').map((line) => <span key={line}>{line}</span>)}</h1>
             <p>{slide.copy}</p>
           </div>
         </article>
