@@ -38,31 +38,32 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
         aria-current={route.id === activeRoute ? 'page' : undefined}>{route.short}</a>
     ))}
   </nav>
-  {activeRoute === 'home' && <GitHubStars />}
-  <SiteSearch />
-  <div class="locale-dropdown" data-locale-dropdown>
-    <button class="site-icon locale-toggle" type="button" aria-label={t(currentLocale, 'nav.language')}
-      title={t(currentLocale, 'nav.language')} aria-expanded="false" data-locale-toggle>
-      <Languages size={20} stroke-width={1.6} aria-hidden="true" />
-    </button>
-    <div class="locale-menu" data-locale-menu hidden>
-      {supportedLocales.map((loc) => (
-        <a
-          href={getLocalizedPath(Astro.url.pathname, loc)}
-          class:list={['locale-menu__item', { 'locale-menu__item--active': loc === currentLocale }]}
-        >
-          {localeLabels[loc]}
-        </a>
-      ))}
+  <div class="site-controls__right">
+    {activeRoute === 'home' && <GitHubStars />}
+    <SiteSearch />
+    <div class="locale-dropdown" data-locale-dropdown>
+      <button class="site-icon locale-toggle" type="button" aria-label={t(currentLocale, 'nav.language')}
+        title={t(currentLocale, 'nav.language')} aria-expanded="false" data-locale-toggle>
+        <Languages size={20} stroke-width={1.6} aria-hidden="true" />
+      </button>
+      <div class="locale-menu" data-locale-menu hidden>
+        {supportedLocales.map((loc) => (
+          <a
+            href={getLocalizedPath(Astro.url.pathname, loc)}
+            class:list={['locale-menu__item', { 'locale-menu__item--active': loc === currentLocale }]}
+            data-locale-choice={loc}
+          >
+            {localeLabels[loc]}
+          </a>
+        ))}
+      </div>
     </div>
-  </div>
-  {(
     <button class="site-icon theme-toggle" type="button" aria-label={t(currentLocale, 'nav.themeDark')}
       aria-pressed="false" title={t(currentLocale, 'nav.themeDark')} data-theme-toggle>
       <Sun class="theme-toggle__sun" size={22} stroke-width={1.6} aria-hidden="true" />
       <Moon class="theme-toggle__moon" size={22} stroke-width={1.6} aria-hidden="true" />
     </button>
-  )}
+  </div>
 </header>
 
 <dialog class="route-menu" id="route-menu" aria-label="页面导航" data-route-menu
@@ -117,6 +118,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
           href={getLocalizedPath(Astro.url.pathname, loc)}
           class:list={['route-menu__locale-item', { 'route-menu__locale-item--active': loc === currentLocale }]}
           data-menu-link
+          data-locale-choice={loc}
         >
           {localeLabels[loc]}
         </a>
@@ -354,6 +356,10 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
       localeToggle.setAttribute('aria-expanded', String(!open));
     });
     document.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement)?.closest<HTMLAnchorElement>('[data-locale-choice]');
+      if (target?.dataset.localeChoice) {
+        try { localStorage.setItem('loom-site-locale', target.dataset.localeChoice); } catch {}
+      }
       if (!localeMenu.hidden && !localeMenu.contains(e.target as Node)) {
         localeMenu.hidden = true;
         localeToggle.setAttribute('aria-expanded', 'false');
@@ -368,10 +374,17 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
 </script>
 
 <style is:global>
-  .locale-dropdown {
+  .site-controls__right {
     position: absolute;
     top: 10px;
-    right: 58px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+  }
+  .locale-dropdown {
+    position: relative;
     pointer-events: auto;
   }
   .locale-toggle {
@@ -464,8 +477,8 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   }
   .site-icon:hover { color: var(--loom-site-accent-strong); background: var(--loom-site-accent-soft); }
   .site-icon:disabled { opacity: .25; cursor: default; background: transparent; }
-  .menu-trigger, .theme-toggle { position: absolute; top: 10px; color: var(--loom-site-text); }
-  .menu-trigger { left: 10px; }
+  .menu-trigger { position: absolute; top: 10px; left: 10px; color: var(--loom-site-text); }
+  .theme-toggle { position: relative; color: var(--loom-site-text); }
   .menu-trigger:hover, .menu-close:hover { background: transparent; }
   .menu-trigger__line {
     position: absolute;
@@ -519,7 +532,6 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   @keyframes menu-line-bottom {
     from { top: 30px; left: 26px; width: 12px; transform: translate(-50%, -50%) rotate(-38deg); }
   }
-  .theme-toggle { right: 10px; }
   .theme-toggle__moon { display: none; }
   html[data-theme='dark'] .theme-toggle__sun { display: none; }
   html[data-theme='dark'] .theme-toggle__moon { display: block; }

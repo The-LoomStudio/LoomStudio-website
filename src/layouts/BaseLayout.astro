@@ -60,6 +60,30 @@ const pageTitle = title === 'Loom Studio'
             document.querySelector('[data-theme-color]')?.setAttribute('content', savedTheme === 'dark' ? '#252b31' : '#82919b');
           }
         }
+
+        // Auto-detect locale from browser on first visit
+        const userSavedLocale = localStorage.getItem('loom-site-locale');
+        const pathname = window.location.pathname;
+        const currentLangPrefix = (pathname.match(/^\/(en|ja|ko)(?:\/|$)/) || [])[1];
+        const isZhPath = !currentLangPrefix;
+
+        if (!userSavedLocale && isZhPath) {
+          const navLangs = navigator.languages || [navigator.language || ''];
+          let detectedLocale = null;
+          for (const lang of navLangs) {
+            const l = lang.toLowerCase();
+            if (l.startsWith('zh')) { detectedLocale = 'zh-CN'; break; }
+            if (l.startsWith('ja')) { detectedLocale = 'ja'; break; }
+            if (l.startsWith('ko')) { detectedLocale = 'ko'; break; }
+            if (l.startsWith('en')) { detectedLocale = 'en'; break; }
+          }
+          if (!detectedLocale) detectedLocale = 'en'; // default fallback for other international users
+
+          if (detectedLocale !== 'zh-CN') {
+            const targetPath = '/' + detectedLocale + (pathname === '/' ? '' : pathname);
+            window.location.replace(targetPath);
+          }
+        }
       } catch {}
     </script>
     <meta name="description" content={description} />
