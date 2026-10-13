@@ -4,11 +4,11 @@ import { semanticScenes, type SceneNode, type Side } from './semantic-scenes';
 import { snapshot } from './map-data';
 const scene = semanticScenes.workflow;
 const colors: Record<string, string> = { runtime: '#79dfbd', storage: '#c1abff', external: '#efdc82', tool: '#f1b37b', decision: '#ff9baa' };
-const port = (n: SceneNode, side: Side): [number, number] => ({ left: [n.x, n.y + 56], right: [n.x + 240, n.y + 56], top: [n.x + 120, n.y], bottom: [n.x + 120, n.y + 112] } as Record<Side, [number, number]>)[side];
+const port = (n: SceneNode, side: Side, offset = .5): [number, number] => ({ left: [n.x, n.y + 112 * offset], right: [n.x + 240, n.y + 112 * offset], top: [n.x + 240 * offset, n.y], bottom: [n.x + 240 * offset, n.y + 112] } as Record<Side, [number, number]>)[side];
 const edges = scene.edges.map(edge => {
   const from = scene.nodes.find(n => n.id === edge.from)!;
   const to = scene.nodes.find(n => n.id === edge.to)!;
-  const points = [port(from, edge.fromSide ?? 'right'), ...(edge.via ?? []), port(to, edge.toSide ?? 'left')];
+  const points = [port(from, edge.fromSide ?? 'right', edge.fromOffset), ...(edge.via ?? []), port(to, edge.toSide ?? 'left', edge.toOffset)];
   const middle = Math.floor((points.length - 1) / 2);
   const labelPosition = edge.labelAt ?? [(points[middle][0] + points[middle + 1][0]) / 2, (points[middle][1] + points[middle + 1][1]) / 2];
   return { ...edge, points: points.map(p => p.join(',')).join(' '), labelPosition };

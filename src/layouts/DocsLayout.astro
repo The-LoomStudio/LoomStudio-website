@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import NomSticker from '../components/NomSticker.astro';
 import { ArrowUpRight } from '@lucide/astro';
 
 interface Props {
@@ -77,6 +78,10 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
         <div class="docs-nav__status">
           <i></i>
           <div><b>Foundation v0.1</b><span>公开文档正在建立</span></div>
+        </div>
+        <div class="docs-nav__companion">
+          <NomSticker src="/images/nom/stickers/fullbody/reading.png" size="small" />
+          <span>故事背后的说明，<br />都在这里。</span>
         </div>
       </div>
     </aside>
@@ -484,6 +489,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
   .docs-nav__status div { display: grid; gap: 4px; }
   .docs-nav__status b { font-size: 11px; }
   .docs-nav__status span { color: var(--loom-site-text-subtle); font-size: 10px; }
+  .docs-nav__companion { display: flex; align-items: center; gap: 10px; margin-top: 18px; color: var(--loom-site-text-muted); font-size: 11px; line-height: 1.8; }
   .docs-main { min-width: 0; padding: 34px 54px 100px; }
   .docs-breadcrumb {
     display: flex;
@@ -740,7 +746,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     }
     .docs-nav__title { margin-bottom: 14px; }
     .docs-nav__groups { margin-bottom: 0; }
-    .docs-nav__status { display: none; }
+    .docs-nav__status, .docs-nav__companion { display: none; }
     .docs-main { padding: 30px 20px 76px; }
     .docs-breadcrumb { margin-bottom: 38px; }
     .heading-anchor { position: static; display: inline-grid; margin-left: 7px; opacity: 0.56; transform: none; vertical-align: middle; }

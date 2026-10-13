@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nom 贴纸 · 选图预览</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; color: #252b33; background: #edf0f3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, textarea { font: inherit; }
+    button, a, textarea { -webkit-tap-highlight-color: transparent; }
+    button { cursor: pointer; }
+    button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px solid #647da8; outline-offset: 4px; }
+    button { color: inherit; }
+    a { color: #435d7e; text-underline-offset: 3px; }
+    .shell { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 44px 0 48px; }
+    .eyebrow { margin: 0 0 12px; color: #666f7c; font-size: 11px; letter-spacing: .2em; font-weight: 650; }
+    h1 { font-size: clamp(24px, 4vw, 34px); letter-spacing: -.035em; margin: 0; font-weight: 650; }
+    .intro { color: #606b79; line-height: 1.7; margin: 12px 0 24px; font-size: 14px; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
+    .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 5px; border: 1px solid #d6dbe2; border-radius: 12px; background: #e5e9ee; }
+    .controls button { border: 0; border-radius: 8px; padding: 9px 12px; background: transparent; font-size: 13px; }
+    .controls button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 4px #25304213; font-weight: 600; }
+    .controls button:hover { background: #ffffffa6; }
+    .preview { border: 1px solid #d4dae2; border-radius: 20px; overflow: hidden; background: #fafbfc; }
+    .canvas { --surface: #f4f5f7; background-color: var(--surface); }
+    [data-background="dark"] .canvas { --surface: #292e37; }
+    [data-background="checker"] .canvas { --surface: #f8f9fa; background-image: conic-gradient(#e0e4e9 25%, transparent 0 50%, #e0e4e9 0 75%, transparent 0); background-size: 24px 24px; }
+    .stage { min-height: 370px; padding: 20px 28px; display: flex; align-items: center; justify-content: center; }
+    .scene { width: min(650px, 100%); display: flex; align-items: center; justify-content: center; gap: 28px; }
+    .scene[data-side="left"] { flex-direction: row-reverse; }
+    .character { display: block; width: 40%; height: 320px; object-fit: contain; flex-shrink: 0; }
+    .scene[data-group="bust"] .character { height: 270px; }
+    .scene[data-group="heads"] .character { height: 225px; }
+    .bubble { position: relative; max-width: 330px; padding: 22px 25px; background: #fff; border-radius: 23px; color: #343c49; font-size: clamp(15px, 2vw, 20px); line-height: 1.7; box-shadow: 0 5px 24px #14213112; white-space: pre-wrap; overflow-wrap: anywhere; min-width: 70px; }
+    .bubble::before { content: ""; position: absolute; width: 19px; height: 23px; top: calc(50% - 11px); left: -17px; background: #fff; clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+    .scene[data-side="left"] .bubble::before { left: auto; right: -17px; transform: rotate(180deg); }
+    .editor { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(220px, 1.5fr); gap: 24px; padding: 24px 28px; border-top: 1px solid #d4dae2; }
+    .selected-label { margin: 0 0 8px; color: #727c89; font-size: 12px; }
+    h2 { margin: 0 0 8px; font-size: 21px; }
+    .selected-usage { color: #65707e; line-height: 1.7; font-size: 13px; margin: 0 0 10px; }
+    .original { font-size: 12px; }
+    .field-label { display: block; font-size: 12px; margin-bottom: 8px; font-weight: 600; }
+    textarea { width: 100%; resize: vertical; min-height: 80px; border: 1px solid #cbd2dc; border-radius: 10px; padding: 11px 13px; line-height: 1.6; color: #353e4d; background: #fff; }
+    .editor-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .editor-bottom .controls { padding: 3px; }
+    .editor-bottom .controls button { padding: 6px 10px; font-size: 12px; }
+    .editor-note { color: #6f7986; font-size: 11px; margin: 0; }
+    .collection-heading { display: flex; align-items: baseline; gap: 12px; margin: 30px 0 15px; }
+    .collection-heading h2 { font-size: 17px; margin: 0; }
+    .count { color: #778190; font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    .card { background: #fafbfc; border: 1px solid #d7dde5; border-radius: 15px; overflow: hidden; }
+    .card[data-selected="true"] { border-color: #647c9e; box-shadow: 0 0 0 2px #647c9e; }
+    .card[hidden] { display: none; }
+    .choose { display: block; width: 100%; padding: 0; border: 0; background: transparent; text-align: left; }
+    .choose:hover .card-title { color: #45628a; }
+    .thumb { display: flex; width: 100%; aspect-ratio: 1; padding: 15px; }
+    .thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .card-title { display: block; padding: 14px 16px 0; font-size: 14px; font-weight: 650; }
+    .card-usage { margin: 7px 16px 12px; color: #6a7482; font-size: 12px; line-height: 1.7; min-height: 40px; }
+    .card-link { display: inline-block; margin: 0 16px 16px; font-size: 11px; }
+    footer { color: #77818e; font-size: 12px; line-height: 1.8; margin-top: 25px; }
+    footer a + a { margin-left: 12px; }
+    @media (max-width: 860px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 620px) {
+      .shell { width: calc(100% - 28px); padding-top: 28px; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+      .controls button { padding: 8px 9px; font-size: 12px; }
+      .stage { min-height: 290px; padding: 18px; }
+      .scene { gap: 18px; }
+      .character { height: 250px; }
+      .scene[data-group="bust"] .character { height: 215px; }
+      .scene[data-group="heads"] .character { height: 175px; }
+      .bubble { padding: 15px; border-radius: 17px; }
+      .editor { grid-template-columns: 1fr; gap: 20px; padding: 22px 20px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .card-title { padding: 12px 12px 0; }
+      .card-usage { margin-right: 12px; margin-left: 12px; min-height: 60px; }
+      .card-link { margin-left: 12px; }
+    }
+    @media (prefers-reduced-motion: no-preference) { .card, .controls button { transition: border-color .15s, background-color .15s, box-shadow .15s; } }
+  </style>
+</head>
+<body data-background="checker">
+  <main class="shell">
+    <header>
+      <p class="eyebrow">NOM · STICKER LIBRARY / 01</p>
+      <h1 id="page-title">Nom 网站与社区贴纸 · 第一辑</h1>
+      <p class="intro">选一个表情，试一句台词。透明原件与网页气泡分开使用。</p>
+    </header>
+    <div class="toolbar">
+      <div class="controls" id="filters" role="group" aria-label="构图筛选"></div>
+      <div class="controls" id="backgrounds" role="group" aria-label="图片预览背景">
+        <button type="button" data-background="light" aria-pressed="false">浅色</button>
+        <button type="button" data-background="dark" aria-pressed="false">深色</button>
+        <button type="button" data-background="checker" aria-pressed="true">棋盘</button>
+      </div>
+    </div>
+    <section class="preview" aria-label="角色与独立气泡预览">
+      <div class="stage canvas">
+        <div class="scene" id="scene" data-side="right" data-group="fullbody">
+          <img class="character" id="selected-image" width="320" height="320" alt="" decoding="async">
+          <div class="bubble" id="bubble"></div>
+        </div>
+      </div>
+      <div class="editor">
+        <div>
+          <p class="selected-label" id="selected-group"></p>
+          <h2 id="selected-title" aria-live="polite"></h2>
+          <p class="selected-usage" id="selected-usage"></p>
+          <a class="original" id="selected-original" target="_blank" rel="noopener">打开透明 PNG 原件 ↗</a>
+        </div>
+        <div>
+          <label class="field-label" for="bubble-text">气泡文案</label>
+          <textarea id="bubble-text" rows="2" aria-describedby="editor-note"></textarea>
+          <div class="editor-bottom">
+            <div class="controls" id="sides" role="group" aria-label="气泡位置">
+              <button type="button" data-side="left" aria-pressed="false">气泡在左</button>
+              <button type="button" data-side="right" aria-pressed="true">气泡在右</button>
+            </div>
+            <p class="editor-note" id="editor-note">仅在本页试文案，不写入素材。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="collection-heading">
+      <h2>挑选贴纸</h2>
+      <span class="count" id="count" role="status"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+    <noscript><p>此离线选图页需要启用 JavaScript。也可以直接查看 <a href="README.md">使用说明</a>。</p></noscript>
+    <footer>
+      <p>本页仅用于挑图与气泡搭配；原图在滚动到附近时加载。全身、带手与道具的大头、纯头表情各 8 张。</p>
+      <a href="README.md">使用说明</a>
+    </footer>
+  </main>
+  <script type="application/json" id="previewData">{"title":"Nom 网站与社区贴纸 · 第一辑","groups":[{"id":"fullbody","title":"全身","reference":"fullbody/holding-book.png"},{"id":"bust","title":"带手与道具的大头","reference":"bust/proud.png"},{"id":"heads","title":"纯头表情","reference":"heads/smile.png"}],"entries":[{"id":"fullbody-idle","group":"fullbody","title":"抱书陪伴","file":"fullbody/holding-book.png","usage":["首页介绍","侧栏陪伴","品牌落款"],"sampleText":"故事还长，我们慢慢讲。","reference":"fullbody/holding-book.png"},{"id":"fullbody-welcome","group":"fullbody","title":"挥手欢迎","file":"fullbody/welcome.png","usage":["首页欢迎","新手入口","社区招呼"],"sampleText":"欢迎来到你的小小工作室。","reference":"fullbody/holding-book.png"},{"id":"fullbody-point-left","group":"fullbody","title":"向左引导","file":"fullbody/guide-left.png","usage":["右侧角色与左侧气泡","下载入口","功能介绍"],"sampleText":"从这里开始吧。","reference":"fullbody/holding-book.png"},{"id":"fullbody-point-right","group":"fullbody","title":"向右引导","file":"fullbody/guide-right.png","usage":["左侧角色与右侧气泡","文档入口","下一步指引"],"sampleText":"下一步在这边。","reference":"fullbody/holding-book.png"},{"id":"fullbody-reading","group":"fullbody","title":"翻书阅读","file":"fullbody/reading.png","usage":["文档","教程","知识说明"],"sampleText":"一起翻开这一页。","reference":"fullbody/holding-book.png"},{"id":"fullbody-celebrate","group":"fullbody","title":"举手庆祝","file":"fullbody/celebrating.png","usage":["更新发布","里程碑","完成提示"],"sampleText":"新故事，准备好了！","reference":"fullbody/holding-book.png"},{"id":"fullbody-working","group":"fullbody","title":"电脑前忙碌","file":"fullbody/working.png","usage":["处理中","维护说明","开发手记"],"sampleText":"稍等一下，我正在整理。","reference":"fullbody/holding-book.png"},{"id":"fullbody-rest","group":"fullbody","title":"抱书休息","file":"fullbody/resting.png","usage":["页脚","晚安","等待状态"],"sampleText":"先歇一会儿吧。","reference":"fullbody/holding-book.png"},{"id":"bust-proud","group":"bust","title":"抱书得意","file":"bust/proud.png","usage":["推荐内容","创作展示","成果分享"],"sampleText":"这一段，写得真好。","reference":"bust/proud.png"},{"id":"bust-tip","group":"bust","title":"举指提示","file":"bust/tip.png","usage":["教程提示","注意事项","帮助气泡"],"sampleText":"这里有个小提示。","reference":"bust/proud.png"},{"id":"bust-thinking","group":"bust","title":"托腮思考","file":"bust/thinking.png","usage":["搜索引导","常见问题","选择建议"],"sampleText":"让我想一想……","reference":"bust/proud.png"},{"id":"bust-success","group":"bust","title":"竖拇指认可","file":"bust/thumbs-up.png","usage":["操作成功","安装完成","社区认可"],"sampleText":"准备就绪！","reference":"bust/proud.png"},{"id":"bust-apology","group":"bust","title":"合掌抱歉","file":"bust/sorry.png","usage":["错误说明","暂不可用","反馈回应"],"sampleText":"出了点小状况，我们再试一次。","reference":"bust/proud.png"},{"id":"bust-surprise","group":"bust","title":"捂嘴惊喜","file":"bust/surprised.png","usage":["新功能","发现内容","意外收获"],"sampleText":"咦，发现新东西了！","reference":"bust/proud.png"},{"id":"bust-thanks","group":"bust","title":"比心感谢","file":"bust/thank-you.png","usage":["贡献者","反馈感谢","社区互动"],"sampleText":"谢谢你，一起把故事织下去。","reference":"bust/proud.png"},{"id":"bust-gift","group":"bust","title":"递出礼物","file":"bust/gift.png","usage":["下载","扩展推荐","活动赠礼"],"sampleText":"给你准备了一份小礼物。","reference":"bust/proud.png"},{"id":"heads-smile","group":"heads","title":"满足微笑","file":"heads/smile.png","usage":["默认陪伴","轻提示","头像反应"],"sampleText":"嗯嗯，我在。","reference":"heads/smile.png"},{"id":"heads-laugh","group":"heads","title":"开心大笑","file":"heads/laugh.png","usage":["成功反馈","社区欢呼","有趣内容"],"sampleText":"好耶！","reference":"heads/smile.png"},{"id":"heads-puzzled","group":"heads","title":"困惑疑问","file":"heads/confused.png","usage":["帮助","无搜索结果","待选择"],"sampleText":"是不是少了点什么？","reference":"heads/smile.png"},{"id":"heads-sad","group":"heads","title":"委屈难过","file":"heads/sad.png","usage":["空状态","找不到页面","遗憾回应"],"sampleText":"这里暂时还没有故事。","reference":"heads/smile.png"},{"id":"heads-panic","group":"heads","title":"慌张冒汗","file":"heads/panic.png","usage":["错误","异常提示","意外反应"],"sampleText":"哎呀，出了一点状况。","reference":"heads/smile.png"},{"id":"heads-determined","group":"heads","title":"认真加油","file":"heads/determined.png","usage":["进行中","目标与进度","社区鼓励"],"sampleText":"交给我吧。","reference":"heads/smile.png"},{"id":"heads-sleepy","group":"heads","title":"困困打盹","file":"heads/sleepy.png","usage":["等待","夜间","休息"],"sampleText":"让我眯一小会儿。","reference":"heads/smile.png"},{"id":"heads-wink","group":"heads","title":"俏皮眨眼","file":"heads/wink.png","usage":["小彩蛋","完成提醒","社区招呼"],"sampleText":"悄悄告诉你。","reference":"heads/smile.png"}]}</script>
+  <script>
+    const previewData = JSON.parse(document.getElementById('previewData').textContent);
+    const groups = new Map(previewData.groups.map(group => [group.id, group.title]));
+    const grid = document.getElementById('grid');
+    const filters = document.getElementById('filters');
+    const scene = document.getElementById('scene');
+    const bubble = document.getElementById('bubble');
+    const input = document.getElementById('bubble-text');
+    const cards = new Map();
+    let selectedId;
+
+    function element(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function select(entry) {
+      selectedId = entry.id;
+      document.getElementById('selected-image').src = entry.file;
+      document.getElementById('selected-title').textContent = entry.title;
+      document.getElementById('selected-group').textContent = groups.get(entry.group);
+      document.getElementById('selected-usage').textContent = entry.usage.join(' · ');
+      document.getElementById('selected-original').href = entry.file;
+      scene.dataset.group = entry.group;
+      input.value = entry.sampleText;
+      bubble.textContent = input.value;
+      for (const [id, card] of cards) {
+        card.dataset.selected = String(id === selectedId);
+        card.querySelector('button').setAttribute('aria-pressed', String(id === selectedId));
+      }
+    }
+
+    for (const entry of previewData.entries) {
+      const card = element('article', 'card');
+      card.dataset.group = entry.group;
+      const choose = element('button', 'choose');
+      choose.type = 'button';
+      choose.setAttribute('aria-pressed', 'false');
+      choose.setAttribute('aria-label', `预览：${entry.title}`);
+      const thumb = element('span', 'thumb canvas');
+      const image = element('img');
+      image.alt = '';
+      image.width = 512;
+      image.height = 512;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      image.src = entry.file;
+      thumb.append(image);
+      choose.append(thumb, element('span', 'card-title', entry.title));
+      choose.addEventListener('click', () => select(entry));
+      const original = element('a', 'card-link', '透明 PNG ↗');
+      original.href = entry.file;
+      original.target = '_blank';
+      original.rel = 'noopener';
+      original.setAttribute('aria-label', `打开${entry.title}的透明 PNG 原件`);
+      card.append(choose, element('p', 'card-usage', entry.usage.join(' · ')), original);
+      cards.set(entry.id, card);
+      grid.append(card);
+    }
+
+    function filter(groupId) {
+      let visible = 0;
+      for (const card of cards.values()) {
+        card.hidden = groupId !== 'all' && card.dataset.group !== groupId;
+        if (!card.hidden) visible += 1;
+      }
+      for (const button of filters.querySelectorAll('button')) {
+        button.setAttribute('aria-pressed', String(button.dataset.group === groupId));
+      }
+      document.getElementById('count').textContent = `${visible} / ${previewData.entries.length} 张`;
+    }
+
+    for (const group of [{ id: 'all', title: '全部' }, ...previewData.groups]) {
+      const button = element('button', '', group.title);
+      button.type = 'button';
+      button.dataset.group = group.id;
+      button.setAttribute('aria-pressed', String(group.id === 'all'));
+      button.addEventListener('click', () => filter(group.id));
+      filters.append(button);
+    }
+
+    function bindToggle(containerId, key, target) {
+      const buttons = document.getElementById(containerId).querySelectorAll('button');
+      for (const button of buttons) {
+        button.addEventListener('click', () => {
+          target.dataset[key] = button.dataset[key];
+          for (const item of buttons) item.setAttribute('aria-pressed', String(item === button));
+        });
+      }
+    }
+    bindToggle('backgrounds', 'background', document.body);
+    bindToggle('sides', 'side', scene);
+    input.addEventListener('input', () => { bubble.textContent = input.value; });
+    document.getElementById('page-title').textContent = previewData.title;
+    select(previewData.entries[0]);
+    filter('all');
+  </script>
+</body>
+</html>

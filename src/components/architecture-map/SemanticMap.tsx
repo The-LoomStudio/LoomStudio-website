@@ -5,8 +5,10 @@ import { MapColorLegend, categoryLabels } from './MapColorLegend';
 import { snapshot, sourceUrl } from './map-data';
 import { MapViewTabs, type MapView } from './MapViewTabs';
 import type { SceneEdge, SceneNode, SemanticScene, Side } from './semantic-scenes';
+import type { DisplayImage } from '../../lib/site-images';
 
-type CardNode = Node<{ record: SceneNode; active: boolean; inspect: () => void }, 'card'>;
+type CardPort = { id: string; type: 'source' | 'target'; side: Side; offset: number };
+type CardNode = Node<{ record: SceneNode; ports: CardPort[]; active: boolean; inspect: () => void }, 'card'>;
 type FrameNode = Node<{ title: string; note: string }, 'frame'>;
 type LineNode = Node<Record<string, never>, 'lifeline'>;
 type DiagramEdge = Edge<{ record: SceneEdge; inspect: () => void; active: boolean; startX: number; endX: number }, 'relation'>;
@@ -34,7 +36,8 @@ function Card({ data }: NodeProps<CardNode>) {
   const n = data.record;
   const { shape, Icon } = cardAppearance(n);
   return <div data-category={n.category} className={`am-semantic-card am-shape-${shape} ${data.active ? 'is-inspected' : ''}`}>
-    {(Object.keys(sides) as Side[]).flatMap(side => (['source', 'target'] as const).map(type => <Handle key={`${type}-${side}`} id={`${type}-${side}`} type={type} position={sides[side]} />))}
+    {data.ports.map(port => <Handle key={port.id} id={port.id} type={port.type} position={sides[port.side]}
+      style={port.side === 'left' || port.side === 'right' ? { top: `${port.offset * 100}%` } : { left: `${port.offset * 100}%` }} />)}
     <button className="am-semantic-content nodrag nopan" onClick={data.inspect} aria-label={`查看 ${n.title}`} aria-pressed={data.active}>
       <small>{categoryLabels[n.category]} · {roles[n.role]}</small>
       <span className="am-semantic-symbol" aria-hidden="true"><Icon size={22} strokeWidth={1.6} /></span>
@@ -57,7 +60,7 @@ function Relation({ id, data, sourceX, sourceY, targetX, targetY, markerEnd }: E
 }
 const nodeTypes = { card: Card, frame: Frame, lifeline: Lifeline };
 const edgeTypes = { relation: Relation };
-export function SemanticMap({ scene, onViewChange }: { scene: SemanticScene; onViewChange: (view: MapView) => void }) {
+export function SemanticMap({ scene, nomGuide, onViewChange }: { scene: SemanticScene; nomGuide: DisplayImage; onViewChange: (view: MapView) => void }) {
   const flow = useReactFlow();
   const [selected, setSelected] = useState<{ type: 'node' | 'edge'; id: string }>();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -69,9 +72,14 @@ export function SemanticMap({ scene, onViewChange }: { scene: SemanticScene; onV
   const nodes: (CardNode | FrameNode | LineNode)[] = [
     ...scene.frames.map(f => ({ id: `frame-${f.id}`, type: 'frame' as const, position: { x: f.x, y: f.y }, data: f, style: { width: f.width, height: f.height }, zIndex: -2, selectable: false })),
     ...(scene.id === 'sequence' ? scene.nodes.map(n => ({ id: `line-${n.id}`, type: 'lifeline' as const, position: { x: n.x + 120, y: n.y + 112 }, data: {}, style: { width: 1, height: scene.height - n.y - 150 }, zIndex: -1 })) : []),
-    ...scene.nodes.map(n => ({ id: n.id, type: 'card' as const, position: { x: n.x, y: n.y }, data: { record: n, active: node?.id === n.id || edge?.from === n.id || edge?.to === n.id, inspect: () => inspect('node', n.id) }, style: { width: 240, height: 112 } })),
+    ...scene.nodes.map(n => ({ id: n.id, type: 'card' as const, position: { x: n.x, y: n.y }, data: { record: n,
+      ports: scene.edges.flatMap<CardPort>(e => [
+        ...(e.from === n.id ? [{ id: `${e.id}-source`, type: 'source' as const, side: e.fromSide ?? 'right', offset: e.fromOffset ?? .5 }] : []),
+        ...(e.to === n.id ? [{ id: `${e.id}-target`, type: 'target' as const, side: e.toSide ?? 'left', offset: e.toOffset ?? .5 }] : []),
+      ]),
+      active: node?.id === n.id || edge?.from === n.id || edge?.to === n.id, inspect: () => inspect('node', n.id) }, style: { width: 240, height: 112 } })),
   ];
-  const edges: DiagramEdge[] = scene.edges.map(e => ({ id: e.id, source: e.from, target: e.to, type: 'relation', sourceHandle: `source-${e.fromSide ?? 'right'}`, targetHandle: `target-${e.toSide ?? 'left'}`, markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--am-line)' }, data: { record: e, inspect: () => inspect('edge', e.id), active: edge?.id === e.id, startX: scene.nodes.find(n => n.id === e.from)!.x + 120, endX: scene.nodes.find(n => n.id === e.to)!.x + 120 } }));
+  const edges: DiagramEdge[] = scene.edges.map(e => ({ id: e.id, source: e.from, target: e.to, type: 'relation', sourceHandle: `${e.id}-source`, targetHandle: `${e.id}-target`, markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--am-line)' }, data: { record: e, inspect: () => inspect('edge', e.id), active: edge?.id === e.id, startX: scene.nodes.find(n => n.id === e.from)!.x + 120, endX: scene.nodes.find(n => n.id === e.to)!.x + 120 } }));
   return <main className="am-app am-semantic" data-sidebar-open={sidebarOpen}>
     <button className="am-sidebar-toggle" aria-label={sidebarOpen ? '收起侧栏' : '展开侧栏'} aria-expanded={sidebarOpen} aria-controls="architecture-sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}>{sidebarOpen ? <PanelRightClose size={18} /> : <PanelRightOpen size={18} />}</button>
     <header className="am-toolbar"><div className="am-brand"><img src="/brand/website_logo.png" width="26" height="26" alt="" /><h1>Loom Studio <span>架构地图</span></h1></div><MapViewTabs view={scene.id} onChange={onViewChange} /></header>
@@ -82,7 +90,7 @@ export function SemanticMap({ scene, onViewChange }: { scene: SemanticScene; onV
         <Panel position="bottom-left" className="am-controls"><button aria-label="缩小" onClick={() => void flow.zoomOut()}><Minus size={17} /></button><output aria-label="缩放比例">{Math.round(zoom * 100)}%</output><button aria-label="放大" onClick={() => void flow.zoomIn()}><Plus size={17} /></button><button aria-label="适应当前视图" onClick={() => void flow.fitView({ padding: .16, duration: 180 })}><Focus size={17} /></button></Panel>
       </ReactFlow></section>
       <aside className="am-sidebar" id="architecture-sidebar" aria-label="架构说明" aria-hidden={!sidebarOpen} inert={!sidebarOpen}><div className="am-sidebar-heading"><span>{node ? roles[node.role] : edge ? '连线依据' : '阅读此图'}</span></div><div className="am-sidebar-scroll">
-        {evidence ? <><button className="am-back" onClick={() => setSelected(undefined)}>返回图解</button><h2>{node?.title ?? edge?.label}</h2>{edge && <p className="am-lead">{scene.nodes.find(n => n.id === edge.from)!.title} → {scene.nodes.find(n => n.id === edge.to)!.title}</p>}<p>{evidence.detail}</p><section className="am-source"><h3>源码依据</h3><code>{evidence.source.path}:{evidence.source.line}–{evidence.source.endLine}</code><a href={sourceUrl(evidence.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a><p>{snapshot.note}</p></section></> : <><h2>{scene.title}</h2><p className="am-lead">{scene.question}</p><p>点击节点查看职责，点击连线查看条件与源码依据。可拖动画布、滚动平移和缩放。</p><section><h3>图中关系</h3><div className="am-node-index">{scene.edges.map(e => <button key={e.id} onClick={() => inspect('edge', e.id)}>{e.label}<small>{kinds[e.kind]}</small></button>)}</div></section></>}
+        {evidence ? <><button className="am-back" onClick={() => setSelected(undefined)}>返回图解</button><h2>{node?.title ?? edge?.label}</h2>{edge && <p className="am-lead">{scene.nodes.find(n => n.id === edge.from)!.title} → {scene.nodes.find(n => n.id === edge.to)!.title}</p>}<p>{evidence.detail}</p><section className="am-source"><h3>源码依据</h3><code>{evidence.source.path}:{evidence.source.line}–{evidence.source.endLine}</code><a href={sourceUrl(evidence.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a><p>{snapshot.note}</p></section></> : <><div className="am-nom-guide"><img src={nomGuide.src} srcSet={nomGuide.srcSet} sizes="80px" width={nomGuide.width} height={nomGuide.height} alt="" draggable={false} /><h2>{scene.title}</h2></div><p className="am-lead">{scene.question}</p><p>点击节点查看职责，点击连线查看条件与源码依据。可拖动画布、滚动平移和缩放。</p><section><h3>图中关系</h3><div className="am-node-index">{scene.edges.map(e => <button key={e.id} onClick={() => inspect('edge', e.id)}>{e.label}<small>{kinds[e.kind]}</small></button>)}</div></section></>}
         <section className="am-boundary"><h3>解释边界</h3><p>{scene.boundary}</p></section>
       </div><footer className="am-snapshot"><span>核对于 {snapshot.date}</span><span>{snapshot.baseline.slice(0, 7)} · 只读源码图解</span></footer></aside>
     </div><footer className="am-status"><span><i />{scene.title} · {scene.nodes.length} 节点 / {scene.edges.length} 关系</span><span>实线：主链 / 数据 · 点线：条件 · 虚线：返回</span></footer>

@@ -1,0 +1,225 @@
+{
+  "checkedAt": "2026-10-13",
+  "checks": [
+    "24 expected PNG files exist and decode",
+    "all files contain transparent and opaque alpha pixels"
+  ],
+  "files": [
+    {
+      "file": "fullbody/holding-book.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1332752,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "fullbody/welcome.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1351142,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "fullbody/guide-left.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1379427,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "fullbody/guide-right.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1365164,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "fullbody/reading.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1458032,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "fullbody/celebrating.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1518750,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "fullbody/working.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1665226,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "fullbody/resting.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1636711,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/proud.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1754481,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/tip.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1775625,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/thinking.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1747253,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/thumbs-up.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1836706,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/sorry.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1729457,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/surprised.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1825995,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/thank-you.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1803388,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "bust/gift.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1803408,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/smile.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1598742,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/laugh.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1586436,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/confused.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1593482,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/sad.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1599916,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/panic.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1617171,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/determined.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1578591,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/sleepy.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1582409,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    },
+    {
+      "file": "heads/wink.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1598787,
+      "hasAlpha": true,
+      "alphaMin": 0,
+      "alphaMax": 255
+    }
+  ]
+}

@@ -166,13 +166,7 @@
 .am-ledger-heading { display: flex; align-items: center; gap: 8px; color: var(--am-muted); }
 .am-shape-ledger .am-node-content { gap: 7px; border-left: 4px solid var(--loom-site-silver); padding-left: 16px; }
 .am-ledger-rule { position: absolute; left: 20px; right: 20px; bottom: 14px; border-top: 1px dashed var(--am-border); }
-.am-shape-ticket { border-radius: 18px; }
-.am-shape-ticket::before, .am-shape-ticket::after {
-  content: ''; position: absolute; top: 94px; width: 18px; height: 18px;
-  border-radius: 50%; background: var(--am-paper); pointer-events: none;
-}
-.am-shape-ticket::before { left: -9px; }
-.am-shape-ticket::after { right: -9px; }
+.am-shape-ticket { --am-ticket-border: 2px; --am-ticket-notch-radius: 9px; --am-ticket-notch-y: 105px; border-radius: 18px; }
 .am-ticket-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .am-ticket-header svg { flex-shrink: 0; color: var(--am-muted); }
 .am-ticket-footer { position: absolute; top: 102px; left: 20px; right: 20px; border-top: 1px dashed var(--am-border); padding-top: 10px; display: flex; justify-content: space-between; }
@@ -209,12 +203,16 @@
 .am-sidebar p { margin: 0; font-size: 12px; line-height: 1.85; color: var(--am-muted); }
 .am-sidebar .am-lead { font-size: 13px; }
 .am-nom-intro { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-.am-nom-intro img { border: 5px solid white; border-radius: 50%; background: white; width: 110px; height: 110px; object-fit: contain; }
+.am-nom-intro img, .am-example img, .am-nom-guide img { flex-shrink: 0; object-fit: contain; pointer-events: none; user-select: none; }
+.am-nom-intro img { width: 110px; height: 110px; }
 .am-nom-intro span { max-width: 100px; font: 500 18px/1.6 var(--am-heading-font); transform: rotate(-4deg); }
 .am-example { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 22px; border-bottom: 1px dashed var(--am-border); }
-.am-example img { flex-shrink: 0; width: 72px; height: 72px; border-radius: 12px; background: white; object-fit: contain; transform: rotate(-3deg); }
+.am-example img { width: 80px; height: 80px; transform: rotate(-3deg); }
 .am-sidebar .am-example h3 { color: var(--am-ink); line-height: 1.6; margin-bottom: 5px; }
 .am-sidebar .am-example p { font-size: 11px; }
+.am-nom-guide { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.am-nom-guide img { width: 80px; height: 80px; }
+.am-sidebar .am-nom-guide h2 { margin-bottom: 0; }
 .am-sidebar section { margin-top: 26px; }
 .am-sidebar h3 { font-size: 11px; font-weight: 650; color: var(--am-muted); margin: 0 0 12px; }
 .am-facts p + p { margin-top: 18px; }
@@ -364,18 +362,23 @@
 .am-semantic-card.am-shape-ledger { border-radius: 5px 5px 16px 5px; border-left-width: 5px; }
 .am-semantic-card.am-shape-ledger .am-semantic-summary { border-top: 1px dashed var(--am-category-color); padding-top: 5px; }
 .am-semantic-card.am-shape-permit { border-style: dashed; border-radius: 16px; }
-.am-semantic-card.am-shape-permit .am-semantic-symbol { border: 1px solid var(--am-category-color); border-radius: 50%; width: 28px; height: 28px; }
 .am-semantic-card.am-shape-signal { border-radius: 30px; }
 .am-semantic-card.am-shape-conversation { border-radius: 24px 24px 24px 5px; }
-.am-semantic-card.am-shape-ticket { border-radius: 12px; }
-.am-semantic-card.am-shape-ticket::before, .am-semantic-card.am-shape-ticket::after { top: 73px; width: 12px; height: 12px; }
-.am-semantic-card.am-shape-ticket::before { left: -6px; }
-.am-semantic-card.am-shape-ticket::after { right: -6px; }
+.am-semantic-card.am-shape-ticket { --am-ticket-border: 1.5px; --am-ticket-notch-radius: 6px; --am-ticket-notch-y: 80.5px; border-radius: 12px; }
+/* Cut only the ticket surface, leaving handles and focus indicators outside the mask. */
+.am-shape-ticket[data-category] { isolation: isolate; background: transparent; border-color: transparent; }
+.am-shape-ticket::before {
+  content: ''; position: absolute; inset: calc(-1 * var(--am-ticket-border)); z-index: -1;
+  border: var(--am-ticket-border) solid var(--am-category-color); border-radius: inherit;
+  background: color-mix(in srgb, var(--am-category-color) 14%, var(--am-surface)); pointer-events: none;
+  mask:
+    radial-gradient(circle at left var(--am-ticket-notch-y), transparent calc(var(--am-ticket-notch-radius) - .5px), #000 var(--am-ticket-notch-radius)) left / 51% 100% no-repeat,
+    radial-gradient(circle at right var(--am-ticket-notch-y), transparent calc(var(--am-ticket-notch-radius) - .5px), #000 var(--am-ticket-notch-radius)) right / 51% 100% no-repeat;
+}
 .am-semantic-card.am-shape-ticket .am-semantic-summary { border-top: 1px dashed var(--am-category-color); padding-top: 5px; }
 .am-semantic-card.am-shape-note { border-radius: 5px 23px 5px 5px; }
 .am-semantic-card.am-shape-note::after { content: ''; position: absolute; right: 7px; top: 6px; width: 9px; height: 9px; border-left: 1px solid var(--am-category-color); border-bottom: 1px solid var(--am-category-color); pointer-events: none; }
 .am-semantic-card.am-shape-decision { border-radius: 5px 24px 5px 24px; border-style: dashed; }
-.am-semantic-card.am-shape-decision .am-semantic-symbol { border: 1px solid var(--am-category-color); border-radius: 5px; }
 .am-semantic-card.am-shape-active { border-radius: 32px; border-left-width: 5px; }
 .am-semantic-card.am-shape-active .am-semantic-symbol { border-radius: 50%; background: color-mix(in srgb, var(--am-category-color) 18%, transparent); width: 28px; height: 28px; }
 .am-semantic-card.am-shape-waiting { border-radius: 12px; border-style: dashed; }

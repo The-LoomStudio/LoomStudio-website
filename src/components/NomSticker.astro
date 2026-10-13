@@ -1,0 +1,85 @@
+---
+import { siteImage } from '../lib/site-images';
+
+interface Props {
+  src: string;
+  size?: 'small' | 'medium' | 'large';
+  message?: string;
+  side?: 'left' | 'right';
+  class?: string;
+}
+
+const { src, size = 'medium', message, side = 'left', class: className } = Astro.props;
+const imageSizes = {
+  small: { widths: [64, 96, 160], sizes: '80px' },
+  medium: { widths: [96, 160, 288], sizes: '(max-width: 600px) 104px, 144px' },
+  large: { widths: [160, 240, 480], sizes: '(max-width: 600px) 160px, 224px' },
+}[size];
+const image = await siteImage(src, imageSizes.widths, 90);
+---
+
+<div class:list={['nom-sticker', `nom-sticker--${size}`, { 'nom-sticker--right': side === 'right', 'nom-sticker--speaking': message }, className]} data-nom-sticker={src}>
+  <img class="nom-sticker__image" src={image.src} srcset={image.srcSet} sizes={imageSizes.sizes}
+    width={image.width} height={image.height} alt="" loading="lazy" decoding="async" draggable="false" />
+  {message && <p class="nom-sticker__bubble">{message}</p>}
+</div>
+
+<style>
+  .nom-sticker {
+    --nom-size: 144px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .nom-sticker--small { --nom-size: 80px; }
+  .nom-sticker--large { --nom-size: 224px; }
+  .nom-sticker--right { flex-direction: row-reverse; }
+  .nom-sticker:not(.nom-sticker--speaking) { pointer-events: none; }
+  .nom-sticker__image {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--nom-size);
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 6px 10px rgb(8 12 16 / .1));
+  }
+  .nom-sticker__bubble {
+    position: relative;
+    min-width: 0;
+    max-width: 28ch;
+    margin: 0;
+    padding: 13px 17px;
+    border-radius: 18px 18px 18px 5px;
+    background: var(--loom-site-note-paper);
+    color: var(--loom-site-note-ink);
+    font: 500 13px/1.8 var(--loom-site-note-body);
+    text-align: left;
+    overflow-wrap: anywhere;
+    box-shadow: 0 4px 18px rgb(8 12 16 / .06);
+  }
+  .nom-sticker__bubble::before {
+    position: absolute;
+    top: 50%;
+    left: -7px;
+    width: 14px;
+    height: 14px;
+    background: inherit;
+    transform: translateY(-50%) rotate(45deg);
+    content: '';
+  }
+  .nom-sticker--right .nom-sticker__bubble { border-radius: 18px 18px 5px 18px; }
+  .nom-sticker--right .nom-sticker__bubble::before { right: -7px; left: auto; }
+  @media (max-width: 600px) {
+    .nom-sticker--medium { --nom-size: 104px; }
+    .nom-sticker--large { --nom-size: 160px; }
+    .nom-sticker--speaking.nom-sticker--large { --nom-size: 104px; }
+    .nom-sticker { gap: 10px; }
+    .nom-sticker__bubble { padding: 11px 13px; font-size: 12px; }
+  }
+</style>

@@ -3,14 +3,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArchitectureMap from '../../components/architecture-map/ArchitectureMap';
 import SiteHeader from '../../components/SiteHeader.astro';
 import { siteImage } from '../../lib/site-images';
-const nom = await siteImage('/images/nom/expressions/nom-expression-001.png', [96, 192, 256]);
+const nom = await siteImage('/images/nom/stickers/heads/smile.png', [80, 160, 240], 90);
+const nomGuide = await siteImage('/images/nom/stickers/bust/tip.png', [96, 192, 288], 90);
 const cardCover = await siteImage('/images/cards/display/card-001.png', [96, 192]);
 ---
 
 <BaseLayout title="架构地图" description="Loom Studio 的交互式开发者架构地图：追踪角色导入、剧情创建、Agent、模型、工具与本地数据的实际路径。">
   <div class="architecture-page">
     <SiteHeader />
-    <ArchitectureMap nom={nom} cardCover={cardCover} client:only="react">
+    <ArchitectureMap nom={nom} nomGuide={nomGuide} cardCover={cardCover} client:only="react">
       <div slot="fallback" class="map-loading" role="status">正在加载 Loom Studio 架构地图…</div>
     </ArchitectureMap>
   </div>

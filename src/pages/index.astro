@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import NomSticker from '../components/NomSticker.astro';
 import ProductPreview from '../components/ProductPreview.astro';
 import ArchitecturePreview from '../components/architecture-map/ArchitecturePreview.astro';
 import CardMarquee, { cards } from '../components/card-showcase/CardMarquee';
@@ -28,16 +29,19 @@ const features = [
   {
     index: '01',
     title: '故事，好好读',
+    sticker: '/images/nom/stickers/fullbody/reading.png',
     copy: '把确认的情节留在正文里，把推演草稿交给后台。沿着角色的脚步，一页一页读下去。',
   },
   {
     index: '02',
     title: '幕后，有帮手',
+    sticker: '/images/nom/stickers/fullbody/working.png',
     copy: 'Agent 在自己的工作区整理线索、调用工具。想知道它忙了什么？打开面板就能看看。',
   },
   {
     index: '03',
     title: '灵感，有来处',
+    sticker: '/images/nom/stickers/bust/thinking.png',
     copy: '这次对话用到了哪些设定，又带上了哪段记忆？展开提示词构建过程，把故事的来龙去脉看清楚。',
   },
 ];
@@ -70,8 +74,11 @@ const features = [
 
     <section class="card-banner card-banner--top" aria-labelledby="card-banner-title">
       <div class="container card-banner__heading">
-        <p class="eyebrow">A gallery of possibilities</p>
-        <h2 id="card-banner-title">每一张卡面<br />都可以是一个新的角色</h2>
+        <div class="card-banner__copy">
+          <p class="eyebrow">A gallery of possibilities</p>
+          <h2 id="card-banner-title">每一张卡面<br />都可以是一个新的角色</h2>
+          <div class="card-banner__nom"><NomSticker src="/images/nom/stickers/fullbody/welcome.png" /></div>
+        </div>
       </div>
       <CardMarquee client:visible images={cardImages} />
     </section>
@@ -89,6 +96,7 @@ const features = [
         <div class="manifesto__features">
           {features.map((feature) => (
             <article>
+              <div class="manifesto__feature-art"><NomSticker src={feature.sticker} /></div>
               <span>{feature.index}</span>
               <h3>{feature.title}</h3>
               <p>{feature.copy}</p>
@@ -130,7 +138,10 @@ const features = [
           正文讲故事，Agent 理线索，构建器把需要的设定送给模型。<br />
           每一步都有迹可循，你可以安心游玩，也可以随时掀开幕布，动手改一改。
         </p>
-        <a class="architecture__map" href="/docs/architecture">开发者架构地图 <ArrowUpRight size={18} aria-hidden="true" /></a>
+        <div class="architecture__guide">
+          <NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message="想知道它们怎么协作？来地图里逛逛。" />
+          <a class="architecture__map" href="/docs/architecture">开发者架构地图 <ArrowUpRight size={18} aria-hidden="true" /></a>
+        </div>
       </div>
     </section>
 
@@ -519,6 +530,11 @@ const features = [
     margin-bottom: 48px;
     text-align: center;
   }
+  .card-banner__copy { position: relative; }
+  .card-banner__nom { display: flex; justify-content: center; margin-top: 24px; pointer-events: none; }
+  @media (min-width: 1100px) {
+    .card-banner__nom { position: absolute; left: calc(100% + 24px); top: 50%; margin-top: 0; transform: translateY(-50%); width: 144px; }
+  }
   .card-banner__heading h2 {
     margin: 0;
     font: 540 clamp(38px, 5vw, 64px)/1.18 var(--loom-site-font-display);
@@ -566,7 +582,8 @@ const features = [
     background: transparent;
   }
   .manifesto__features span { color: var(--loom-site-accent); font: 10px var(--loom-site-font-mono); letter-spacing: 0.14em; }
-  .manifesto__features h3 { margin: 46px 0 18px; font: 560 30px/1.32 var(--loom-site-font-display); letter-spacing: 0.01em; }
+  .manifesto__feature-art { display: flex; justify-content: center; margin-bottom: 20px; }
+  .manifesto__features h3 { margin: 18px 0; font: 560 30px/1.32 var(--loom-site-font-display); letter-spacing: 0.01em; }
   .manifesto__features p {
     max-width: 470px;
     margin: 0;
@@ -649,11 +666,11 @@ const features = [
     text-align: center;
   }
   .architecture h2 { max-width: 850px; margin-inline: auto; }
+  .architecture__guide { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 22px; }
   .architecture__map {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 22px;
     padding: 7px 0;
     border-bottom: 1px solid currentColor;
     color: var(--loom-site-accent);

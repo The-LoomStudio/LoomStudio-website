@@ -12,6 +12,8 @@ export type SceneEdge = {
   id: string; from: string; to: string; label: string; detail: string; source: Source;
   kind: 'main' | 'branch' | 'return' | 'write' | 'read';
   fromSide?: Side; toSide?: Side; via?: [number, number][]; labelAt?: [number, number];
+  // Fraction along the node edge, used to keep incoming and outgoing routes distinct.
+  fromOffset?: number; toOffset?: number;
   // Sequence messages attach to lifelines at a chronological row, not header boxes.
   messageY?: number;
 };
@@ -51,14 +53,14 @@ const workflow: SemanticScene = {
   ],
   edges: [
     edge('prepare-start', 'context', 'checkpoint', '准备完成', '模型与工具准备完成后进入 Loop。', src(runtime, 367, 391)),
-    edge('start-model', 'checkpoint', 'model', '开始 Provider Step', '写入起点后执行模型步骤。', src(loop, 397, 419), { fromSide: 'bottom', toSide: 'top' }),
+    edge('start-model', 'checkpoint', 'model', '开始 Provider Step', '写入起点后执行模型步骤。', src(loop, 397, 419), { fromSide: 'bottom', toSide: 'top', toOffset: .3, via: [[610, 205], [562, 205]], labelAt: [562, 275] }),
     edge('model-response', 'model', 'response', 'Observation', '模型结果先保存为执行观察。', src(loop, 480, 485)),
     edge('response-tool', 'response', 'tool', '存在 Invocation', '存在工具请求时才进入工具执行分支。', src(loop, 580, 603), { kind: 'branch', fromSide: 'bottom', toSide: 'top' }),
     edge('tool-result', 'tool', 'result', 'Tool Result', '保存受控工具返回的结果。', src(loop, 749, 759), { kind: 'write', fromSide: 'left', toSide: 'right' }),
-    edge('result-model', 'result', 'model', 'Replay · 下一步', '用已接受的工具结果继续下一次模型调用。', src(loop, 749, 775), { kind: 'return', fromSide: 'left', toSide: 'left', via: [[420, 606], [420, 366]], labelAt: [420, 485] }),
-    edge('response-finish', 'response', 'finish', '完整正文 · 无工具', '满足完整回复条件才接受最终输出。', src(loop, 602, 630), { kind: 'branch', fromSide: 'top', toSide: 'left', via: [[1030, 250], [1170, 250], [1170, 126]], labelAt: [1090, 250] }),
-    edge('response-continue', 'response', 'model', 'length · 续写', '无工具且输出被长度截断时追加已接受消息并继续。', src(loop, 659, 675), { kind: 'return', fromSide: 'top', toSide: 'top', via: [[1030, 215], [610, 215]], labelAt: [810, 215] }),
-    edge('model-failure', 'model', 'failure', '调用异常 / 中断', '执行异常进入 Loop 的统一中断处理。', src(loop, 780, 816), { kind: 'branch', fromSide: 'left', toSide: 'bottom', via: [[330, 366], [330, 950], [1350, 950]], labelAt: [330, 700] }),
+    edge('result-model', 'result', 'model', 'Replay · 下一步', '用已接受的工具结果继续下一次模型调用。', src(loop, 749, 775), { kind: 'return', fromSide: 'left', toSide: 'left', toOffset: .75, via: [[420, 606], [420, 394]], labelAt: [420, 485] }),
+    edge('response-finish', 'response', 'finish', '完整正文 · 无工具', '满足完整回复条件才接受最终输出。', src(loop, 602, 630), { kind: 'branch', fromSide: 'right', toSide: 'left', via: [[1190, 366], [1190, 126]], labelAt: [1190, 265] }),
+    edge('response-continue', 'response', 'model', 'length · 续写', '无工具且输出被长度截断时追加已接受消息并继续。', src(loop, 659, 675), { kind: 'return', fromSide: 'top', toSide: 'top', toOffset: .7, via: [[1030, 230], [658, 230]], labelAt: [820, 230] }),
+    edge('model-failure', 'model', 'failure', '调用异常 / 中断', '执行异常进入 Loop 的统一中断处理。', src(loop, 780, 816), { kind: 'branch', fromSide: 'left', fromOffset: .25, toSide: 'bottom', via: [[330, 338], [330, 950], [1350, 950]], labelAt: [330, 730] }),
     edge('tool-failure', 'tool', 'failure', '执行中断', '未确认结果的工具不能被静默重放。', src(loop, 800, 816), { kind: 'branch', fromSide: 'right', toSide: 'top', via: [[1350, 606]], labelAt: [1350, 700] }),
     edge('failure-record', 'failure', 'recovery', '按中断原因记录', '暂停 / 失败保留现场，普通取消记录 aborted；不承诺任意现场都可恢复。', src(loop, 851, 896), { kind: 'write', fromSide: 'left', toSide: 'right' }),
   ],
@@ -103,21 +105,21 @@ const lifecycle: SemanticScene = {
   width: 1520, height: 950,
   frames: [lane('main', '01 · 执行与正常结束', '对象：Server AgentRun', 0), lane('wait', '02 · 暂停与恢复请求', '恢复资格取决于 checkpoint 和合同校验', 300), lane('end', '03 · 异常结束', '取消与失败分别记录', 680)],
   nodes: [
-    { id: 'running', category: 'active', title: 'running', summary: '新 Run 接受执行', detail: 'startAgentRun 创建新身份并置为 running。同一 Session 已有运行中的执行时拒绝并发启动。', source: src(runs, 406, 415), x: 400, y: 70, role: 'state' },
+    { id: 'running', category: 'active', title: 'running', summary: '新 Run 接受执行', detail: 'startAgentRun 创建新身份并置为 running。同一 Session 已有运行中的执行时拒绝并发启动。', source: src(runs, 406, 415), x: 650, y: 70, role: 'state' },
     { id: 'completed', category: 'success', title: 'completed', summary: '执行返回且未被取消', detail: 'Runtime 返回结果且 AbortSignal 未触发，Server 设置 completed，清理恢复点并保留待确认的完成事件。', source: src(runs, 485, 495), x: 1190, y: 70, role: 'state', outcome: 'success' },
-    { id: 'suspended', category: 'waiting', title: 'suspended', summary: '用户暂停或得到新 checkpoint', detail: '用户暂停，或异常路径产生新的 checkpoint，会映射为 suspended；是否能继续还需恢复检查。', source: src(runs, 495, 505), x: 400, y: 370, role: 'state', outcome: 'waiting' },
-    { id: 'new-run', category: 'active', title: '新的 running Run', summary: '新 runId · 关联 sourceRunId', detail: 'resume 使用内存 checkpoint 或从 Transcript 准备恢复；接受请求后创建新 Run。工具合同变化或未知工具副作用可拒绝恢复，旧对象不会简单回到 running。', source: src(runs, 298, 339), x: 1190, y: 370, role: 'state' },
+    { id: 'suspended', category: 'waiting', title: 'suspended', summary: '用户暂停或得到新 checkpoint', detail: '用户暂停，或异常路径产生新的 checkpoint，会映射为 suspended；是否能继续还需恢复检查。', source: src(runs, 495, 505), x: 60, y: 370, role: 'state', outcome: 'waiting' },
+    { id: 'new-run', category: 'active', title: '新的 running Run', summary: '新 runId · 关联 sourceRunId', detail: 'resume 使用内存 checkpoint 或从 Transcript 准备恢复；接受请求后创建新 Run。工具合同变化或未知工具副作用可拒绝恢复，旧对象不会简单回到 running。', source: src(runs, 298, 339), x: 650, y: 370, role: 'state' },
     { id: 'abandoned', category: 'waiting', title: '放弃继续', summary: 'abandoned 标记 + discarded 记录', detail: '仅对尚未续接的 suspended Run 生效。清除 checkpoint、设置 abandoned，Transcript 追加 discarded；Server state 本身仍为 suspended。', source: src(runs, 278, 295), x: 60, y: 750, role: 'step', outcome: 'waiting' },
-    { id: 'cancelled', category: 'failure', title: 'cancelled', summary: '已取消且不满足暂停条件', detail: '异常处理优先判断 suspended；否则 AbortSignal 已触发时映射为 cancelled。它不同于 Transcript 的 aborted 字面值。', source: src(runs, 495, 505), x: 750, y: 750, role: 'state', outcome: 'failure' },
+    { id: 'cancelled', category: 'failure', title: 'cancelled', summary: '已取消且不满足暂停条件', detail: '异常处理优先判断 suspended；否则 AbortSignal 已触发时映射为 cancelled。它不同于 Transcript 的 aborted 字面值。', source: src(runs, 495, 505), x: 650, y: 750, role: 'state', outcome: 'failure' },
     { id: 'failed', category: 'failure', title: 'failed', summary: '异常且无暂停 / 取消条件', detail: '未形成新的暂停现场且未触发取消时，Server 设置 failed。恢复请求仍要检查是否存在合法的恢复证据，不能据此承诺自动重试。', source: src(runs, 495, 505), x: 1190, y: 750, role: 'state', outcome: 'failure' },
   ],
   edges: [
     edge('complete', 'running', 'completed', '成功返回', '未被取消的正常结果使该执行结束。', src(runs, 485, 495)),
-    edge('pause', 'running', 'suspended', 'user-pause / 新 checkpoint', 'pause 触发中断，状态在异步执行结束时更新。', src(runs, 271, 276), { kind: 'branch', fromSide: 'bottom', toSide: 'top' }),
+    edge('pause', 'running', 'suspended', 'user-pause / 新 checkpoint', 'pause 触发中断，状态在异步执行结束时更新。', src(runs, 271, 276), { kind: 'branch', fromSide: 'bottom', fromOffset: .2, toSide: 'top', via: [[698, 250], [180, 250]], labelAt: [410, 250] }),
     edge('resume', 'suspended', 'new-run', '接受恢复请求', '取得恢复现场后创建新的执行；后续 Loop 仍可能因工具合同变化而拒绝继续，不将旧 runId 改回 running。', src(runs, 310, 335), { kind: 'return' }),
-    edge('abandon', 'suspended', 'abandoned', '显式放弃', '清理恢复现场并记录 discarded；不是新增的 Server 状态。', src(runs, 278, 295), { kind: 'branch', fromSide: 'left', toSide: 'top', via: [[180, 426]], labelAt: [180, 600] }),
-    edge('cancel', 'running', 'cancelled', '取消 · 非暂停', '按照 Server catch 中的优先级映射。', src(runs, 495, 505), { kind: 'branch', fromSide: 'left', toSide: 'top', via: [[350, 126], [350, 620], [870, 620]], labelAt: [720, 620] }),
-    edge('fail', 'running', 'failed', '异常 · 无恢复现场', '异常未满足暂停和取消条件。', src(runs, 495, 505), { kind: 'branch', fromSide: 'top', toSide: 'right', via: [[520, -35], [1500, -35], [1500, 806]], labelAt: [1500, 605] }),
+    edge('abandon', 'suspended', 'abandoned', '显式放弃', '清理恢复现场并记录 discarded；不是新增的 Server 状态。', src(runs, 278, 295), { kind: 'branch', fromSide: 'bottom', toSide: 'top', labelAt: [180, 600] }),
+    edge('cancel', 'running', 'cancelled', '取消 · 非暂停', '按照 Server catch 中的优先级映射。', src(runs, 495, 505), { kind: 'branch', fromSide: 'bottom', toSide: 'top', via: [[770, 220], [1000, 220], [1000, 610], [770, 610]], labelAt: [1000, 535] }),
+    edge('fail', 'running', 'failed', '异常 · 无恢复现场', '异常未满足暂停和取消条件。', src(runs, 495, 505), { kind: 'branch', fromSide: 'bottom', fromOffset: .8, toSide: 'right', via: [[842, 200], [1490, 200], [1490, 806]], labelAt: [1230, 200] }),
   ],
 };
 

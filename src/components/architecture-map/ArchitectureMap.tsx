@@ -15,7 +15,7 @@ import type { DisplayImage } from '../../lib/site-images';
 import '@xyflow/react/dist/style.css';
 import './architecture-map.css';
 
-type MapProps = { nom: DisplayImage; cardCover: DisplayImage };
+type MapProps = { nom: DisplayImage; nomGuide: DisplayImage; cardCover: DisplayImage };
 type DetailNode = Node<MapItem & {
   highlighted: boolean; inspected: boolean; muted: boolean; inspect: () => void;
   sourceSide: Position; targetSide: Position;
@@ -181,7 +181,7 @@ const examples: Record<string, { title: string; text: string }> = {
   extension: { title: '为故事加一个扩展', text: '假设安装一个扩展包：安装记录、资源导入、模块启用各自独立，安装成功不等于当前故事正在使用它。' },
 };
 
-function MapCanvas({ nom, cardCover, view, setView }: MapProps & { view: 'modules' | 'flows'; setView: (view: MapView) => void }) {
+function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { view: 'modules' | 'flows'; setView: (view: MapView) => void }) {
   const flow = useReactFlow<DetailNode | RegionNode, Edge>();
   const [journeyId, setJourneyId] = useState('import');
   const [selectedId, setSelectedId] = useState<string>();
@@ -490,7 +490,7 @@ function MapCanvas({ nom, cardCover, view, setView }: MapProps & { view: 'module
               <h2>{journey.title}</h2>
               <p className="am-lead">{journey.summary}</p>
               {examples[journey.id] && <section className="am-example">
-                <img src={nom.src} srcSet={nom.srcSet} sizes="72px" width="72" height="72" alt="抱着书的 Nom" />
+                <img src={nomGuide.src} srcSet={nomGuide.srcSet} sizes="80px" width={nomGuide.width} height={nomGuide.height} alt="" draggable={false} />
                 <div><h3>示例 · {examples[journey.id].title}</h3><p>{examples[journey.id].text}</p></div>
               </section>}
               <section className="am-boundary"><h3>先记住这个边界</h3><p><TermText text={journey.boundary} explain={explain} /></p></section>
@@ -510,7 +510,7 @@ function MapCanvas({ nom, cardCover, view, setView }: MapProps & { view: 'module
                 <button key={item.id} onClick={() => inspect(item.id, true)}>{item.title}<ChevronRight size={14} /></button>,
               )}</div></section>
             </> : <>
-              <div className="am-nom-intro"><img src={nom.src} srcSet={nom.srcSet} sizes="110px" width="110" height="110" alt="Nom 抱着故事书" /><span>Nom 的创作小地图</span></div>
+              <div className="am-nom-intro"><img src={nom.src} srcSet={nom.srcSet} sizes="110px" width={nom.width} height={nom.height} alt="" draggable={false} /><span>Nom 的创作小地图</span></div>
               <h2>从界面到数据，<br />Loom 如何运转</h2>
               <p className="am-lead">本地优先的创作系统。故事、智能体工作和上下文装配，各自有明确的权威边界。</p>
               <section><h3>怎么读这张地图</h3><p>先从全局模块了解职责，再选择一个模块探索直接关联或上下游。点击“看路径”可逐步追踪关系；操作流程则解释真实业务的条件与边界。搜索支持术语、职责、边界和源码路径。</p></section>
@@ -542,5 +542,5 @@ export default function ArchitectureMap(props: MapProps) {
   const [view, setView] = useState<MapView>('modules');
   return view === 'modules' || view === 'flows'
     ? <ReactFlowProvider key="legacy"><MapCanvas {...props} view={view} setView={setView} /></ReactFlowProvider>
-    : <ReactFlowProvider key={view}><SemanticMap scene={semanticScenes[view]} onViewChange={setView} /></ReactFlowProvider>;
+    : <ReactFlowProvider key={view}><SemanticMap scene={semanticScenes[view]} nomGuide={props.nomGuide} onViewChange={setView} /></ReactFlowProvider>;
 }

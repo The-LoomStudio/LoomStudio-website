@@ -3,6 +3,7 @@ import { ArrowUpRight, Check, ChevronDown, Construction, Feather, Megaphone, Mov
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import NomSticker from '../components/NomSticker.astro';
 import { siteImage } from '../lib/site-images';
 
 const [logo, cover, postcard] = await Promise.all([
@@ -58,6 +59,7 @@ const categories = [
         <div class="ticket-perforation" aria-hidden="true"></div>
         <h2>上下滑，<br />就好啦。</h2>
         <p>移动端 Menu 现在跟随手指的纵向移动，不必顺着画面的斜线划。横向偏移也不会再影响滑动速度。</p>
+        <div class="news-nom"><NomSticker src="/images/nom/stickers/heads/wink.png" size="small" /></div>
         <footer><time datetime="2026-10-07">2026.10.07</time><span>TOUCH / FIXED</span></footer>
       </article>
 
@@ -66,6 +68,7 @@ const categories = [
         <Megaphone size={32} stroke-width={1.7} aria-hidden="true" />
         <h2>工作室的<br />小小公告板。</h2>
         <p>新闻、更新通知、Bug 修复，今后都在这里见。也为偶尔想写的个人博客，留一个位置。</p>
+        <div class="news-nom"><NomSticker src="/images/nom/stickers/fullbody/welcome.png" size="small" /></div>
         <footer><time datetime="2026-10-07">2026.10.07</time><span>第一张便签</span></footer>
       </article>
 
@@ -110,6 +113,7 @@ const categories = [
         <span class="news-tag">待续</span>
         <h2>下一篇，慢慢写。</h2>
         <p>这里也留给未来的个人博客。暂时没有新的文章，就先让灵感长一会儿。</p>
+        <div class="news-nom"><NomSticker src="/images/nom/stickers/fullbody/working.png" size="small" /></div>
       </article>
     </section>
     <p class="news-end">这一页，先记到这里。<span aria-hidden="true">✳</span></p>
@@ -149,6 +153,7 @@ const categories = [
   .news-item p { font-size: 14px; line-height: 1.85; color: var(--news-muted); margin: 0 0 16px; }
   .news-tag { display: inline-block; font-size: 11px; font-weight: 700; }
   .news-item footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 26px; font-size: 10px; color: var(--news-muted); }
+  .news-nom { display: flex; justify-content: flex-end; margin-top: 12px; padding: 6px 4px; }
   .news-cover { padding: 0; }
   .news-cover__image { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px 8px 0 0; }
   .news-copy { padding: 30px 26px 24px; position: relative; }

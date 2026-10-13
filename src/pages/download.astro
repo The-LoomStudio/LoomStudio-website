@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../layouts/PortalLayout.astro';
+import NomSticker from '../components/NomSticker.astro';
 import { ArrowUpRight, Terminal } from '@lucide/astro';
 const commands = `git clone https://github.com/The-LoomStudio/LoomStudio.git
 cd LoomStudio
@@ -23,11 +24,14 @@ npm start`;
         <p>首次启动需要联网：脚本会调用固定版本 pnpm 安装依赖，并在缺少构建产物时构建应用。这个过程可能需要几分钟，请保持终端开启。</p>
         <div class="download-links"><a href="https://git-scm.com/downloads" target="_blank" rel="noreferrer">安装 Git <ArrowUpRight size={15} /></a><a href="https://nodejs.org/en/download" target="_blank" rel="noreferrer">安装 Node.js <ArrowUpRight size={15} /></a></div>
       </div>
-      <div class="download-command">
-        <div class="download-command__heading"><span><Terminal size={18} />在你准备存放程序的目录运行</span><button type="button" data-copy-install>复制命令</button></div>
-        <pre><code data-install-commands>{commands}</code></pre>
-        <p>Windows、macOS 和 Linux 都可使用这组命令。</p>
-        <span class="download-copy-status" role="status" aria-live="polite" data-copy-status></span>
+      <div class="download-terminal">
+        <div class="download-command">
+          <div class="download-command__heading"><span><Terminal size={18} />在你准备存放程序的目录运行</span><button type="button" data-copy-install>复制命令</button></div>
+          <pre><code data-install-commands>{commands}</code></pre>
+          <p>Windows、macOS 和 Linux 都可使用这组命令。</p>
+          <span class="download-copy-status" role="status" aria-live="polite" data-copy-status></span>
+        </div>
+        <div class="download-tip"><NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message="第一次启动会花一点时间，记得保持终端开启。" /></div>
       </div>
     </div>
   </section>
@@ -48,7 +52,7 @@ npm start`;
 npm exec --yes --package=pnpm@9.15.0 -- pnpm install --frozen-lockfile
 npm exec --yes --package=pnpm@9.15.0 -- pnpm build:app
 npm start`}</code></pre><p>如果本地改动导致 Git 无法更新，先处理改动；不要直接覆盖自己的文件。</p></article>
-      <article><small>RELEASES / COMING LATER</small><h2>安装包准备中</h2><p>目前先使用源码启动。后续正式发行包会在 GitHub Releases 提供版本、平台与校验信息。GitHub 自动生成的 Source code 压缩包仍属于源码，并非预构建成品。</p><div class="download-links"><a href="https://github.com/The-LoomStudio/LoomStudio/releases" target="_blank" rel="noreferrer">查看 Releases <ArrowUpRight size={15} /></a><a href="https://github.com/The-LoomStudio/LoomStudio/blob/main/docs/guide/beta-release.md" target="_blank" rel="noreferrer">完整安装与数据说明 <ArrowUpRight size={15} /></a></div><p>服务目前供本机使用。模型调用会把本轮构建的上下文发送给你配置的 Provider。</p></article>
+      <article><small>RELEASES / COMING LATER</small><h2>安装包准备中</h2><p>目前先使用源码启动。后续正式发行包会在 GitHub Releases 提供版本、平台与校验信息。GitHub 自动生成的 Source code 压缩包仍属于源码，并非预构建成品。</p><div class="download-links"><a href="https://github.com/The-LoomStudio/LoomStudio/releases" target="_blank" rel="noreferrer">查看 Releases <ArrowUpRight size={15} /></a><a href="https://github.com/The-LoomStudio/LoomStudio/blob/main/docs/guide/beta-release.md" target="_blank" rel="noreferrer">完整安装与数据说明 <ArrowUpRight size={15} /></a></div><p>服务目前供本机使用。模型调用会把本轮构建的上下文发送给你配置的 Provider。</p><div class="download-release-nom"><NomSticker src="/images/nom/stickers/fullbody/working.png" size="medium" /></div></article>
     </div>
   </section>
 </PortalLayout>
@@ -72,6 +76,9 @@ npm start`}</code></pre><p>如果本地改动导致 Git 无法更新，先处理
   .download-start p, .download-details p, .download-steps p, .download-note { color: var(--loom-site-text-muted); font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
   .download-links { display: flex; flex-wrap: wrap; gap: 18px; margin-block: 24px; }
   .download-links a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; text-decoration: underline; text-underline-offset: 5px; }
+  .download-terminal { min-width: 0; }
+  .download-tip { margin-top: 22px; }
+  .download-release-nom { display: flex; justify-content: flex-end; margin-top: 24px; }
   .download-command { min-width: 0; border: 1px solid var(--loom-site-border-strong); border-radius: 22px; padding: 24px; background: var(--loom-site-bg); }
   .download-command__heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; font-size: 12px; }
   .download-command__heading span { display: inline-flex; align-items: center; gap: 8px; }

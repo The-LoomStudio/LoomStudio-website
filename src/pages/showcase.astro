@@ -1,5 +1,6 @@
 ---
 import PortalLayout from '../layouts/PortalLayout.astro';
+import NomSticker from '../components/NomSticker.astro';
 import { BookOpen, Compass, GitBranch } from '@lucide/astro';
 
 const worlds = [
@@ -57,7 +58,10 @@ const worlds = [
     <div class="container">
       <div class="portal-section__heading">
         <div><small>GALLERY / WORLDS</small><h2>概念作品墙</h2></div>
-        <p>这些名称与简介只承担布局占位，不代表已发布作品。未来可以替换为真实创作者内容而不改变页面结构。</p>
+        <div class="showcase-gallery-description">
+          <p>这些名称与简介只承担布局占位，不代表已发布作品。未来可以替换为真实创作者内容而不改变页面结构。</p>
+          <div class="showcase-gallery-nom"><NomSticker src="/images/nom/stickers/bust/proud.png" size="medium" /></div>
+        </div>
       </div>
       <div class="world-grid">
         {worlds.map((world, index) => (
@@ -88,6 +92,9 @@ const worlds = [
   .showcase-feature__copy > p:last-of-type { max-width: 600px; margin: 28px 0 0; color: var(--loom-site-text-muted); font-size: 14px; line-height: 1.85; }
   .showcase-feature__facts { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 42px; color: var(--loom-site-text-subtle); font-size: 11px; }
   .showcase-feature__facts span { display: inline-flex; align-items: center; gap: 7px; }
+  .showcase-gallery-description { display: flex; align-items: center; gap: 24px; }
+  .showcase-gallery-description p { flex: 1; min-width: 0; }
+  .showcase-gallery-nom { flex: none; }
   .world-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .world-card { min-height: 360px; display: flex; flex-direction: column; justify-content: space-between; padding: 28px 0; border-top: 1px solid var(--loom-site-border); }
   .world-card--wide { grid-column: 1 / -1; min-height: 400px; }

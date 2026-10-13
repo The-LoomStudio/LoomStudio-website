@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-10-13",
+  "results": [
+    {
+      "id": "fullbody-point-right",
+      "file": "fullbody/guide-right.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-66507274-3179-4f6f-8906-f4d1bbab570f.png",
+      "status": "ready"
+    },
+    {
+      "id": "fullbody-welcome",
+      "file": "fullbody/welcome.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-c78ce938-d8d0-4bda-b48e-0b4a63eaa6ac.png",
+      "status": "ready"
+    },
+    {
+      "id": "fullbody-point-left",
+      "file": "fullbody/guide-left.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-d19995d6-4078-4227-a31e-20f519a29c09.png",
+      "status": "ready"
+    },
+    {
+      "id": "fullbody-reading",
+      "file": "fullbody/reading.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-65033770-f6a7-4e67-ba47-d7a72f02dcb7.png",
+      "status": "ready"
+    },
+    {
+      "id": "fullbody-celebrate",
+      "file": "fullbody/celebrating.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-ed981527-7802-4f84-8ac8-5c99220c1603.png",
+      "status": "ready"
+    },
+    {
+      "id": "fullbody-working",
+      "file": "fullbody/working.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-52a2067c-ef81-468e-b6f8-6117f99127bf.png",
+      "status": "ready"
+    },
+    {
+      "id": "bust-thinking",
+      "file": "bust/thinking.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-b9f8080e-786e-4639-b61d-19b3a75f0d02.png",
+      "status": "ready"
+    },
+    {
+      "id": "fullbody-rest",
+      "file": "fullbody/resting.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-cf809f01-5b29-4f57-a947-aa7b0738a85d.png",
+      "status": "ready"
+    },
+    {
+      "id": "bust-tip",
+      "file": "bust/tip.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-d3afd4fb-a643-458d-ba11-7f04a57aca7a.png",
+      "status": "ready"
+    },
+    {
+      "id": "bust-success",
+      "file": "bust/thumbs-up.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-ec1e564c-030c-4870-9764-ff2a35fcab9a.png",
+      "status": "ready"
+    },
+    {
+      "id": "bust-apology",
+      "file": "bust/sorry.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-518d269c-3eb6-4947-b244-ae849f4d17c2.png",
+      "status": "ready"
+    },
+    {
+      "id": "bust-surprise",
+      "file": "bust/surprised.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-84fff8ee-e0e7-48a5-86df-0982fdcdc937.png",
+      "status": "ready"
+    },
+    {
+      "id": "bust-thanks",
+      "file": "bust/thank-you.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-68546ebf-fef1-4799-adac-3fcace68f083.png",
+      "status": "ready"
+    },
+    {
+      "id": "bust-gift",
+      "file": "bust/gift.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-7eccdd89-1688-4c15-b28f-8a1a2176fbaf.png",
+      "status": "ready"
+    },
+    {
+      "id": "heads-laugh",
+      "file": "heads/laugh.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-83f192c7-e4ea-482a-8bdd-298694368f76.png",
+      "status": "ready"
+    },
+    {
+      "id": "heads-puzzled",
+      "file": "heads/confused.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-4ad96128-124b-419e-aa48-8a7825285008.png",
+      "status": "ready"
+    },
+    {
+      "id": "heads-panic",
+      "file": "heads/panic.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-6c7bf548-6787-49cb-816b-9181a8ebcd60.png",
+      "status": "ready"
+    },
+    {
+      "id": "heads-sad",
+      "file": "heads/sad.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-bba9181f-7649-49c0-ba78-5b26215bb939.png",
+      "status": "ready"
+    },
+    {
+      "id": "heads-determined",
+      "file": "heads/determined.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-a76ae85d-3cc1-4c65-8f62-2bb4978e0668.png",
+      "status": "ready"
+    },
+    {
+      "id": "heads-wink",
+      "file": "heads/wink.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-00320813-5a0b-46fd-a600-c58d31ef9d22.png",
+      "status": "ready"
+    },
+    {
+      "id": "heads-sleepy",
+      "file": "heads/sleepy.png",
+      "source": "/Users/macbookair/.codex/generated_images/01a1336e-9525-75e2-b037-4cfd09bd2c07/exec-30ce0766-b083-4f43-9033-b5e9a7ed6deb.png",
+      "status": "ready"
+    }
+  ]
+}

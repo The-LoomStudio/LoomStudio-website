@@ -23,6 +23,9 @@
   --loom-site-font-sans: "Avenir Next", "Hiragino Sans", "PingFang SC", "Helvetica Neue", ui-sans-serif, sans-serif;
   --loom-site-font-display: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Hiragino Sans", "PingFang SC", sans-serif;
   --loom-site-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --loom-site-note-paper: #fff;
+  --loom-site-note-ink: #293238;
+  --loom-site-note-body: "Nunito", var(--loom-site-font-sans);
   --loom-site-radius-sm: 6px;
   --loom-site-radius-md: 12px;
   --loom-site-radius-lg: 20px;
