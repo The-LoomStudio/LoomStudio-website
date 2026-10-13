@@ -195,6 +195,24 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
   const [reachDirection, setReachDirection] = useState<ReachDirection>('direct');
   const [exploredJourney, setExploredJourney] = useState<Journey>();
   const journey = view === 'flows' ? exploredJourney ?? journeys.find(value => value.id === journeyId) : undefined;
+  useEffect(() => {
+    function revealSearchTarget() {
+      const target = new URLSearchParams(window.location.hash.slice(1));
+      const moduleId = target.get('module');
+      const conceptName = target.get('concept');
+      const pathId = target.get('journey');
+      if (moduleId && [...items, ...regions].some(item => item.id === moduleId)) {
+        setView('modules'); setSelectedId(moduleId); setSelectedConcept(undefined); setSidebarOpen(true);
+      } else if (conceptName && Object.hasOwn(concepts, conceptName)) {
+        setView('modules'); setSelectedConcept(conceptName); setSelectedId(undefined); setSidebarOpen(true);
+      } else if (pathId && journeys.some(item => item.id === pathId)) {
+        setView('flows'); setJourneyId(pathId); setExploredJourney(undefined); setSelectedId(undefined); setSelectedConcept(undefined); setSidebarOpen(true);
+      }
+    }
+    revealSearchTarget();
+    window.addEventListener('hashchange', revealSearchTarget);
+    return () => window.removeEventListener('hashchange', revealSearchTarget);
+  }, [setView]);
   const concept = selectedConcept ? concepts[selectedConcept] : undefined;
   const simulationActive = journey?.id === 'submit' && simulationStep !== undefined;
   const simulationPlaying = simulationActive && simulationStep < journey.steps.length;
@@ -540,6 +558,15 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
 
 export default function ArchitectureMap(props: MapProps) {
   const [view, setView] = useState<MapView>('modules');
+  useEffect(() => {
+    function openLinkedView() {
+      const target = new URLSearchParams(window.location.hash.slice(1));
+      if (journeys.some(item => item.id === target.get('journey'))) setView('flows');
+      else if ([...items, ...regions].some(item => item.id === target.get('module')) || Object.hasOwn(concepts, target.get('concept') ?? '')) setView('modules');
+    }
+    window.addEventListener('hashchange', openLinkedView);
+    return () => window.removeEventListener('hashchange', openLinkedView);
+  }, []);
   return view === 'modules' || view === 'flows'
     ? <ReactFlowProvider key="legacy"><MapCanvas {...props} view={view} setView={setView} /></ReactFlowProvider>
     : <ReactFlowProvider key={view}><SemanticMap scene={semanticScenes[view]} nomGuide={props.nomGuide} onViewChange={setView} /></ReactFlowProvider>;

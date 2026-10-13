@@ -42,7 +42,7 @@ const categories = [
     </fieldset>
 
     <section class="news-board" aria-label="新闻与手记">
-      <article class="news-item news-cover" data-category="update">
+      <article id="news-diagonal-menu" class="news-item news-cover" data-category="update">
         <img class="news-cover__image" src={cover.src} srcset={cover.srcSet}
           width={cover.width} height={cover.height} sizes="(max-width: 680px) 90vw, 380px"
           alt="诺姆捧着书，站在 Loom Studio 文字前" />
@@ -54,7 +54,7 @@ const categories = [
         </div>
       </article>
 
-      <article class="news-item news-ticket" data-category="fix">
+      <article id="news-touch-scroll" class="news-item news-ticket" data-category="fix">
         <header><span class="news-tag">修复记录</span><MoveDown size={22} aria-hidden="true" /></header>
         <div class="ticket-perforation" aria-hidden="true"></div>
         <h2>上下滑，<br />就好啦。</h2>
@@ -63,7 +63,7 @@ const categories = [
         <footer><time datetime="2026-10-07">2026.10.07</time><span>TOUCH / FIXED</span></footer>
       </article>
 
-      <article class="news-item news-welcome" data-category="update">
+      <article id="news-welcome-board" class="news-item news-welcome" data-category="update">
         <span class="news-sticker">Hello, News!</span>
         <Megaphone size={32} stroke-width={1.7} aria-hidden="true" />
         <h2>工作室的<br />小小公告板。</h2>
@@ -72,7 +72,7 @@ const categories = [
         <footer><time datetime="2026-10-07">2026.10.07</time><span>第一张便签</span></footer>
       </article>
 
-      <article class="news-item news-postcard" data-category="journal">
+      <article id="news-architecture-map" class="news-item news-postcard" data-category="journal">
         <span class="news-tape" aria-hidden="true"></span>
         <img src={postcard.src} srcset={postcard.srcSet} width={postcard.width} height={postcard.height}
           sizes="(max-width: 680px) 90vw, 380px" alt="诺姆与书本的插画" loading="lazy" />
@@ -82,7 +82,7 @@ const categories = [
         <a href="/docs/architecture">去地图逛逛 <ArrowUpRight size={18} aria-hidden="true" /></a>
       </article>
 
-      <article class="news-item news-checklist" data-category="update">
+      <article id="news-menu-details" class="news-item news-checklist" data-category="update">
         <span class="news-sticker">Little things</span>
         <span class="news-tag">交互小记</span>
         <h2>多一点停留，<br />少一点匆忙。</h2>
@@ -99,7 +99,7 @@ const categories = [
         <footer><time datetime="2026-10-07">2026.10.07</time><span>MENU NOTES</span></footer>
       </article>
 
-      <article class="news-item news-note" data-category="journal">
+      <article id="news-studio-layout" class="news-item news-note" data-category="journal">
         <Feather size={28} stroke-width={1.6} aria-hidden="true" />
         <span class="news-tag">设计手记 / 01</span>
         <h2>同一个工作室，<br />不必同一种排版。</h2>
@@ -108,7 +108,7 @@ const categories = [
         <footer><span>LOOM STUDIO</span><time datetime="2026-10-07">2026.10.07</time></footer>
       </article>
 
-      <article class="news-item news-coming" data-category="journal">
+      <article id="news-next-story" class="news-item news-coming" data-category="journal">
         <Construction size={24} aria-hidden="true" />
         <span class="news-tag">待续</span>
         <h2>下一篇，慢慢写。</h2>

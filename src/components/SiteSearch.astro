@@ -1,0 +1,59 @@
+---
+import { Search, X } from '@lucide/astro';
+import { routes } from '../lib/site-routes';
+---
+<button class="site-icon" type="button" data-site-search-open aria-label="搜索网站" aria-haspopup="dialog" aria-controls="site-search" title="搜索网站（⌘K / Ctrl+K）"><Search size={21} stroke-width={1.6} /></button>
+<dialog id="site-search" class="site-search" aria-label="搜索网站" data-pagefind-ignore>
+  <div class="site-search__input-row">
+    <Search size={22} aria-hidden="true" />
+    <input type="text" role="searchbox" placeholder="搜索页面、文档、架构或新闻…" aria-label="搜索网站内容" autocomplete="off" maxlength="256" data-search-input />
+    <button type="button" class="site-search__close" aria-label="关闭搜索" data-search-close><X size={20} /></button>
+  </div>
+  <div class="site-search__scopes" role="group" aria-label="搜索范围">
+    {([['all', '全部'], ['pages', '页面'], ['docs', '文档'], ['architecture', '架构'], ['news', '新闻']] as const).map(([value, label]) => <button type="button" data-search-scope={value} aria-pressed={value === 'all'}>{label}</button>)}
+    <small>例如 in:文档</small>
+  </div>
+  <div class="site-search__body">
+    <p class="site-search__status" role="status" aria-live="polite" data-search-status>常用页面</p>
+    <ul class="site-search__results" aria-label="搜索结果" data-search-results>
+      {routes.map(route => <li><a href={route.href}><strong>{route.label}</strong><span>{route.caption}</span></a></li>)}
+    </ul>
+    <button type="button" class="site-search__more" data-search-more hidden>加载更多</button>
+    <button type="button" class="site-search__more" data-search-retry hidden>重新加载搜索</button>
+  </div>
+  <footer class="site-search__footer"><span>↑ ↓ 移动　↵ 打开</span><span>esc 关闭</span></footer>
+</dialog>
+<script>
+  import '../scripts/site-search';
+</script>
+<style>
+  [data-site-search-open] { position: absolute; top: 10px; right: 64px; color: var(--loom-site-text); }
+  .site-search { pointer-events: auto; }
+  .site-search { width: min(660px, calc(100vw - 28px)); height: min(600px, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); padding: 0; margin: auto; border: 1px solid var(--loom-site-border-strong); border-radius: 24px; color: var(--loom-site-text); background: var(--loom-site-surface-solid); box-shadow: 0 30px 100px #0005; overflow: hidden; }
+  .site-search[open] { display: flex; flex-direction: column; animation: search-in 180ms ease-out; }
+  .site-search::backdrop { background: #10182080; backdrop-filter: blur(8px); }
+  .site-search__input-row { display: flex; align-items: center; gap: 12px; padding: 22px 22px 12px; }
+  input { flex: 1; min-width: 0; border: 0; padding: 6px 0; outline: none; background: transparent; color: inherit; font: inherit; font-size: 18px; }
+  input::placeholder { color: var(--loom-site-text-subtle); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .site-search__close { display: grid; place-items: center; border: 0; background: transparent; border-radius: 50%; padding: 7px; }
+  .site-search__scopes { display: flex; align-items: center; gap: 6px; margin: 0 18px; padding: 0 0 14px; border-bottom: 1px solid var(--loom-site-border-strong); flex-wrap: wrap; }
+  .site-search__scopes button { border: 0; border-radius: 999px; padding: 6px 12px; background: transparent; font-size: 13px; }
+  .site-search__scopes button[aria-pressed='true'] { background: var(--loom-site-accent-soft); }
+  .site-search__scopes small { margin-left: auto; color: var(--loom-site-text-subtle); font-size: 11px; }
+  .site-search__body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 10px; }
+  .site-search__status { color: var(--loom-site-text-subtle); font-size: 12px; margin: 5px 12px 10px; }
+  .site-search__results { list-style: none; padding: 0; margin: 0; }
+  .site-search__results :global(a) { display: flex; flex-direction: column; gap: 5px; text-decoration: none; border-radius: 12px; padding: 12px; color: inherit; }
+  .site-search__results :global(a:hover), .site-search__results :global(a[data-selected='true']) { background: var(--loom-site-accent-soft); }
+  .site-search__results :global(strong) { font-size: 15px; font-weight: 550; }
+  .site-search__results :global(span) { font-size: 12px; line-height: 1.7; color: var(--loom-site-text-muted); overflow-wrap: anywhere; }
+  .site-search__results :global(mark) { background: var(--loom-site-accent-soft); color: inherit; border-radius: 2px; }
+  .site-search__footer { display: flex; justify-content: space-between; margin: 0 18px; padding: 12px 4px; border-top: 1px solid var(--loom-site-border-strong); font-size: 11px; color: var(--loom-site-text-subtle); }
+  .site-search__more { display: block; margin: 12px auto; border: 0; border-radius: 8px; padding: 8px 14px; background: var(--loom-site-accent-soft); }
+  [hidden] { display: none; }
+  button:focus-visible, .site-search__results :global(a:focus-visible) { outline: 2px solid var(--loom-site-accent); outline-offset: -2px; }
+  @keyframes search-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .site-search[open] { animation: none; } }
+  @media (max-width: 480px) { .site-search__scopes small { display: none; } input { font-size: 16px; } .site-search__input-row { padding: 18px 16px 12px; } }
+</style>
