@@ -1,0 +1,111 @@
+---
+import { Check, Feather, MoveDown, Sparkles } from '@lucide/astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { siteImage } from '../../lib/site-images';
+import { type SiteLocale, pageMeta } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'ko' } },
+  ];
+}
+
+const { lang } = Astro.params;
+const currentLocale = lang as SiteLocale;
+const meta = pageMeta.news[currentLocale] ?? pageMeta.news['en'];
+
+const [logo, cover] = await Promise.all([
+  siteImage('/brand/banner.png', [360, 720, 1080], 90),
+  siteImage('/images/nom/banners/nom-banner-015.png', [480, 960]),
+]);
+
+const categoriesData: Record<string, [string, string][]> = {
+  'en': [['all', 'All'], ['update', 'Updates'], ['fix', 'Fixes'], ['journal', 'Devlogs']],
+  'ja': [['all', 'すべて'], ['update', 'アップデート'], ['fix', '修正'], ['journal', '手記']],
+  'ko': [['all', '전체'], ['update', '업데이트'], ['fix', '수정'], ['journal', '노트']],
+};
+const categories = categoriesData[currentLocale] ?? categoriesData['en'];
+const subHeading = currentLocale === 'ja' ? '最新情報、小さな修正、創作の合間のひらめき。' : currentLocale === 'ko' ? '새 소식, 소소한 개선, 그리고 창작 여정의 영감.' : 'Updates, refinements, and creative sparks along the way.';
+---
+
+<BaseLayout title={meta.title} description={meta.description} locale={currentLocale}>
+  <SiteHeader locale={currentLocale} />
+  <main class="news">
+    <header class="news-heading">
+      <a href={`/${currentLocale}`} aria-label="Loom Studio" class="news-logo">
+        <img src={logo.src} srcset={logo.srcSet} width={logo.width} height={logo.height}
+          sizes="(max-width: 600px) 80vw, 420px" alt="Loom Studio" fetchpriority="high" />
+      </a>
+      <h1>News <span>/ {meta.title}</span></h1>
+      <p>{subHeading}</p>
+    </header>
+
+    <fieldset class="news-filters">
+      <legend class="sr-only">Categories</legend>
+      {categories.map(([value, label]) => (
+        <label>
+          <input type="radio" name="news-category" value={value} checked={value === 'all'} />
+          <span>{label}</span>
+        </label>
+      ))}
+    </fieldset>
+
+    <section class="news-board" aria-label="News board">
+      <article id="news-diagonal-menu" class="news-item news-cover" data-category="update">
+        <img class="news-cover__image" src={cover.src} srcset={cover.srcSet}
+          width={cover.width} height={cover.height} sizes="(max-width: 680px) 90vw, 380px"
+          alt="Nom" />
+        <div class="news-copy">
+          <span class="news-tag">WEBSITE / Release</span>
+          <h2>A new menu,<br />unfolding across angles.</h2>
+          <p>Full-screen navigation menu updated with smooth diagonal carousel flow.</p>
+          <footer><time datetime="2026-10-07">2026.10.07</time><Sparkles size={19} aria-hidden="true" /></footer>
+        </div>
+      </article>
+
+      <article id="news-touch-scroll" class="news-item news-ticket" data-category="fix">
+        <header><span class="news-tag">Fix</span><MoveDown size={22} aria-hidden="true" /></header>
+        <div class="ticket-perforation" aria-hidden="true"></div>
+        <h2>Smooth scroll<br />on touch.</h2>
+        <p>Improved touch and trackpad momentum scrolling across dialogs.</p>
+        <footer><time datetime="2026-10-05">2026.10.05</time></footer>
+      </article>
+
+      <article id="news-beta-release" class="news-item news-letter" data-category="update">
+        <header><span class="news-tag">Beta Release</span><Feather size={20} aria-hidden="true" /></header>
+        <h2>Loom Studio Beta<br />Now available from source.</h2>
+        <p>Clone via git and run with <code>npm start</code> to begin weaving your stories.</p>
+        <footer><time datetime="2026-10-01">2026.10.01</time><Check size={20} aria-hidden="true" /></footer>
+      </article>
+    </section>
+  </main>
+  <SiteFooter locale={currentLocale} />
+</BaseLayout>
+
+<style>
+  .news { width: min(1060px, calc(100% - 160px)); margin-inline: auto; padding: 118px 0 76px; }
+  .news-heading { text-align: center; margin-bottom: 42px; }
+  .news-logo img { width: clamp(200px, 32vw, 360px); height: auto; margin-inline: auto; margin-bottom: 12px; }
+  .news-heading h1 { font-size: clamp(28px, 4vw, 42px); margin: 0 0 10px; }
+  .news-heading h1 span { font-size: 0.6em; opacity: 0.7; font-weight: normal; }
+  .news-heading p { color: var(--loom-site-text-muted); font-size: 15px; margin: 0; }
+  .news-filters { display: flex; justify-content: center; gap: 8px; border: 0; padding: 0; margin-bottom: 38px; }
+  .news-filters label { cursor: pointer; }
+  .news-filters input { display: none; }
+  .news-filters span { display: inline-block; padding: 6px 14px; border-radius: 999px; font-size: 13px; background: var(--loom-site-bg-soft); color: var(--loom-site-text-muted); transition: background 150ms, color 150ms; }
+  .news-filters input:checked + span { background: var(--loom-site-accent); color: #fff; font-weight: 600; }
+  .news-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+  .news-item { background: var(--loom-site-bg-surface, var(--loom-site-bg-soft)); border-radius: 12px; border: 1px solid var(--loom-site-border); padding: 24px; display: flex; flex-direction: column; }
+  .news-cover__image { width: 100%; border-radius: 8px; margin-bottom: 16px; aspect-ratio: 16 / 9; object-fit: cover; }
+  .news-tag { font-size: 12px; color: var(--loom-site-accent); font-weight: 600; text-transform: uppercase; margin-bottom: 8px; display: inline-block; }
+  .news-item h2 { margin: 0 0 10px; font-size: 20px; line-height: 1.35; }
+  .news-item p { margin: 0 0 16px; font-size: 14px; color: var(--loom-site-text-muted); line-height: 1.6; }
+  .news-item footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--loom-site-text-subtle); }
+  @media (max-width: 768px) {
+    .news { width: calc(100% - 32px); padding-top: 84px; }
+  }
+</style>

@@ -5,54 +5,75 @@ import SiteFooter from '../components/SiteFooter.astro';
 import NomSticker from '../components/NomSticker.astro';
 import { ArrowUpRight } from '@lucide/astro';
 
+import { type SiteLocale, getLocaleFromPath, getLocalizedPath } from '../lib/i18n';
+
 interface Props {
   frontmatter: {
     title: string;
     description?: string;
   };
   headings?: Array<{ depth: number; slug: string; text: string }>;
+  locale?: SiteLocale;
 }
 
-const { frontmatter, headings = [] } = Astro.props;
+const { frontmatter, headings = [], locale } = Astro.props;
 const path = Astro.url.pathname;
-const groups = [
+const currentLocale = locale ?? getLocaleFromPath(path);
+
+const navLabels = {
+  'zh-CN': { start: '开始', core: '核心概念', ext: '体系与扩展', arch: '开发者架构地图 ↗', status: '公开文档正在建立', companion: '故事背后的说明，\n都在这里。', breadcrumbRoot: '文档', next: '继续向下阅读', end: '已到达公开文档末尾', retry: '重新加载' },
+  'en': { start: 'Getting Started', core: 'Core Concepts', ext: 'System & Extensions', arch: 'Architecture Map ↗', status: 'Public Docs Under Construction', companion: 'The mechanics behind\nthe story are here.', breadcrumbRoot: 'Docs', next: 'Continue reading', end: 'Reached end of public docs', retry: 'Reload' },
+  'ja': { start: 'はじめに', core: 'コアコンセプト', ext: '体系と拡張', arch: 'アーキテクチャマップ ↗', status: '公開ドキュメント整備中', companion: '物語を支える仕組みが、\nここにあります。', breadcrumbRoot: 'ドキュメント', next: '下へスクロールして続きを読む', end: '公開ドキュメントの末尾です', retry: '再読み込み' },
+  'ko': { start: '시작하기', core: '핵심 개념', ext: '체계 및 확장', arch: '아키텍처 맵 ↗', status: '공개 문서 구축 중', companion: '이야기 뒤편의 설명이\n모두 여기에 있습니다.', breadcrumbRoot: '문서', next: '계속 아래로 읽기', end: '공개 문서의 끝에 도달했습니다', retry: '다시 로드' },
+}[currentLocale];
+
+const rawGroups = [
   {
-    label: '开始',
+    labelKey: 'start' as const,
     links: [
-      { href: '/docs', label: '文档概览' },
-      { href: '/docs/getting-started', label: '快速开始' },
+      { href: '/docs', label: currentLocale === 'ja' ? 'ドキュメント概要' : currentLocale === 'ko' ? '문서 개요' : currentLocale === 'en' ? 'Docs Overview' : '文档概览' },
+      { href: '/docs/getting-started', label: currentLocale === 'ja' ? 'クイックスタート' : currentLocale === 'ko' ? '빠른 시작' : currentLocale === 'en' ? 'Quick Start' : '快速开始' },
     ],
   },
   {
-    label: '核心概念',
+    labelKey: 'core' as const,
     links: [
       { href: '/docs/concepts/narrative-timeline', label: 'Narrative Timeline' },
       { href: '/docs/concepts/agent-sessions', label: 'Agent Session' },
       { href: '/docs/concepts/prompt-build', label: 'Prompt Build' },
-      { href: '/docs/concepts/composition-skeleton', label: '设定层与装配骨架' },
-      { href: '/docs/concepts/local-first', label: '本地数据边界' },
+      { href: '/docs/concepts/composition-skeleton', label: currentLocale === 'ja' ? '設定層とアセンブリ骨格' : currentLocale === 'ko' ? '설정 계층 및 조립 골격' : currentLocale === 'en' ? 'Setting Layer & Skeleton' : '设定层与装配骨架' },
+      { href: '/docs/concepts/local-first', label: currentLocale === 'ja' ? 'ローカルデータ境界' : currentLocale === 'ko' ? '로컬 데이터 경계' : currentLocale === 'en' ? 'Local Data Boundary' : '本地数据边界' },
     ],
   },
   {
-    label: '体系与扩展',
+    labelKey: 'ext' as const,
     links: [
-      { href: '/docs/concepts/extension-system', label: '插件与扩展体系' },
-      { href: '/docs/concepts/trace-and-audit', label: '可解释性与 Trace' },
+      { href: '/docs/concepts/extension-system', label: currentLocale === 'ja' ? 'プラグインと拡張システム' : currentLocale === 'ko' ? '플러그인 및 확장 체계' : currentLocale === 'en' ? 'Extensions & Plugins' : '插件与扩展体系' },
+      { href: '/docs/concepts/trace-and-audit', label: currentLocale === 'ja' ? '説明可能性と Trace' : currentLocale === 'ko' ? '설명 가능성과 Trace' : currentLocale === 'en' ? 'Explainability & Trace' : '可解释性与 Trace' },
     ],
   },
 ];
+
+const groups = rawGroups.map((g) => ({
+  label: navLabels[g.labelKey],
+  links: g.links.map((l) => ({
+    href: getLocalizedPath(l.href, currentLocale),
+    label: l.label,
+  })),
+}));
+
 const documents = groups.flatMap((group) => group.links.map((link) => ({ ...link, group: group.label })));
 const currentDocumentIndex = documents.findIndex((document) => document.href === path);
 const pageHeadings = headings.filter((heading) => heading.depth === 2);
 ---
 
-<BaseLayout title={frontmatter.title} description={frontmatter.description ?? 'Loom Studio 公开文档'}>
-  <SiteHeader />
+<BaseLayout locale={currentLocale} title={frontmatter.title} description={frontmatter.description ?? 'Loom Studio'}>
+  <SiteHeader locale={currentLocale} />
   <div class="docs-shell">
     <aside class="docs-nav" aria-label="文档导航">
       <div class="docs-nav__inner">
         <p class="docs-nav__title">DOCUMENTATION</p>
-        <a class="docs-nav__link" href="/docs/architecture">开发者架构地图 ↗</a>
+        <a class="docs-nav__link" href={getLocalizedPath('/docs/architecture', currentLocale)}>{navLabels.arch}</a>
         <div class="docs-nav__groups">
           {groups.map((group) => {
             const active = group.links.some((link) => path === link.href);
@@ -77,17 +98,17 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
         </div>
         <div class="docs-nav__status">
           <i></i>
-          <div><b>Foundation v0.1</b><span>公开文档正在建立</span></div>
+          <div><b>Foundation v0.1</b><span>{navLabels.status}</span></div>
         </div>
         <div class="docs-nav__companion">
           <NomSticker src="/images/nom/stickers/fullbody/reading.png" size="small" />
-          <span>故事背后的说明，<br />都在这里。</span>
+          <span style="white-space: pre-line;">{navLabels.companion}</span>
         </div>
       </div>
     </aside>
 
     <main class="docs-main" data-docs-reader data-documents={JSON.stringify(documents)}>
-      <div class="docs-breadcrumb"><a href="/docs">文档</a><span>/</span><b data-doc-breadcrumb>{frontmatter.title}</b></div>
+      <div class="docs-breadcrumb"><a href={getLocalizedPath('/docs', currentLocale)}>{navLabels.breadcrumbRoot}</a><span>/</span><b data-doc-breadcrumb>{frontmatter.title}</b></div>
       <article class="docs-article" data-doc-url={path} data-doc-title={frontmatter.title}>
         <header>
           <p class="eyebrow">Loom Studio Manual</p>
@@ -104,8 +125,8 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
         aria-live="polite"
       >
         <i aria-hidden="true"></i>
-        <span>{currentDocumentIndex < documents.length - 1 ? '继续向下阅读' : '已到达公开文档末尾'}</span>
-        <button type="button" data-docs-stream-retry hidden>重新加载</button>
+        <span>{currentDocumentIndex < documents.length - 1 ? navLabels.next : navLabels.end}</span>
+        <button type="button" data-docs-stream-retry hidden>{navLabels.retry}</button>
       </div>
     </main>
 

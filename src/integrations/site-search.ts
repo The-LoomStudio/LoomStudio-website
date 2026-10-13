@@ -30,7 +30,7 @@ export default function siteSearch(): AstroIntegration {
       });
     },
     'astro:build:done': async ({ dir, logger }) => {
-      const { index, errors } = await createIndex({ forceLanguage: 'zh', excludeSelectors: ['header.site-controls', '.route-menu', '.site-search', 'footer', 'script', 'style', '[data-pagefind-ignore]'] });
+      const { index, errors } = await createIndex({ excludeSelectors: ['header.site-controls', '.route-menu', '.site-search', 'footer', 'script', 'style', '[data-pagefind-ignore]'] });
       assertIndexed({ errors });
       if (!index) throw new Error('Search index was not created');
       try {

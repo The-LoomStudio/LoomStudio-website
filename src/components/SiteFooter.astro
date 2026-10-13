@@ -1,30 +1,34 @@
 ---
+import { type SiteLocale, getLocaleFromPath, getLocalizedPath, t } from '../lib/i18n';
+
 interface Props {
   easterEgg?: boolean;
+  locale?: SiteLocale;
 }
 
-const { easterEgg = false } = Astro.props;
+const { easterEgg = false, locale: propLocale } = Astro.props;
+const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
 ---
 
 <footer class:list={['footer', { 'footer--sky': easterEgg, 'footer--solid': !easterEgg }]}>
   <div class="container footer__inner">
     <div>
       {easterEgg ? (
-        <button class="footer__mark" type="button" aria-label="触发樱花彩蛋" aria-pressed="false" data-sakura-trigger>
+        <button class="footer__mark" type="button" aria-label={t(currentLocale, 'footer.easterEgg')} aria-pressed="false" data-sakura-trigger>
           <img src="/brand/loom-logo.png" alt="" width="34" height="34" />
         </button>
       ) : (
         <img src="/brand/loom-logo.png" alt="" width="34" height="34" />
       )}
-      <p>为深度长篇 AI 互动叙事而生。</p>
+      <p>{t(currentLocale, 'footer.slogan')}</p>
     </div>
     <div class="footer__links">
-      <a href="/showcase">作品展厅</a>
-      <a href="/marketplace">Marketplace</a>
-      <a href="/docs">文档</a>
-      <a href="/download">下载</a>
-      <a href="/news">News</a>
-      <a href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">源码</a>
+      <a href={getLocalizedPath('/showcase', currentLocale)}>{t(currentLocale, 'footer.showcase')}</a>
+      <a href={getLocalizedPath('/marketplace', currentLocale)}>{t(currentLocale, 'footer.marketplace')}</a>
+      <a href={getLocalizedPath('/docs', currentLocale)}>{t(currentLocale, 'footer.docs')}</a>
+      <a href={getLocalizedPath('/download', currentLocale)}>{t(currentLocale, 'footer.download')}</a>
+      <a href={getLocalizedPath('/news', currentLocale)}>{t(currentLocale, 'footer.news')}</a>
+      <a href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">{t(currentLocale, 'footer.source')}</a>
       <span>Cloudflare deployment pending</span>
     </div>
   </div>

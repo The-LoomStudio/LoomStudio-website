@@ -25,30 +25,14 @@ const layers = {
 };
 const brand = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
 
-const features = [
-  {
-    index: '01',
-    title: '翻开正文，接着上回读',
-    sticker: '/images/nom/stickers/fullbody/reading.png',
-    paragraphs: ['剧情正文和 Agent 的工作记录分开呈现，阅读时只看故事，需要时再展开工作过程。', '故事读到一半，不会突然夹进一长串工具调用。'],
-  },
-  {
-    index: '02',
-    title: 'Agent 忙了些什么',
-    sticker: '/images/nom/stickers/fullbody/working.png',
-    paragraphs: ['整理线索、调用工具、生成回复，Agent 的工作记录留在独立面板里。', '出了岔子，也有记录可查。'],
-  },
-  {
-    index: '03',
-    title: '这一轮，模型看到了什么',
-    sticker: '/images/nom/stickers/bust/thinking.png',
-    paragraphs: ['哪些设定进入了上下文、提示词怎样排列，可以展开构建记录查看。', '模型漏了设定？先从这里找找原因。'],
-  },
-];
+import { getLocaleFromPath, getHomeFeatures } from '../lib/i18n';
+
+const currentLocale = getLocaleFromPath(Astro.url.pathname);
+const features = getHomeFeatures(currentLocale);
 ---
 
-<BaseLayout title="Loom Studio" description="Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台，将角色、世界设定、故事分支和 Agent 工具放在一起。">
-  <SiteHeader />
+<BaseLayout title="Loom Studio" description="Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台，将角色、世界设定、故事分支和 Agent 工具放在一起。" locale={currentLocale}>
+  <SiteHeader locale={currentLocale} />
 
   <main>
     <section class="hero" id="top">
@@ -154,7 +138,7 @@ const features = [
     </section>
   </main>
 
-  <SiteFooter easterEgg />
+  <SiteFooter easterEgg locale={currentLocale} />
 
 
   <script>

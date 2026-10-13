@@ -1,0 +1,16 @@
+---
+import IndexPage from '../index.astro';
+import type { SiteLocale } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'ko' } },
+  ];
+}
+
+const { lang } = Astro.params;
+---
+
+<IndexPage />

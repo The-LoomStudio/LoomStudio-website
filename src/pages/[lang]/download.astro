@@ -1,0 +1,98 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import NomSticker from '../../components/NomSticker.astro';
+import { ArrowUpRight, Terminal } from '@lucide/astro';
+import { type SiteLocale, pageMeta } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'ko' } },
+  ];
+}
+
+const { lang } = Astro.params;
+const currentLocale = lang as SiteLocale;
+const meta = pageMeta.download[currentLocale] ?? pageMeta.download['en'];
+const commands = `git clone https://github.com/The-LoomStudio/LoomStudio.git
+cd LoomStudio
+npm start`;
+
+const copyLabel = currentLocale === 'ja' ? 'コマンドをコピー' : currentLocale === 'ko' ? '명령어 복사' : 'Copy command';
+const runDirLabel = currentLocale === 'ja' ? 'プログラムを保存するディレクトリで実行' : currentLocale === 'ko' ? '프로그램을 저장할 디렉터리에서 실행' : 'Run in your target directory';
+const crossPlatformLabel = currentLocale === 'ja' ? 'Windows、macOS、Linux のすべてでこのコマンドを使用できます。' : currentLocale === 'ko' ? 'Windows, macOS 및 Linux 모두에서 이 명령어를 사용할 수 있습니다.' : 'Works across Windows, macOS, and Linux.';
+const tipText = currentLocale === 'ja' ? '初回起動には少し時間がかかります。ターミナルを開いたままお待ちください。' : currentLocale === 'ko' ? '첫 실행에는 시간이 조금 걸립니다. 터미널 창을 닫지 마세요.' : 'Initial startup takes a few moments. Keep your terminal open.';
+---
+
+<PortalLayout
+  title={meta.title}
+  description={meta.description}
+  eyebrow={meta.eyebrow}
+  marker={meta.marker}
+  headline={meta.headline}
+  intro={meta.intro}
+  locale={currentLocale}
+>
+  <section class="portal-section portal-section--soft">
+    <div class="container download-start">
+      <div class="download-start__intro">
+        <span class="portal-tag">Git / Source</span>
+        <h2>{meta.headline}</h2>
+        <p><strong>Git</strong> & <strong>Node.js 22.18.0+</strong></p>
+        <div class="download-links">
+          <a href="https://git-scm.com/downloads" target="_blank" rel="noreferrer">Git <ArrowUpRight size={15} /></a>
+          <a href="https://nodejs.org/en/download" target="_blank" rel="noreferrer">Node.js <ArrowUpRight size={15} /></a>
+        </div>
+      </div>
+      <div class="download-terminal">
+        <div class="download-command">
+          <div class="download-command__heading"><span><Terminal size={18} />{runDirLabel}</span><button type="button" data-copy-install>{copyLabel}</button></div>
+          <pre><code data-install-commands>{commands}</code></pre>
+          <p>{crossPlatformLabel}</p>
+          <span class="download-copy-status" role="status" aria-live="polite" data-copy-status></span>
+        </div>
+        <div class="download-tip"><NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message={tipText} /></div>
+      </div>
+    </div>
+  </section>
+  <section class="portal-section">
+    <div class="container">
+      <div class="portal-section__heading"><div><small>START / PLAY</small><h2>Next Steps</h2></div></div>
+      <div class="download-steps">
+        <article>
+          <span>01 / Workbench</span>
+          <h3>127.0.0.1:18010</h3>
+          <p><a href="http://127.0.0.1:18010" target="_blank" rel="noreferrer">http://127.0.0.1:18010</a></p>
+        </article>
+        <article>
+          <span>02 / Models</span>
+          <h3>API & Credentials</h3>
+          <p>Configure model providers, keys, and assign them to your presets.</p>
+        </article>
+        <article>
+          <span>03 / Re-launch</span>
+          <h3>npm start</h3>
+          <p>Run <code>npm start</code> in the LoomStudio folder anytime you play.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</PortalLayout>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-copy-install]');
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  const code = document.querySelector<HTMLElement>('[data-install-commands]');
+  if (button && code) {
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent?.trim() ?? '');
+        if (status) status.textContent = 'Copied';
+        setTimeout(() => { if (status) status.textContent = ''; }, 2000);
+      } catch {
+        if (status) status.textContent = 'Failed to copy';
+      }
+    });
+  }
+</script>

@@ -1,30 +1,38 @@
 ---
-import { ArrowDownRight, ArrowUpLeft, ArrowUpRight, Moon, Sun } from '@lucide/astro';
-import { routes } from '../lib/site-routes';
+import { ArrowDownRight, ArrowUpLeft, ArrowUpRight, Languages, Moon, Sun } from '@lucide/astro';
+import { getRoutes } from '../lib/site-routes';
+import { type SiteLocale, getLocaleFromPath, getLocalizedPath, localeLabels, supportedLocales, stripLocalePrefix, t } from '../lib/i18n';
 import SiteSearch from './SiteSearch.astro';
 import GitHubStars from './GitHubStars.astro';
 import { siteImage } from '../lib/site-images';
 
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+interface Props {
+  locale?: SiteLocale;
+}
 
-const activeRoute = path === '/docs/architecture'
+const { locale: propLocale } = Astro.props;
+const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
+const routes = getRoutes(currentLocale);
+const rawPath = stripLocalePrefix(Astro.url.pathname);
+
+const activeRoute = rawPath === '/docs/architecture'
   ? 'architecture'
-  : path.startsWith('/docs') ? 'docs'
-  : path.startsWith('/marketplace/') ? 'marketplace'
-  : routes.find((route) => route.href === path)?.id ?? 'home';
-const activeRouteIndex = routes.findIndex((route) => route.id === activeRoute);
+  : rawPath.startsWith('/docs') ? 'docs'
+  : rawPath.startsWith('/marketplace/') ? 'marketplace'
+  : routes.find((route) => route.href === Astro.url.pathname || route.id === (rawPath === '/' ? 'home' : rawPath.slice(1)))?.id ?? 'home';
+const activeRouteIndex = Math.max(0, routes.findIndex((route) => route.id === activeRoute));
 const images = await Promise.all(routes.map((route) => siteImage(`/images/nom/${route.image}`, [480, 960])));
 const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/${route.detail}`, [320, 640])));
 ---
 
 <header class:list={['site-controls', { 'site-controls--compact': activeRoute === 'docs' }]}>
-  <button class="site-icon menu-trigger" type="button" aria-label="打开页面导航"
-    title="打开页面导航" aria-controls="route-menu" aria-expanded="false" data-menu-trigger>
+  <button class="site-icon menu-trigger" type="button" aria-label={t(currentLocale, 'nav.menuOpen')}
+    title={t(currentLocale, 'nav.menuOpen')} aria-controls="route-menu" aria-expanded="false" data-menu-trigger>
     <i class="menu-trigger__line menu-trigger__line--top" aria-hidden="true"></i>
     <i class="menu-trigger__line menu-trigger__line--middle" aria-hidden="true"></i>
     <i class="menu-trigger__line menu-trigger__line--bottom" aria-hidden="true"></i>
   </button>
-  <nav class="site-quick-nav" aria-label="快捷导航">
+  <nav class="site-quick-nav" aria-label={t(currentLocale, 'nav.quick')}>
     {routes.map((route) => (
       <a href={route.href} aria-label={route.label}
         aria-current={route.id === activeRoute ? 'page' : undefined}>{route.short}</a>
@@ -32,9 +40,25 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   </nav>
   {activeRoute === 'home' && <GitHubStars />}
   <SiteSearch />
+  <div class="locale-dropdown" data-locale-dropdown>
+    <button class="site-icon locale-toggle" type="button" aria-label={t(currentLocale, 'nav.language')}
+      title={t(currentLocale, 'nav.language')} aria-expanded="false" data-locale-toggle>
+      <Languages size={20} stroke-width={1.6} aria-hidden="true" />
+    </button>
+    <div class="locale-menu" data-locale-menu hidden>
+      {supportedLocales.map((loc) => (
+        <a
+          href={getLocalizedPath(Astro.url.pathname, loc)}
+          class:list={['locale-menu__item', { 'locale-menu__item--active': loc === currentLocale }]}
+        >
+          {localeLabels[loc]}
+        </a>
+      ))}
+    </div>
+  </div>
   {(
-    <button class="site-icon theme-toggle" type="button" aria-label="切换至暗色模式"
-      aria-pressed="false" title="切换至暗色模式" data-theme-toggle>
+    <button class="site-icon theme-toggle" type="button" aria-label={t(currentLocale, 'nav.themeDark')}
+      aria-pressed="false" title={t(currentLocale, 'nav.themeDark')} data-theme-toggle>
       <Sun class="theme-toggle__sun" size={22} stroke-width={1.6} aria-hidden="true" />
       <Moon class="theme-toggle__moon" size={22} stroke-width={1.6} aria-hidden="true" />
     </button>
@@ -50,14 +74,14 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   </button>
   <div class="route-menu__surface">
   <div class="route-menu__header">
-    <a class="route-menu__brand" href="/" data-menu-link>
+    <a class="route-menu__brand" href={getLocalizedPath('/', currentLocale)} data-menu-link>
       <img src="/brand/loom-logo.png" alt="" width="28" height="28" />
       <span>Loom Studio</span>
     </a>
-    <span class="route-menu__edition" aria-hidden="true">世界与故事 / INDEX</span>
+    <span class="route-menu__edition" aria-hidden="true">{t(currentLocale, 'nav.indexEdition')}</span>
   </div>
 
-  <div class="route-menu__scroll" data-menu-scroll tabindex="0" aria-label="页面索引">
+  <div class="route-menu__scroll" data-menu-scroll tabindex="0" aria-label={t(currentLocale, 'nav.indexScroll')}>
     <div class="route-menu__track">
       <nav class="route-menu__stage" aria-label="页面入口">
         {routes.map((route, index) => (
@@ -66,7 +90,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
             data-route-index={index} data-composition={route.id} data-menu-link draggable="false" style={`--offset:${index - activeRouteIndex}`}>
             <span class="route-menu__meta">
               <span>{String(index + 1).padStart(2, '0')} / {route.id.toUpperCase()}</span>
-              {route.id === activeRoute && <span>当前页面</span>}
+              {route.id === activeRoute && <span>CURRENT</span>}
             </span>
             <span class="route-menu__image route-menu__image--main">
               <img src={images[index].src} srcset={images[index].srcSet}
@@ -87,12 +111,23 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   </div>
 
   <div class="route-menu__footer">
+    <div class="route-menu__locales">
+      {supportedLocales.map((loc) => (
+        <a
+          href={getLocalizedPath(Astro.url.pathname, loc)}
+          class:list={['route-menu__locale-item', { 'route-menu__locale-item--active': loc === currentLocale }]}
+          data-menu-link
+        >
+          {localeLabels[loc]}
+        </a>
+      ))}
+    </div>
     <span class="route-menu__position"><b data-menu-counter>{String(activeRouteIndex + 1).padStart(2, '0')}</b> / {String(routes.length).padStart(2, '0')}</span>
     <div class="route-menu__steps">
-      <button class="site-icon" type="button" aria-label="上一项" title="上一项" data-menu-previous>
+      <button class="site-icon" type="button" aria-label={t(currentLocale, 'nav.previous')} title={t(currentLocale, 'nav.previous')} data-menu-previous>
         <ArrowUpLeft size={22} stroke-width={1.5} aria-hidden="true" />
       </button>
-      <button class="site-icon" type="button" aria-label="下一项" title="下一项" data-menu-next>
+      <button class="site-icon" type="button" aria-label={t(currentLocale, 'nav.next')} title={t(currentLocale, 'nav.next')} data-menu-next>
         <ArrowDownRight size={22} stroke-width={1.5} aria-hidden="true" />
       </button>
     </div>
@@ -309,6 +344,23 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
       frame = 0;
     } else requestUpdate();
   });
+  const localeToggle = document.querySelector<HTMLButtonElement>('[data-locale-toggle]');
+  const localeMenu = document.querySelector<HTMLElement>('[data-locale-menu]');
+  if (localeToggle && localeMenu) {
+    localeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = !localeMenu.hidden;
+      localeMenu.hidden = open;
+      localeToggle.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', (e) => {
+      if (!localeMenu.hidden && !localeMenu.contains(e.target as Node)) {
+        localeMenu.hidden = true;
+        localeToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   reduceMotion.addEventListener('change', () => {
     if (reduceMotion.matches && menu.hasAttribute('data-closing')) menu.close();
     else requestUpdate();
@@ -316,6 +368,79 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
 </script>
 
 <style is:global>
+  .locale-dropdown {
+    position: absolute;
+    top: 10px;
+    right: 58px;
+    pointer-events: auto;
+  }
+  .locale-toggle {
+    position: relative;
+    color: var(--loom-site-text);
+  }
+  .locale-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 6px;
+    padding: 6px;
+    border-radius: 8px;
+    background: var(--loom-site-bg-surface, #ffffff);
+    border: 1px solid var(--loom-site-border, rgba(0,0,0,0.1));
+    box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 100px;
+    z-index: 450;
+  }
+  html[data-theme='dark'] .locale-menu {
+    background: #1a1e22;
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .locale-menu__item {
+    display: block;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--loom-site-text);
+    text-decoration: none;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-align: left;
+    transition: background 150ms ease;
+  }
+  .locale-menu__item:hover {
+    background: var(--loom-site-accent-soft);
+    color: var(--loom-site-accent-strong);
+  }
+  .locale-menu__item--active {
+    font-weight: 600;
+    color: var(--loom-site-accent);
+  }
+  .route-menu__locales {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: auto;
+  }
+  .route-menu__locale-item {
+    font-size: 12px;
+    color: var(--loom-site-text-muted);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+  }
+  .route-menu__locale-item:hover {
+    color: var(--loom-site-text);
+  }
+  .route-menu__locale-item--active {
+    color: var(--loom-site-text);
+    border-color: var(--loom-site-border);
+    font-weight: 600;
+  }
+
   .site-controls {
     position: fixed;
     z-index: 400;

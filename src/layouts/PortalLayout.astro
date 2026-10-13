@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import type { SiteLocale } from '../lib/i18n';
 
 interface Props {
   title: string;
@@ -10,13 +11,14 @@ interface Props {
   headline: string;
   intro: string;
   marker: string;
+  locale?: SiteLocale;
 }
 
-const { title, description, eyebrow, headline, intro, marker } = Astro.props;
+const { title, description, eyebrow, headline, intro, marker, locale } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description}>
-  <SiteHeader />
+<BaseLayout title={title} description={description} locale={locale}>
+  <SiteHeader locale={locale} />
   <main class="portal-page">
     <section class="portal-hero">
       <div class="container portal-hero__inner">
@@ -34,7 +36,7 @@ const { title, description, eyebrow, headline, intro, marker } = Astro.props;
       <slot />
     </div>
   </main>
-  <SiteFooter />
+  <SiteFooter locale={locale} />
 </BaseLayout>
 
 <style is:global>

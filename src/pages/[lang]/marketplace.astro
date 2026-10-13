@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import ExtensionArtwork from '../../components/extensions/ExtensionArtwork.astro';
+import { ArrowUpRight, Puzzle } from '@lucide/astro';
+import { type SiteLocale, pageMeta } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'ko' } },
+  ];
+}
+
+const { lang } = Astro.params;
+const currentLocale = lang as SiteLocale;
+const meta = pageMeta.marketplace[currentLocale] ?? pageMeta.marketplace['en'];
+
+interface ExtensionItem {
+  kind: 'bridge' | 'world';
+  name: string;
+  label: string;
+  headline: string;
+  copy: string;
+  tags: string[];
+  href: string;
+}
+
+const extensionsData: Record<string, ExtensionItem[]> = {
+  'en': [
+    {
+      kind: 'bridge' as const, name: 'ST Data Bridge', label: 'Bring your characters along',
+      headline: 'Familiar characters, the next step of your story.',
+      copy: 'Import SillyTavern character cards, lorebooks, presets, and chats into Loom Studio.',
+      tags: ['Card Migration', 'Lorebooks & Presets', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
+    },
+    {
+      kind: 'world' as const, name: 'The World', label: 'Pack a whole little world',
+      headline: 'Every story has its own sky and weather.',
+      copy: 'Track time, weather, locations, and scenes, letting AI participate in world maintenance.',
+      tags: ['World State', 'Locations & Scenes', 'Weather & Mood'], href: '/marketplace/the-world',
+    },
+  ],
+  'ja': [
+    {
+      kind: 'bridge' as const, name: 'ST Data Bridge', label: 'キャラクターと共に、次の旅へ',
+      headline: 'おなじみのキャラクターと、物語の次のステージへ。',
+      copy: 'SillyTavern のキャラクターカード、世界設定、プリセット、チャットログを Loom Studio へ引き継ぎます。',
+      tags: ['カード移行', '世界設定とプリセット', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
+    },
+    {
+      kind: 'world' as const, name: 'The World', label: '小さな世界を丸ごと収める',
+      headline: '物語ごとに、それぞれ固有の空模様がある。',
+      copy: '時間、天気、場所、シーンを記録し、AI が世界観の維持に参加します。',
+      tags: ['世界の状態', '場所とシーン', '天候と空気感'], href: '/marketplace/the-world',
+    },
+  ],
+  'ko': [
+    {
+      kind: 'bridge' as const, name: 'ST Data Bridge', label: '캐릭터와 함께 새로운 여정으로',
+      headline: '익숙한 캐릭터, 이야기의 다음 정거장.',
+      copy: 'SillyTavern의 캐릭터 카드, 로어북, 프리셋 및 대화 기록을 Loom Studio로 가져옵니다.',
+      tags: ['카드 마이그레이션', '로어북 및 프리셋', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
+    },
+    {
+      kind: 'world' as const, name: 'The World', label: '작은 세계 전체를 담다',
+      headline: '모든 이야기에는 그 이야기만의 하늘이 있습니다.',
+      copy: '시간, 날씨, 장소, 장면을 기록하여 AI가 세계관 유지에 함께 참여합니다.',
+      tags: ['세계관 상태', '장소 및 장면', '날씨 분위기'], href: '/marketplace/the-world',
+    },
+  ],
+};
+
+const extensions = extensionsData[currentLocale] ?? extensionsData['en'];
+const subHeading = currentLocale === 'ja' ? 'おなじみの仲間を連れてくる、あるいは物語に世界そのものを添える。' : currentLocale === 'ko' ? '익숙한 캐릭터를 데려오거나, 이야기에 세계 전체를 더해보세요.' : 'Bring familiar characters along, or add a whole world to your story.';
+const stickerText = currentLocale === 'ja' ? 'スタジオに新しいひらめきを' : currentLocale === 'ko' ? '작업대를 위한 새로운 영감' : 'Inspiration for your workbench';
+const officialTag = currentLocale === 'ja' ? 'Loom Studio 公式拡張' : currentLocale === 'ko' ? 'Loom Studio 공식 확장' : 'Official Extension';
+---
+
+<BaseLayout title={meta.title} description={meta.description} locale={currentLocale}>
+  <SiteHeader locale={currentLocale} />
+  <main class="marketplace">
+    <header class="market-heading">
+      <span class="market-sticker"><Puzzle size={17} aria-hidden="true" />{stickerText}</span>
+      <h1>Extensions <span>/ Marketplace</span></h1>
+      <p>{subHeading}</p>
+    </header>
+    <section class="extension-board" aria-label="Official Extensions">
+      {extensions.map((extension) => (
+        <article class:list={['extension-tile', `extension-tile--${extension.kind}`]}>
+          <a class="extension-tile__art" href={extension.href} aria-label={`About ${extension.name}`}><ExtensionArtwork kind={extension.kind} compact /></a>
+          <div class="extension-tile__copy">
+            <span class="extension-tile__tag">{extension.label}</span>
+            <span class="extension-tile__official">{officialTag}</span>
+            <h2><a href={extension.href}>{extension.name}</a></h2>
+            <h3>{extension.headline}</h3>
+            <p>{extension.copy}</p>
+            <ul>{extension.tags.map((tag) => <li>{tag}</li>)}</ul>
+            <a class="extension-tile__link" href={extension.href}>{extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
+          </div>
+        </article>
+      ))}
+    </section>
+  </main>
+  <SiteFooter locale={currentLocale} />
+</BaseLayout>
+
+<style>
+  .marketplace { width: min(1060px, calc(100% - 160px)); margin-inline: auto; padding: 118px 0 76px; font-family: var(--loom-site-note-body); }
+  .market-heading { text-align: center; margin-bottom: 52px; }
+  .market-sticker { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--loom-site-accent); margin-bottom: 12px; }
+  .market-heading h1 { font-size: clamp(28px, 4vw, 42px); margin: 0 0 10px; }
+  .market-heading h1 span { font-size: 0.6em; opacity: 0.7; font-weight: normal; }
+  .market-heading p { color: var(--loom-site-text-muted); font-size: 15px; margin: 0; }
+  .extension-board { display: grid; gap: 28px; }
+  .extension-tile { display: grid; grid-template-columns: 240px 1fr; gap: 32px; background: var(--loom-site-bg-surface, var(--loom-site-bg-soft)); border-radius: 12px; padding: 24px; border: 1px solid var(--loom-site-border); }
+  .extension-tile__art { display: flex; align-items: center; justify-content: center; }
+  .extension-tile__copy { display: flex; flex-direction: column; gap: 8px; }
+  .extension-tile__tag { font-size: 12px; color: var(--loom-site-accent); font-weight: 600; }
+  .extension-tile__official { font-size: 12px; color: var(--loom-site-text-subtle); }
+  .extension-tile__copy h2 { margin: 0; font-size: 22px; }
+  .extension-tile__copy h2 a { color: inherit; text-decoration: none; }
+  .extension-tile__copy h3 { margin: 0; font-size: 15px; color: var(--loom-site-text-muted); font-weight: 500; }
+  .extension-tile__copy p { margin: 6px 0; font-size: 14px; line-height: 1.6; color: var(--loom-site-text); }
+  .extension-tile__copy ul { display: flex; gap: 8px; list-style: none; padding: 0; margin: 8px 0; }
+  .extension-tile__copy ul li { font-size: 12px; padding: 3px 8px; border-radius: 4px; background: var(--loom-site-accent-soft); color: var(--loom-site-accent); }
+  .extension-tile__link { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; font-size: 14px; color: var(--loom-site-accent); text-decoration: none; font-weight: 600; }
+  @media (max-width: 768px) {
+    .extension-tile { grid-template-columns: 1fr; }
+    .marketplace { width: calc(100% - 32px); padding-top: 84px; }
+  }
+</style>

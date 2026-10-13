@@ -1,0 +1,94 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { BookOpen, Compass, GitBranch } from '@lucide/astro';
+import { type SiteLocale, pageMeta } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'ko' } },
+  ];
+}
+
+const { lang } = Astro.params;
+const currentLocale = lang as SiteLocale;
+const meta = pageMeta.showcase[currentLocale] ?? pageMeta.showcase['en'];
+
+interface WorldCard {
+  chapter: string;
+  title: string;
+  copy: string;
+  meta: string;
+}
+
+const worldsData: Record<string, WorldCard[]> = {
+  'en': [
+    { chapter: 'WORLD / 01', title: 'The Lost Route', copy: 'A grand voyage setting sail from the edge of sea mist. Demonstrates how timelines and character relationships unfold.', meta: 'Epic Adventure · Sample Work' },
+    { chapter: 'WORLD / 02', title: 'Silver Court Protocol', copy: 'A narrative experiment where technological order entwines with personal conviction.', meta: 'Sci-Fi Fantasy · Sample Work' },
+    { chapter: 'WORLD / 03', title: 'After the Tide', copy: 'Beginning with an irreversible choice, showing how branch narrative flows naturally.', meta: 'Timeline Narrative · Sample Work' },
+  ],
+  'ja': [
+    { chapter: 'WORLD / 01', title: '失われた航路', copy: '海霧の果てから始まる長大な航海。世界線、章の進行、登場人物の関係性がどのように紡がれるかを示すサンプル。', meta: '長編冒険譚 · サンプル作品' },
+    { chapter: 'WORLD / 02', title: '銀庭プロトコル', copy: '技術的な秩序と個人の選択が複雑に絡み合う物語実験。', meta: 'サイエンスファンタジー · サンプル作品' },
+    { chapter: 'WORLD / 03', title: '潮汐の果てに', copy: '取り返しのつかない一度の選択から始まる、自然な分岐叙述のデモンストレーション。', meta: '世界線叙事 · サンプル作品' },
+  ],
+  'ko': [
+    { chapter: 'WORLD / 01', title: '잃어버린 항로', copy: '바다 안개의 경계에서 시작되는 장대한 항해. 세계선과 인물 관계가 어떻게 펼쳐지는지 보여주는 예시입니다.', meta: '장편 모험 · 샘플 작품' },
+    { chapter: 'WORLD / 02', title: '은정 프로토콜', copy: '기술적 질서와 인물의 선택이 얽혀 있는 서사 실험.', meta: 'SF 판타지 · 샘플 작품' },
+    { chapter: 'WORLD / 03', title: '조석의 뒤편', copy: '되돌릴 수 없는 한 번의 선택에서 출발하여 자연스러운 분기 서사를 보여줍니다.', meta: '세계선 서사 · 샘플 작품' },
+  ],
+};
+
+const worlds = worldsData[currentLocale] ?? worldsData['en'];
+const featuredTitle = currentLocale === 'ja' ? '物語は単なるセッションではなく\n足跡を残す旅路である' : currentLocale === 'ko' ? '이야기는 단순한 대화가 아닌\n경로를 남기는 여정입니다' : 'A story is not a single session,\nbut a journey that carves a path';
+const galleryTitle = currentLocale === 'ja' ? 'コンセプト作品ウォール' : currentLocale === 'ko' ? '콘셉트 작품 월' : 'Concept Showcase Wall';
+---
+
+<PortalLayout
+  title={meta.title}
+  description={meta.description}
+  eyebrow={meta.eyebrow}
+  marker={meta.marker}
+  headline={meta.headline}
+  intro={meta.intro}
+  locale={currentLocale}
+>
+  <section class="portal-section portal-section--soft">
+    <div class="container showcase-feature">
+      <div class="showcase-feature__visual" aria-hidden="true">
+        <span>WORLDLINE</span>
+        <b>00</b>
+        <i></i>
+      </div>
+      <div class="showcase-feature__copy">
+        <span class="portal-tag">FEATURED CONCEPT</span>
+        <p class="eyebrow">A journey beyond the transcript</p>
+        <h2>{featuredTitle}</h2>
+        <div class="showcase-feature__facts">
+          <span><BookOpen size={15} stroke-width={1.6} /> Chapters</span>
+          <span><GitBranch size={15} stroke-width={1.6} /> Branching</span>
+          <span><Compass size={15} stroke-width={1.6} /> World State</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="portal-section">
+    <div class="container">
+      <div class="portal-section__heading">
+        <div><small>GALLERY / WORLDS</small><h2>{galleryTitle}</h2></div>
+      </div>
+      <div class="showcase-grid">
+        {worlds.map((world) => (
+          <article class="showcase-card">
+            <span>{world.chapter}</span>
+            <h3>{world.title}</h3>
+            <p>{world.copy}</p>
+            <small>{world.meta}</small>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</PortalLayout>
