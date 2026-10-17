@@ -29,7 +29,7 @@
   position: absolute;
   top: 12px;
   left: 68px;
-  right: 68px;
+  right: 124px;
   z-index: 10;
   min-width: 0;
   display: flex;
@@ -268,7 +268,7 @@
   .am-search { margin-left: 0; }
 }
 @media (max-width: 760px) {
-  .am-toolbar, .am-app[data-sidebar-open='true'] .am-toolbar { right: 12px; }
+  .am-toolbar, .am-app[data-sidebar-open='true'] .am-toolbar { right: 124px; }
   .am-brand { gap: 7px; }
   .am-brand h1 { font-size: 13px; }
   .am-brand h1 span { font-size: 11px; margin-left: 5px; }

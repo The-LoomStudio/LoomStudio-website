@@ -1,0 +1,233 @@
+[
+  {
+    "file": "fullbody/holding-book.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "fullbody/welcome.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "fullbody/guide-left.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "fullbody/guide-right.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "fullbody/reading.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "fullbody/celebrating.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "fullbody/working.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "fullbody/resting.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/proud.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/tip.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/thinking.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/thumbs-up.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/sorry.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/surprised.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/thank-you.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/gift.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/smile.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/laugh.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/confused.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/sad.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/panic.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/determined.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/sleepy.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/wink.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/giggle.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/tsundere.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/sleeping.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/angry.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/crying.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/hopeful.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/love.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/pudding.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "bust/tea.png",
+    "width": 1254,
+    "height": 1254,
+    "alphaMin": 0,
+    "alphaMax": 255
+  }
+]
