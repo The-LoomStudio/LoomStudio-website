@@ -1,0 +1,8 @@
+.news-board { position: relative; }
+.news-motion-card { display: flow-root; min-width: 0; }
+.news-motion-card[hidden] { display: none; }
+.news-filters { position: relative; isolation: isolate; }
+.news-filters label { position: relative; z-index: 1; }
+.news-filter-highlight { position: absolute; z-index: 0; pointer-events: none; border-radius: 999px; background: var(--news-yellow, var(--loom-site-accent)); }
+.news[data-motion-filters] .news-filters input:checked + span { background: transparent; }
+.news-filter-status { padding: 36px 16px; color: var(--loom-site-text-muted); text-align: center; font-size: 14px; }

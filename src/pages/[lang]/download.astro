@@ -1,7 +1,9 @@
 ---
 import PortalLayout from '../../layouts/PortalLayout.astro';
+import DownloadConsole from '../../components/download/DownloadConsole';
+import AnimatedDetails from '../../components/motion/AnimatedDetails.astro';
 import NomSticker from '../../components/NomSticker.astro';
-import { ArrowUpRight, Terminal } from '@lucide/astro';
+import { ArrowUpRight, ChevronDown } from '@lucide/astro';
 import { type SiteLocale, pageMeta } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -15,13 +17,7 @@ export function getStaticPaths() {
 const { lang } = Astro.params;
 const currentLocale = lang as SiteLocale;
 const meta = pageMeta.download[currentLocale] ?? pageMeta.download['en'];
-const commands = `git clone https://github.com/The-LoomStudio/LoomStudio.git
-cd LoomStudio
-npm start`;
 
-const copyLabel = currentLocale === 'ja' ? 'コマンドをコピー' : currentLocale === 'ko' ? '명령어 복사' : 'Copy command';
-const runDirLabel = currentLocale === 'ja' ? 'プログラムを保存するディレクトリで実行' : currentLocale === 'ko' ? '프로그램을 저장할 디렉터리에서 실행' : 'Run in your target directory';
-const crossPlatformLabel = currentLocale === 'ja' ? 'Windows、macOS、Linux のすべてでこのコマンドを使用できます。' : currentLocale === 'ko' ? 'Windows, macOS 및 Linux 모두에서 이 명령어를 사용할 수 있습니다.' : 'Works across Windows, macOS, and Linux.';
 const tipText = currentLocale === 'ja' ? '初回起動には少し時間がかかります。ターミナルを開いたままお待ちください。' : currentLocale === 'ko' ? '첫 실행에는 시간이 조금 걸립니다. 터미널 창을 닫지 마세요.' : 'Initial startup takes a few moments. Keep your terminal open.';
 ---
 
@@ -35,8 +31,8 @@ const tipText = currentLocale === 'ja' ? '初回起動には少し時間がか�
   locale={currentLocale}
 >
   <section class="portal-section portal-section--soft">
-    <div class="container download-start">
-      <div class="download-start__intro">
+    <div class="container download-start" data-motion-group>
+      <div class="download-start__intro" data-motion-reveal>
         <span class="portal-tag">Git / Source</span>
         <h2>{meta.headline}</h2>
         <p><strong>Git</strong> & <strong>Node.js 22.18.0+</strong></p>
@@ -46,12 +42,7 @@ const tipText = currentLocale === 'ja' ? '初回起動には少し時間がか�
         </div>
       </div>
       <div class="download-terminal">
-        <div class="download-command">
-          <div class="download-command__heading"><span><Terminal size={18} />{runDirLabel}</span><button type="button" data-copy-install>{copyLabel}</button></div>
-          <pre><code data-install-commands>{commands}</code></pre>
-          <p>{crossPlatformLabel}</p>
-          <span class="download-copy-status" role="status" aria-live="polite" data-copy-status></span>
-        </div>
+        <DownloadConsole locale={currentLocale} client:load />
         <div class="download-tip"><NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message={tipText} /></div>
       </div>
     </div>
@@ -59,40 +50,35 @@ const tipText = currentLocale === 'ja' ? '初回起動には少し時間がか�
   <section class="portal-section">
     <div class="container">
       <div class="portal-section__heading"><div><small>START / PLAY</small><h2>Next Steps</h2></div></div>
-      <div class="download-steps">
-        <article>
+      <div class="download-steps" data-motion-group>
+        <article data-motion-reveal>
           <span>01 / Workbench</span>
           <h3>127.0.0.1:18010</h3>
-          <p><a href="http://127.0.0.1:18010" target="_blank" rel="noreferrer">http://127.0.0.1:18010</a></p>
+          <AnimatedDetails class="download-step"><span slot="summary">More details<ChevronDown size={14} aria-hidden="true" /></span><p><a href="http://127.0.0.1:18010" target="_blank" rel="noreferrer">http://127.0.0.1:18010</a></p></AnimatedDetails>
         </article>
-        <article>
+        <article data-motion-reveal>
           <span>02 / Models</span>
           <h3>API & Credentials</h3>
-          <p>Configure model providers, keys, and assign them to your presets.</p>
+          <AnimatedDetails class="download-step"><span slot="summary">More details<ChevronDown size={14} aria-hidden="true" /></span><p>Configure model providers, keys, and assign them to your presets.</p></AnimatedDetails>
         </article>
-        <article>
+        <article data-motion-reveal>
           <span>03 / Re-launch</span>
           <h3>npm start</h3>
-          <p>Run <code>npm start</code> in the LoomStudio folder anytime you play.</p>
+          <AnimatedDetails class="download-step"><span slot="summary">More details<ChevronDown size={14} aria-hidden="true" /></span><p>Run <code>npm start</code> in the LoomStudio folder anytime you play.</p></AnimatedDetails>
         </article>
       </div>
     </div>
   </section>
 </PortalLayout>
 
-<script>
-  const button = document.querySelector<HTMLButtonElement>('[data-copy-install]');
-  const status = document.querySelector<HTMLElement>('[data-copy-status]');
-  const code = document.querySelector<HTMLElement>('[data-install-commands]');
-  if (button && code) {
-    button.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(code.textContent?.trim() ?? '');
-        if (status) status.textContent = 'Copied';
-        setTimeout(() => { if (status) status.textContent = ''; }, 2000);
-      } catch {
-        if (status) status.textContent = 'Failed to copy';
-      }
-    });
-  }
-</script>
+
+<style>
+.download-start { display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; align-items: start; }
+.download-terminal { min-width: 0; }
+.download-tip { margin-top: 22px; }
+.download-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.download-steps article { min-width: 0; border-top: 1px solid var(--loom-site-border); padding-top: 24px; }
+.download-step :global(summary) { cursor: pointer; min-height: 40px; display: flex; align-items: center; font-size: 12px; }
+.download-step :global(summary) > span { display: flex; align-items: center; gap: 10px; }
+@media (max-width: 760px) { .download-start, .download-steps { grid-template-columns: 1fr; } }
+</style>

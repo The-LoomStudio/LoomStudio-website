@@ -44,13 +44,11 @@
   min-height: 0;
   object-fit: contain;
   transform-origin: top left;
-  transition: transform 600ms cubic-bezier(.2, .8, .2, 1);
   cursor: zoom-out;
 }
 .zoom-image__dialog > p { text-align: center; margin: 16px 0 0; max-width: 60ch; }
 .zoom-image__close { position: absolute; z-index: 1; right: 20px; top: 16px; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #252b31; color: white; font-size: 28px; cursor: pointer; }
 .zoom-image button:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) {
-  .zoom-image__dialog > img,
   .zoom-image__dialog::backdrop { transition: none; }
 }

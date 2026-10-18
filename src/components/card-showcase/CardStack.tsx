@@ -1,5 +1,7 @@
 import './card-showcase.css'
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
+import * as m from 'motion/react-m'
+import SiteMotion from '../motion/SiteMotion'
 import ZoomImage from '../illustration/ZoomImage'
 import type { DisplayImage } from '../../lib/site-images'
 
@@ -11,27 +13,32 @@ export const stackCards = [
 ]
 
 export default function CardStack({ images }: { images: Record<string, DisplayImage> }) {
+  const [focused, setFocused] = useState<string>()
   return (
-    <div className="card-showcase card-showcase--stack" aria-label="角色卡叠放展示">
-      <div className="card-showcase__stack">
-        {stackCards.map((card, index) => (
-          <figure
-            className="card-showcase__card"
-            key={card.src}
-            style={{
-              '--card-index': index,
-              '--card-x': card.x,
-              '--card-y': card.y,
-              '--card-angle': card.angle,
-              '--card-scale': card.scale,
-              '--card-hover-scale': String(Number(card.scale) + 0.1),
-            } as CSSProperties}
-          >
-            <ZoomImage image={images[card.src]} sizes="(max-width: 680px) 205px, 260px"
-              alt={card.alt} className="card-showcase__card-image" />
-          </figure>
-        ))}
+    <SiteMotion>
+      <div className="card-showcase card-showcase--stack" aria-label="角色卡叠放展示">
+        <div className="card-showcase__stack">
+          {stackCards.map(card => (
+            <m.figure
+              className="card-showcase__card"
+              key={card.src}
+              initial={false}
+              animate={{ rotate: focused === card.src ? 0 : parseFloat(card.angle), scale: Number(card.scale) + (focused === card.src ? 0.1 : 0) }}
+              whileHover={{ rotate: 0, scale: Number(card.scale) + 0.1 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+              onFocus={() => setFocused(card.src)}
+              onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(undefined) }}
+              style={{
+                '--card-x': card.x,
+                '--card-y': card.y,
+              } as CSSProperties}
+            >
+              <ZoomImage image={images[card.src]} sizes="(max-width: 680px) 205px, 260px"
+                alt={card.alt} className="card-showcase__card-image" />
+            </m.figure>
+          ))}
+        </div>
       </div>
-    </div>
+    </SiteMotion>
   )
 }

@@ -101,8 +101,7 @@
 .am-search-results p { padding: 10px; font-size: 12px; }
 .am-workspace { position: absolute; inset: 0; }
 .am-app[data-sidebar-open='true'] .am-toolbar { right: 376px; }
-.am-sidebar { transform: translateX(0); visibility: visible; transition: transform 240ms ease, visibility 0s; }
-.am-app[data-sidebar-open='false'] .am-sidebar { transform: translateX(calc(100% + 24px)); visibility: hidden; pointer-events: none; transition: transform 240ms ease, visibility 0s 240ms; }
+.am-app[data-sidebar-open='false'] .am-sidebar { pointer-events: none; }
 .am-sidebar-toggle { position: absolute; top: 16px; right: 16px; z-index: 30; display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 8px; }
 .am-sidebar-toggle:hover { background: var(--am-paper); }
 .am-canvas { position: absolute; inset: 0; min-width: 0; min-height: 0; }
@@ -433,3 +432,7 @@
   .am-status > span { display: none; }
   .am-color-legend { border-radius: 22px; }
 }
+
+.am-view-switch button { position: relative; isolation: isolate; }
+.am-view-switch button[aria-pressed=true] { background: transparent; }
+.am-view-highlight { position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: var(--am-highlight); pointer-events: none; }

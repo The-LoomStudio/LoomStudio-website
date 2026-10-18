@@ -1,5 +1,6 @@
 ---
 import { type SiteLocale, getLocaleFromPath, getLocalizedPath, t } from '../lib/i18n';
+import { getRoutes } from '../lib/site-routes';
 
 interface Props {
   easterEgg?: boolean;
@@ -28,6 +29,7 @@ const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
       <a href={getLocalizedPath('/docs', currentLocale)}>{t(currentLocale, 'footer.docs')}</a>
       <a href={getLocalizedPath('/download', currentLocale)}>{t(currentLocale, 'footer.download')}</a>
       <a href={getLocalizedPath('/news', currentLocale)}>{t(currentLocale, 'footer.news')}</a>
+      <a href={getLocalizedPath('/stickers', currentLocale)}>{getRoutes(currentLocale).find(route => route.id === 'stickers')!.label}</a>
       <a href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">{t(currentLocale, 'footer.source')}</a>
       <span>Cloudflare deployment pending</span>
     </div>

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/site-motion.css';
 import PageArrival from '../components/PageArrival.astro';
 import { getImage } from 'astro:assets';
 import socialBanner from '../../public/images/nom/banners/og-banner.png';
@@ -107,7 +108,7 @@ const pageTitle = title === 'Loom Studio'
     <link rel="icon" type="image/png" href="/brand/website_logo.png" />
     <link rel="apple-touch-icon" href="/brand/website_logo.png" />
     <title>{pageTitle}</title>
-    {(['/', '/docs/architecture', '/news', '/marketplace'].includes(Astro.url.pathname) || Astro.url.pathname.startsWith('/marketplace/')) && <>
+    {(['/', '/docs/architecture', '/news', '/marketplace'].includes(Astro.url.pathname) || Astro.url.pathname.startsWith('/marketplace/') || unlocalizedPath === '/stickers') && <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
@@ -115,6 +116,7 @@ const pageTitle = title === 'Loom Studio'
   </head>
   <body>
     <PageArrival locale={currentLocale} />
+    {unlocalizedPath !== '/docs/architecture' && <div class="site-reading-progress" data-reading-progress aria-hidden="true"></div>}
     <slot />
     <div
       class="page-scrollbar"
@@ -129,6 +131,7 @@ const pageTitle = title === 'Loom Studio'
       hidden
     ></div>
     <script>
+      import '../scripts/site-motion';
       const pageScrollbar = document.querySelector<HTMLElement>('[data-page-scrollbar]');
       if (pageScrollbar) {
         let frame = 0;

@@ -1,3 +1,4 @@
+import { MapSidebar } from './MapSidebar';
 import { useState } from 'react';
 import { Background, BackgroundVariant, BaseEdge, EdgeLabelRenderer, Handle, MarkerType, Panel, Position, ReactFlow, useReactFlow, type Edge, type EdgeProps, type Node, type NodeProps } from '@xyflow/react';
 import { ArrowUpRight, Check, CircleStop, Cloud, Database, FileText, Focus, GitBranch, Hourglass, MessageCircle, Minus, PanelRightClose, PanelRightOpen, Play, Plus, Server, ShieldCheck } from 'lucide-react';
@@ -89,10 +90,10 @@ export function SemanticMap({ scene, nomGuide, onViewChange }: { scene: Semantic
         <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="var(--am-grid)" />
         <Panel position="bottom-left" className="am-controls"><button aria-label="缩小" onClick={() => void flow.zoomOut()}><Minus size={17} /></button><output aria-label="缩放比例">{Math.round(zoom * 100)}%</output><button aria-label="放大" onClick={() => void flow.zoomIn()}><Plus size={17} /></button><button aria-label="适应当前视图" onClick={() => void flow.fitView({ padding: .16, duration: 180 })}><Focus size={17} /></button></Panel>
       </ReactFlow></section>
-      <aside className="am-sidebar" id="architecture-sidebar" aria-label="架构说明" aria-hidden={!sidebarOpen} inert={!sidebarOpen}><div className="am-sidebar-heading"><span>{node ? roles[node.role] : edge ? '连线依据' : '阅读此图'}</span></div><div className="am-sidebar-scroll">
+      <MapSidebar open={sidebarOpen}><div className="am-sidebar-heading"><span>{node ? roles[node.role] : edge ? '连线依据' : '阅读此图'}</span></div><div className="am-sidebar-scroll">
         {evidence ? <><button className="am-back" onClick={() => setSelected(undefined)}>返回图解</button><h2>{node?.title ?? edge?.label}</h2>{edge && <p className="am-lead">{scene.nodes.find(n => n.id === edge.from)!.title} → {scene.nodes.find(n => n.id === edge.to)!.title}</p>}<p>{evidence.detail}</p><section className="am-source"><h3>源码依据</h3><code>{evidence.source.path}:{evidence.source.line}–{evidence.source.endLine}</code><a href={sourceUrl(evidence.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a><p>{snapshot.note}</p></section></> : <><div className="am-nom-guide"><img src={nomGuide.src} srcSet={nomGuide.srcSet} sizes="80px" width={nomGuide.width} height={nomGuide.height} alt="" draggable={false} /><h2>{scene.title}</h2></div><p className="am-lead">{scene.question}</p><p>点击节点查看职责，点击连线查看条件与源码依据。可拖动画布、滚动平移和缩放。</p><section><h3>图中关系</h3><div className="am-node-index">{scene.edges.map(e => <button key={e.id} onClick={() => inspect('edge', e.id)}>{e.label}<small>{kinds[e.kind]}</small></button>)}</div></section></>}
         <section className="am-boundary"><h3>解释边界</h3><p>{scene.boundary}</p></section>
-      </div><footer className="am-snapshot"><span>核对于 {snapshot.date}</span><span>{snapshot.baseline.slice(0, 7)} · 只读源码图解</span></footer></aside>
+      </div><footer className="am-snapshot"><span>核对于 {snapshot.date}</span><span>{snapshot.baseline.slice(0, 7)} · 只读源码图解</span></footer></MapSidebar>
     </div><footer className="am-status"><span><i />{scene.title} · {scene.nodes.length} 节点 / {scene.edges.length} 关系</span><span>实线：主链 / 数据 · 点线：条件 · 虚线：返回</span></footer>
   </main>;
 }

@@ -1,4 +1,5 @@
 import { routes } from '../lib/site-routes';
+import { animate, type AnimationPlaybackControls } from 'motion';
 
 type SearchData = { url: string; meta: { title?: string }; excerpt: string; sub_results?: { url: string; title: string; excerpt: string }[] };
 type SearchResult = { data(): Promise<SearchData> };
@@ -18,6 +19,9 @@ let selected = -1;
 let api: Promise<SearchApi> | undefined;
 let debounce: ReturnType<typeof setTimeout>;
 let opener: HTMLElement | null;
+let animation: AnimationPlaybackControls | undefined;
+let closing = false;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 function save() {
   try { sessionStorage.setItem('loom-site-search', JSON.stringify({ query: input.value, scope })); } catch { /* Storage is optional in private browsing. */ }
@@ -93,27 +97,45 @@ async function search() {
   } catch (error) { failed(error, token); }
 }
 function open() {
-  if (dialog.open || document.querySelector('dialog[open]')) return;
-  opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  if ((dialog.open && !closing) || (!dialog.open && document.querySelector('dialog[open]'))) return;
+  const reopening = closing;
+  animation?.stop(); closing = false; dialog.inert = false;
+  if (!reopening) opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   try {
     const saved = JSON.parse(sessionStorage.getItem('loom-site-search') ?? 'null');
     if (saved && typeof saved.query === 'string' && Object.hasOwn(scopes, saved.scope)) { input.value = saved.query.slice(0, 256); scope = saved.scope; }
   } catch { /* Invalid or unavailable session storage does not prevent searching. */ }
   dialog.showModal(); input.focus(); void search();
+  animation = animate(dialog, reopening
+    ? { opacity: 1, y: 0, scale: 1, '--search-backdrop': 1 }
+    : { opacity: [0, 1], y: [reducedMotion.matches ? 0 : -8, 0], scale: [reducedMotion.matches ? 1 : 0.98, 1], '--search-backdrop': [0, 1] },
+  { duration: reducedMotion.matches ? 0 : 0.18, ease: 'easeOut' });
+}
+function close() {
+  if (!dialog.open || closing) return;
+  animation?.stop(); closing = true; dialog.inert = true;
+  generation++; clearTimeout(debounce);
+  animation = animate(dialog, { opacity: 0, y: reducedMotion.matches ? 0 : -8, scale: reducedMotion.matches ? 1 : 0.98, '--search-backdrop': 0 },
+    { duration: reducedMotion.matches ? 0 : 0.16, ease: 'easeIn', onComplete: () => dialog.close() });
 }
 document.querySelector('[data-site-search-open]')!.addEventListener('click', open);
-dialog.querySelector('[data-search-close]')!.addEventListener('click', () => dialog.close());
-dialog.addEventListener('close', () => { generation++; clearTimeout(debounce); opener?.focus(); });
+dialog.querySelector('[data-search-close]')!.addEventListener('click', close);
+dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
+dialog.addEventListener('close', () => {
+  animation?.stop(); closing = false; dialog.inert = false;
+  dialog.style.opacity = ''; dialog.style.transform = ''; dialog.style.removeProperty('--search-backdrop');
+  generation++; clearTimeout(debounce); opener?.focus();
+});
 dialog.addEventListener('click', event => {
   if (event.target !== dialog) return;
   const rect = dialog.getBoundingClientRect();
-  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) close();
 });
-list.addEventListener('click', event => { if ((event.target as Element).closest('a')) dialog.close(); });
+list.addEventListener('click', event => { if ((event.target as Element).closest('a')) close(); });
 document.addEventListener('keydown', event => {
   if (event.code !== 'KeyK' || !(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey || event.isComposing) return;
   if (document.querySelector('dialog[open]') && !dialog.open) return;
-  event.preventDefault(); if (dialog.open) dialog.close(); else open();
+  event.preventDefault(); if (dialog.open && !closing) close(); else open();
 });
 dialog.addEventListener('keydown', event => {
   if (event.isComposing || event.keyCode === 229) return;

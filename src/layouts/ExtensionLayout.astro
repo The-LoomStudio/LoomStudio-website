@@ -29,19 +29,19 @@ const { name, description, headline, intro, category, tags, repository, related,
     <header class="extension-hero container">
       <a class="extension-back" href="/marketplace"><ArrowLeft size={15} aria-hidden="true" />全部官方扩展</a>
       <div class="extension-hero__grid">
-        <div class="extension-hero__copy">
+        <div class="extension-hero__copy" data-motion-group>
           {Astro.slots.has('identity') && <div class="extension-identity"><slot name="identity" /></div>}
           <p class="eyebrow">OFFICIAL EXTENSION / {category}</p>
-          <h1>{name}</h1>
-          <h2>{headline}</h2>
-          <p class="extension-lead">{intro}</p>
+          <h1 data-motion-reveal>{name}</h1>
+          <h2 data-motion-reveal>{headline}</h2>
+          <p class="extension-lead" data-motion-reveal>{intro}</p>
           <div class="extension-tags">{tags.map((tag) => <span>{tag}</span>)}</div>
           <div class="extension-actions">
-            <a class="button button--primary" href="#showcase">看看它如何工作 <ArrowDown size={16} aria-hidden="true" /></a>
+            <a class="button button--primary" data-motion-feedback href="#showcase">看看它如何工作 <ArrowDown size={16} aria-hidden="true" /></a>
             <a class="extension-text-link" href="#get-started">开始使用 <ArrowUpRight size={16} aria-hidden="true" /></a>
           </div>
         </div>
-        <div class="extension-hero__visual"><slot name="visual" /></div>
+        <div class="extension-hero__visual" data-motion-reveal><slot name="visual" /></div>
       </div>
     </header>
     </div>
@@ -58,14 +58,14 @@ const { name, description, headline, intro, category, tags, repository, related,
         <p class="eyebrow">BUILD YOUR WORKSPACE</p>
         <h2>让工作台，更懂你的故事。</h2>
         <div class="extension-actions">
-          <a class="button" href="/download">获取 Loom Studio <ArrowUpRight size={16} aria-hidden="true" /></a>
+          <a class="button" data-motion-feedback href="/download">获取 Loom Studio <ArrowUpRight size={16} aria-hidden="true" /></a>
           <a class="extension-text-link" href={repository} target="_blank" rel="noreferrer">扩展源码 <ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
         <div class="extension-next__nom">
           <NomSticker src="/images/nom/stickers/bust/thank-you.png" size="small" message="挑喜欢的能力，慢慢搭出你的工作台。" />
         </div>
       </div>
-      <a class="extension-related" href={related.href}>
+      <a class="extension-related" data-motion-reveal data-motion-feedback href={related.href}>
         <small>另一个官方扩展</small>
         <span>{related.name}<ArrowUpRight size={22} aria-hidden="true" /></span>
         <p>{related.copy}</p>

@@ -40,7 +40,7 @@ const worlds = [
         <b>00</b>
         <i></i>
       </div>
-      <div class="showcase-feature__copy">
+      <div class="showcase-feature__copy" data-motion-reveal>
         <span class="portal-tag">FEATURED CONCEPT</span>
         <p class="eyebrow">A journey beyond the transcript</p>
         <h2>故事不是一次会话<br />而是一段留下路径的旅程</h2>
@@ -56,16 +56,16 @@ const worlds = [
 
   <section class="portal-section">
     <div class="container">
-      <div class="portal-section__heading">
+      <div class="portal-section__heading" data-motion-reveal>
         <div><small>GALLERY / WORLDS</small><h2>概念作品墙</h2></div>
         <div class="showcase-gallery-description">
           <p>这些名称与简介只承担布局占位，不代表已发布作品。未来可以替换为真实创作者内容而不改变页面结构。</p>
           <div class="showcase-gallery-nom"><NomSticker src="/images/nom/stickers/bust/proud.png" size="medium" /></div>
         </div>
       </div>
-      <div class="world-grid">
+      <div class="world-grid" data-motion-group>
         {worlds.map((world, index) => (
-          <article class:list={['world-card', { 'world-card--wide': index === 0 }]}>
+          <article data-motion-reveal data-motion-feedback class:list={['world-card', { 'world-card--wide': index === 0 }]}>
             <div class="world-card__top"><span>{world.chapter}</span><b>CONCEPT</b></div>
             <div class="world-card__mark" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
             <div>

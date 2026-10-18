@@ -60,10 +60,11 @@ public/
 
 ## Nom 贴纸
 
-Nom 是 Loom Studio 的看板娘。网站、项目 README 和社区内容共用这套透明贴纸：全身、带手与道具的大头、纯头表情各 8 张，图片按动作和情绪命名。
+Nom 是 Loom Studio 的看板娘。网站、项目 README 和社区内容共用这套透明贴纸：全身 8 张、胸像表情与动作 25 张，共 33 张（旧纯头素材已移除），图片按动作和情绪命名。
 
 - [浏览素材与用途](public/images/nom/stickers/README.md)
-- 下载仓库后打开 [离线预览](public/images/nom/stickers/preview.html)，可切换深浅背景、试配气泡。
+- 官网 `/stickers` 已接入全站导航和发布页入口，可分类浏览、切换预览背景、试搭气泡，并下载整套 512px 透明 PNG ZIP 或单张原图。
+- 素材清单：`src/data/nom-stickers.json`；更新后运行 `pnpm stickers:pack` 重建下载包（维护时需 Python 3），并提交 ZIP。
 - README 直接用 `<img>` 指定展示宽度；对白保留为普通文字，标题与贴纸分别成行。跨仓库引用使用本仓库固定提交的原始图片链接。
 
 ## 官方扩展展示
@@ -77,6 +78,22 @@ Nom 是 Loom Studio 的看板娘。网站、项目 README 和社区内容共用�
 扩展页面复用 `ExtensionLayout.astro` 与网站主题；功能示例均为网页样例，不连接 Studio Server 或执行导入。说明依据产品仓库的 `extensions/st-data-compat`、`extensions/the-world` 当前实现核准，安装来源链接取自官方扩展配置；页面不承诺远端构建包已可安装。
 
 模拟天空只在 The World 详情页显式挂载。它响应演示时间与暂停按钮，不修改网站主题；系统减少动态效果、后台标签页和离开展示区时停止动态。恢复记录见 [天空效果归档与恢复](docs/archive/home-atmosphere.md)。
+
+## 局部动画
+
+页面导航继续使用浏览器跨文档 View Transitions。主题切换使用同文档 View Transitions，从主题按钮中心做圆形扩散；不支持 API 或系统减少动态效果时即时切换。
+
+Motion 当前覆盖 Banner、叠放卡片、图片放大、Agent 浮层、表情包分类与气泡换边重排、设备切换、架构视图指示器与侧栏、全站搜索，以及文档目录 / 新闻 / 工作区演示的原生折叠块。新闻分类使用按行排列的响应式 Grid，卡片由 Motion FLIP 过渡到新位置。简单颜色、阴影反馈和循环跑马灯仍使用 CSS。
+
+下载页使用 `src/components/download/DownloadConsole.tsx`，提供首次安装 / 日常启动 / 更新源码页签、系统提示、逐步说明与真实剪贴板反馈。四种语言共用 `download-copy.ts` 中的命令清单；复制只写入剪贴板，不执行安装或模拟安装进度。没有 JavaScript 时，首次安装和更新命令仍可手动复制。
+
+`src/scripts/site-motion.ts` 只处理页面显式标注的 `data-motion-reveal`（分组进场）、`data-motion-feedback`（鼠标 / 键盘 / 按压反馈）和 `data-motion-drift`（滚动层次），并驱动阅读进度和发布页章节定位反馈。发布页、展厅、文档入口、市场、扩展详情和贴纸页面已接入；不要把这些标记加到已有视差、React 布局重排或图片缩放正在控制的节点上。减少动态效果时关闭进场位移、手势回弹和漂移，保留阅读进度与章节信息。
+
+图片放大由 Motion 驱动 FLIP 进度。关闭时逐帧测量缩略图的位置，因此双行跑马灯可以继续滚动；循环换位后，回缩目标取同一行中最靠近视口中心的同图副本。原生 `dialog` 继续负责模态、Escape 与焦点恢复。
+
+`src/components/motion/SiteMotion.tsx` 为每个需要动画的 React island 提供 `MotionConfig` 和 `LazyMotion`，组件从 `motion/react-m` 导入 `m`。默认使用 `domAnimation`，需要布局动画的 island 显式传入 `domMax`；Astro 组件通过 Motion 的原生 DOM API 控制动画，无需转成 React。不要让 CSS transition、手写逐帧更新和 Motion 同时控制同一元素的同一属性；静态定位与动态变换可以分别使用 CSS `translate` 和 Motion 的旋转 / 缩放。
+
+保留现有 `client:load` / `client:visible` 挂载策略，不为简单动画增加 React island。减少动态效果时禁用位移过渡，Banner 即时切换并停止自动轮播；新动画应继续遵守这一设置。
 
 ## 网站全局搜索
 

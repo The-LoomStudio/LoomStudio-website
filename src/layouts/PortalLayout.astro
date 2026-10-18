@@ -21,14 +21,14 @@ const { title, description, eyebrow, headline, intro, marker, locale } = Astro.p
   <SiteHeader locale={locale} />
   <main class="portal-page">
     <section class="portal-hero">
-      <div class="container portal-hero__inner">
-        <p class="eyebrow">{eyebrow}</p>
+      <div class="container portal-hero__inner" data-motion-group>
+        <p class="eyebrow" data-motion-reveal>{eyebrow}</p>
         <div class="portal-hero__grid">
-          <div>
+          <div data-motion-reveal>
             <small>{marker}</small>
             <h1>{headline}</h1>
           </div>
-          <p>{intro}</p>
+          <p data-motion-reveal>{intro}</p>
         </div>
       </div>
     </section>

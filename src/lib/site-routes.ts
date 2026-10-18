@@ -104,6 +104,18 @@ const rawRoutes: RouteTemplate[] = [
       'ko': { label: '스튜디오 노트', short: 'News', caption: '새 소식, 소소한 개선, 그리고 창작 여정의 영감. 게시판에서 최근 이야기를 확인하세요.' },
     },
   },
+  {
+    id: 'stickers',
+    baseHref: '/stickers',
+    image: 'stickers/fullbody/welcome.png',
+    detail: 'stickers/bust/wink.png',
+    i18n: {
+      'zh-CN': { label: 'Nom 表情包', short: '表情包', caption: '有时认真，有时困困。挑一张 Nom，把一点陪伴带进日常。' },
+      'en': { label: 'Nom Stickers', short: 'Stickers', caption: 'Thoughtful, sleepy, or a little proud. Bring a little Nom into your day.' },
+      'ja': { label: 'Nom スタンプ', short: 'スタンプ', caption: '考えたり、うとうとしたり。Nom の表情を日常に連れていこう。' },
+      'ko': { label: 'Nom 스티커', short: '스티커', caption: '진지하게, 때로는 졸리게. Nom의 작은 표정을 일상으로 가져가세요.' },
+    },
+  },
 ];
 
 export function getRoutes(locale: SiteLocale): RouteItem[] {

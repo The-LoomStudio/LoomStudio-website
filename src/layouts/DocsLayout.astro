@@ -1,4 +1,5 @@
 ---
+import AnimatedDetails from '../components/motion/AnimatedDetails.astro';
 import BaseLayout from './BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -78,8 +79,8 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
           {groups.map((group) => {
             const active = group.links.some((link) => path === link.href);
             return (
-              <details class:list={['docs-nav__group', { active }]} open>
-                <summary>{group.label}</summary>
+              <AnimatedDetails class:list={['docs-nav__group', { active }]} open>
+                <span slot="summary">{group.label}</span>
                 <div class="docs-nav__links">
                   {group.links.map((link) => (
                     <a
@@ -92,7 +93,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
                     </a>
                   ))}
                 </div>
-              </details>
+              </AnimatedDetails>
             );
           })}
         </div>
@@ -454,7 +455,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     gap: 12px;
     margin-bottom: 28px;
   }
-  .docs-nav__group summary {
+  .docs-nav__group :global(summary) {
     min-height: 34px;
     display: flex;
     align-items: center;
@@ -468,9 +469,9 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     user-select: none;
     transition: color 160ms ease;
   }
-  .docs-nav__group summary::-webkit-details-marker { display: none; }
-  .docs-nav__group summary:hover,
-  .docs-nav__group.active summary { color: var(--loom-site-text); }
+  .docs-nav__group :global(summary::-webkit-details-marker) { display: none; }
+  .docs-nav__group :global(summary:hover),
+  .docs-nav__group.active :global(summary) { color: var(--loom-site-text); }
   .docs-nav__links {
     display: grid;
     gap: 3px;

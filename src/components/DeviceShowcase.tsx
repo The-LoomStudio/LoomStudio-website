@@ -1,4 +1,7 @@
-import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { LayoutGroup, domMax, useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
+import SiteMotion from './motion/SiteMotion'
 import { Laptop, Smartphone } from 'lucide-react'
 import StoryDemo from './story-demo/StoryDemo'
 import './device-showcase.css'
@@ -9,6 +12,8 @@ const devices = [
 ] as const
 
 export default function DeviceShowcase() {
+  const layoutId = useId()
+  const reducedMotion = useReducedMotion()
   const [active, setActive] = useState(0)
   const slot = useRef<HTMLDivElement>(null)
   const tabs = useRef<HTMLDivElement>(null)
@@ -50,19 +55,24 @@ export default function DeviceShowcase() {
     tabs.current!.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next].focus()
   }
 
-  return <div className="device-showcase">
+  const transition = { duration: reducedMotion ? 0 : 0.4, ease: 'easeInOut' as const }
+  return <SiteMotion features={domMax}><LayoutGroup id={layoutId}><div className="device-showcase">
     <div ref={tabs} className="device-tabs" role="tablist" aria-label="演示设备" onKeyDown={navigateTabs}>
       {devices.map(({ id, label, icon: Icon }, index) => (
         <button key={id} id={`device-tab-${id}`} type="button" role="tab"
           aria-selected={active === index} aria-controls="device-preview-panel"
           tabIndex={active === index ? 0 : -1} onClick={() => setActive(index)}>
+          {active === index && <m.span className="device-tab-highlight" layoutId="device-tab" aria-hidden="true"
+            transition={{ type: 'spring', stiffness: 380, damping: 34 }} />}
           <Icon size={16} aria-hidden="true" />{label}
         </button>
       ))}
     </div>
-    <div id="device-preview-panel" role="tabpanel" aria-labelledby={`device-tab-${device.id}`}
+    <m.div id="device-preview-panel" role="tabpanel" aria-labelledby={`device-tab-${device.id}`}
+      initial={false} animate={{ maxWidth: device.id === 'phone' ? 428 : 1100 }} transition={transition}
       className={`device-preview device-preview--${device.id}`}>
-      <div ref={slot} className="device-slot">
+      <m.div ref={slot} className="device-slot" initial={false}
+        animate={{ aspectRatio: device.id === 'phone' ? 428 / 868 : 740 / 434 }} transition={transition}>
         <div className={`device ${device.className}`}>
           <div className="device-frame">
             <div ref={screen} className="device-screen">
@@ -78,7 +88,7 @@ export default function DeviceShowcase() {
           <div className="device-power" aria-hidden="true" />
           <div className="device-home" aria-hidden="true" />
         </div>
-      </div>
-    </div>
-  </div>
+      </m.div>
+    </m.div>
+  </div></LayoutGroup></SiteMotion>
 }

@@ -25,7 +25,7 @@ const layers = {
 };
 const brand = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
 
-import { getLocaleFromPath, getHomeFeatures } from '../lib/i18n';
+import { getLocaleFromPath, getHomeFeatures, getLocalizedPath } from '../lib/i18n';
 
 const currentLocale = getLocaleFromPath(Astro.url.pathname);
 const features = getHomeFeatures(currentLocale);
@@ -38,9 +38,9 @@ const features = getHomeFeatures(currentLocale);
     <section class="hero" id="top">
       <nav class="hero__sections" aria-label="发布页章节">
         <span>SECTIONS</span>
-        <a href="#story">01 叙事</a>
-        <a href="#system">02 系统</a>
-        <a href="#architecture">03 架构</a>
+        <a href="#story" data-chapter-link="story">01 叙事</a>
+        <a href="#system" data-chapter-link="system">02 系统</a>
+        <a href="#architecture" data-chapter-link="architecture">03 架构</a>
       </nav>
       <HeroBanner client:load images={topImages} layers={layers} />
       <a class="hero__scroll" href="#story"><span>往下看看</span><i></i></a>
@@ -49,15 +49,15 @@ const features = getHomeFeatures(currentLocale);
     <div class="home-content">
     <section class="brand-banner" aria-label="Loom Studio 品牌 Banner">
       <CardStack client:visible images={stackImages} />
-      <div class="brand-banner__sticker">
+      <div class="brand-banner__sticker" data-motion-drift>
         <img data-static-image style="opacity: 0" src={brand.src} srcset={brand.srcSet} width={brand.width} height={brand.height}
           sizes="(max-width: 800px) 80vw, 640px" alt="Loom Studio" loading="lazy" decoding="async" />
       </div>
-      <div class="brand-banner__copy"><p>编织世界，交织故事。</p><a class="brand-banner__download" href="/download">下载与启动 <ArrowUpRight size={18} aria-hidden="true" /></a></div>
+      <div class="brand-banner__copy" data-motion-reveal><p>编织世界，交织故事。</p><a class="brand-banner__download" data-motion-feedback href="/download">下载与启动 <ArrowUpRight size={18} aria-hidden="true" /></a></div>
     </section>
 
     <section class="card-banner card-banner--top" aria-labelledby="card-banner-title">
-      <div class="container card-banner__heading">
+      <div class="container card-banner__heading" data-motion-reveal>
         <div class="card-banner__copy">
           <p class="eyebrow">A gallery of possibilities</p>
           <h2 id="card-banner-title">故事从谁开始？</h2>
@@ -67,19 +67,19 @@ const features = getHomeFeatures(currentLocale);
       <CardMarquee client:visible images={cardImages} />
     </section>
 
-    <section class="manifesto" id="story">
+    <section class="manifesto" id="story" data-motion-chapter>
       <div class="container manifesto__grid">
         <div class="manifesto__sticky" data-chapter="01 / NARRATIVE">
           <p class="eyebrow">A home for your stories</p>
-          <h2>正文归正文<br />幕后也有地方放</h2>
+          <h2 data-motion-reveal>正文归正文<br />幕后也有地方放</h2>
           <p>
             读故事时看正文，调整设定时打开工作区。<br />
             Agent 的工作记录、工具结果和提示词构建也各有位置，需要时再展开。
           </p>
         </div>
-        <div class="manifesto__features">
+        <div class="manifesto__features" data-motion-group>
           {features.map((feature) => (
-            <article>
+            <article data-motion-reveal>
               <div class="manifesto__feature-art"><NomSticker src={feature.sticker} /></div>
               <span>{feature.index}</span>
               <h3>{feature.title}</h3>
@@ -90,9 +90,9 @@ const features = getHomeFeatures(currentLocale);
       </div>
     </section>
 
-    <section class="product" id="system">
+    <section class="product" id="system" data-motion-chapter>
       <div class="container">
-        <div class="section-heading" data-chapter="02 / SYSTEM">
+        <div class="section-heading" data-motion-reveal data-chapter="02 / SYSTEM">
           <div>
             <p class="eyebrow">Inside the studio</p>
             <h2>故事写到哪儿<br />工作台就开在哪儿</h2>
@@ -105,7 +105,7 @@ const features = getHomeFeatures(currentLocale);
         <div class="product__stage">
           <ProductPreview />
         </div>
-        <div class="product__legend">
+        <div class="product__legend" data-motion-reveal>
           <div><span>01</span><b>故事时间线</b><p>阅读剧情，查看故事分支</p></div>
           <div><span>02</span><b>Agent 工作区</b><p>查看对话、工具调用与运行记录</p></div>
           <div><span>03</span><b>提示词构建</b><p>检查本轮上下文用了哪些设定</p></div>
@@ -113,23 +113,38 @@ const features = getHomeFeatures(currentLocale);
       </div>
     </section>
 
-    <section class="architecture" id="architecture">
+    <section class="architecture" id="architecture" data-motion-chapter>
       <div class="container architecture__inner" data-chapter="03 / ARCHITECTURE">
         <p class="eyebrow">A little look backstage</p>
-        <h2>工作台里面<br />是怎么运转的</h2>
+        <h2 data-motion-reveal>工作台里面<br />是怎么运转的</h2>
         <ArchitecturePreview />
-        <p class="architecture__note">
+        <p class="architecture__note" data-motion-reveal>
           故事正文、Agent 会话和提示词构建由不同模块负责。<br />
           架构地图把它们连起来，方便沿着一次操作查找对应的代码。
         </p>
-        <div class="architecture__guide">
+        <div class="architecture__guide" data-motion-reveal>
           <NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message="啊，里面还有这么多……我先从认识的地方看起。" />
-          <a class="architecture__map" href="/docs/architecture">开发者架构地图 <ArrowUpRight size={18} aria-hidden="true" /></a>
+          <a class="architecture__map" data-motion-feedback href="/docs/architecture">开发者架构地图 <ArrowUpRight size={18} aria-hidden="true" /></a>
         </div>
       </div>
     </section>
 
     <StoryParallaxWall />
+    <section class="home-nom" aria-labelledby="home-nom-title">
+      <div class="container home-nom__inner">
+        <div>
+          <p class="eyebrow">A LITTLE COMPANY / NOM STICKERS</p>
+          <h2 id="home-nom-title">故事之外，<br />也想陪你聊聊天。</h2>
+          <p>认真、开心、困困，偶尔还会气鼓鼓。<br />33 张透明贴纸，把 Nom 的小表情带进日常。</p>
+          <a href={getLocalizedPath('/stickers', currentLocale)} data-motion-feedback>去挑一张表情 <ArrowUpRight size={18} aria-hidden="true" /></a>
+        </div>
+        <div class="home-nom__stickers" data-motion-drift aria-hidden="true">
+          <NomSticker src="/images/nom/stickers/bust/giggle.png" size="large" />
+          <NomSticker src="/images/nom/stickers/bust/tea.png" size="large" />
+          <NomSticker src="/images/nom/stickers/bust/sleepy.png" size="large" />
+        </div>
+      </div>
+    </section>
     <div id="footer-banner-start" aria-hidden="true"></div>
     </div>
 
@@ -243,6 +258,23 @@ const features = getHomeFeatures(currentLocale);
     finePointer.addEventListener('change', stopWheelScroll);
   </script>
 </BaseLayout>
+
+<style>
+  .home-nom { padding: 100px 0; background: var(--loom-site-bg); }
+  .home-nom__inner { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; }
+  .home-nom h2 { margin: 20px 0; font: 550 clamp(28px, 4vw, 48px)/1.25 var(--loom-site-font-display); letter-spacing: -.03em; }
+  .home-nom p:not(.eyebrow) { color: var(--loom-site-text-muted); font-size: 14px; line-height: 1.9; }
+  .home-nom a { display: inline-flex; align-items: center; gap: 12px; margin-top: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--loom-site-border-strong); font-size: 14px; }
+  .home-nom__stickers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; }
+  .home-nom__stickers > :nth-child(1) { transform: rotate(-8deg) translateY(20px); }
+  .home-nom__stickers > :nth-child(2) { transform: translateY(-24px); }
+  .home-nom__stickers > :nth-child(3) { transform: rotate(8deg) translateY(24px); }
+  .home-nom__stickers :global(.nom-sticker__image) { width: 100%; }
+  @media (max-width: 700px) {
+    .home-nom { padding: 64px 0 80px; }
+    .home-nom__inner { grid-template-columns: 1fr; gap: 48px; }
+  }
+</style>
 
 <style>
   :global(body:has(.hero)) {

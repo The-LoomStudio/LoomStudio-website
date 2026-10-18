@@ -163,15 +163,15 @@ const overviewHeadings = [
   frontmatter={{ title: meta.title, description: meta.description }}
   headings={overviewHeadings}
 >
-  <section class="docs-intro">
+  <section class="docs-intro" data-motion-reveal>
     <h2 id="intro">{sectionTexts.introHeading}</h2>
     <p>{sectionTexts.introDesc}</p>
     <blockquote data-callout="boundary">{sectionTexts.callout}</blockquote>
   </section>
 
-  <section class="docs-card-grid">
+  <section class="docs-card-grid" data-motion-group>
     {cards.map((card) => (
-      <a href={card.href}>
+      <a href={card.href} data-motion-reveal data-motion-feedback>
         <span>{card.tag}</span>
         <h3>{card.title}</h3>
         <p>{card.copy}</p>
@@ -215,11 +215,10 @@ const overviewHeadings = [
     border-radius: 18px;
     padding: 24px;
     background: var(--loom-site-surface);
-    transition: 160ms ease;
+    transition: background 160ms ease;
   }
   .docs-card-grid a:hover {
     background: var(--loom-site-surface-raised);
-    transform: translateY(-2px);
   }
   .docs-card-grid span {
     color: var(--loom-site-accent);

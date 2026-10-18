@@ -1,0 +1,52 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+type Props = HTMLAttributes<'details'>;
+const { class: className, open = false, ...attributes } = Astro.props;
+---
+
+<details {...attributes} class={className} open={open} data-motion-details>
+  <summary><slot name="summary" /></summary>
+  <div class="motion-details__content" data-details-content><slot /></div>
+</details>
+
+<script>
+  import { animate, type AnimationPlaybackControls } from 'motion';
+
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll<HTMLDetailsElement>('[data-motion-details]').forEach(details => {
+    const summary = details.querySelector('summary')!;
+    const content = details.querySelector<HTMLElement>('[data-details-content]')!;
+    let expanded = details.open;
+    let animation: AnimationPlaybackControls | undefined;
+    const settle = () => {
+      details.open = expanded;
+      content.style.height = '';
+      content.style.opacity = '';
+      content.style.overflow = '';
+    };
+    summary.addEventListener('click', event => {
+      // Native summary generates this click for both pointer and keyboard activation.
+      event.preventDefault();
+      animation?.stop();
+      const height = details.open ? content.getBoundingClientRect().height : 0;
+      const opacity = details.open ? Number(getComputedStyle(content).opacity) : 0;
+      expanded = !expanded;
+      details.open = true;
+      content.inert = !expanded;
+      content.setAttribute('aria-hidden', String(!expanded));
+      summary.setAttribute('aria-expanded', String(expanded));
+      if (reducedMotion.matches) { settle(); return; }
+      content.style.height = `${height}px`;
+      content.style.overflow = 'hidden';
+      animation = animate(content, {
+        height: [height, expanded ? content.scrollHeight : 0],
+        opacity: [opacity, expanded ? 1 : 0],
+      }, { duration: 0.24, ease: [0.2, 0.8, 0.2, 1], onComplete: settle });
+    });
+    window.addEventListener('pagehide', () => { animation?.stop(); settle(); });
+  });
+</script>
+
+<style>
+  .motion-details__content { display: flow-root; }
+</style>

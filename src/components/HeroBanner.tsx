@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
+import SiteMotion from './motion/SiteMotion'
 import LayeredIllustration from './illustration/LayeredIllustration'
 import ZoomImage from './illustration/ZoomImage'
 import type { DisplayImage } from '../lib/site-images'
@@ -74,6 +77,7 @@ type Props = {
 }
 
 export default function HeroBanner({ className = '', variant = 'top', images, layers }: Props) {
+  const reducedMotion = useReducedMotion()
   const root = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [target, setTarget] = useState(0)
@@ -96,12 +100,12 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
   }, [variant])
 
   useEffect(() => {
-    if (!enabled || !playing || target !== active) return
+    if (!enabled || !playing || reducedMotion || target !== active) return
     const timer = window.setTimeout(() => {
       select((active + 1) % slideSet.length)
     }, 7000)
     return () => window.clearTimeout(timer)
-  }, [active, target, enabled, playing, slideSet.length])
+  }, [active, target, enabled, playing, reducedMotion, slideSet.length])
 
   useEffect(() => {
     let frame = 0
@@ -161,55 +165,63 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
   }
 
   return (
-    <div ref={root} className={`hero-banner hero-banner--${variant} ${className}`} aria-label="Loom Studio 介绍 Banner">
-      {slideSet.map((slide, index) => (
-        <article
-          className={`hero-banner__slide hero-banner__slide--text-${slide.textSide}${index === active ? ' is-active' : ''}`}
-          style={{ '--hero-mobile-position': slide.mobilePosition } as CSSProperties}
-          key={slide.src}
-          aria-hidden={index !== active}
-          inert={index !== active}
-          onPointerMove={updateLayeredPointer}
-          onPointerLeave={resetLayeredPointer}
-        >
-          {enabled && (index === active || index === target || loaded.current.has(index)) && (
-            <ZoomImage image={images[slide.src]} fullSrc={images[slide.src].fullSrc}
-              sizes={`max(100vw, ${Math.ceil(images[slide.src].width / images[slide.src].height * 100)}svh)`}
-              alt={slide.alt} loading="eager" fetchPriority={variant === 'top' && index === 0 ? 'high' : 'auto'}
-              onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
-              onError={() => setTarget(active)}
-              className="hero-banner__zoom">
-              {'layered' in slide && slide.layered && layers ? (
-                <LayeredIllustration {...layers} label={slide.alt}
-                  onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
-                  onError={() => setTarget(active)} />
-              ) : undefined}
-            </ZoomImage>
-          )}
-          <div className="hero-banner__shade" aria-hidden="true" />
-          <div className="hero-banner__copy">
-            <p className="eyebrow">{slide.eyebrow}</p>
-            <h1>{slide.title.split('\n').map((line) => <span key={line}>{line}</span>)}</h1>
-            <p>{slide.copy}</p>
+    <SiteMotion>
+      <div ref={root} className={`hero-banner hero-banner--${variant} ${className}`} aria-label="Loom Studio 介绍 Banner">
+        {slideSet.map((slide, index) => (
+          <m.article
+            initial={false}
+            animate={{ opacity: index === active ? 1 : 0 }}
+            transition={{ duration: reducedMotion ? 0 : 0.7, ease: 'easeInOut' }}
+            className={`hero-banner__slide hero-banner__slide--text-${slide.textSide}${index === active ? ' is-active' : ''}`}
+            style={{ '--hero-mobile-position': slide.mobilePosition } as CSSProperties}
+            key={slide.src}
+            aria-hidden={index !== active}
+            inert={index !== active}
+            onPointerMove={updateLayeredPointer}
+            onPointerLeave={resetLayeredPointer}
+          >
+            {enabled && (index === active || index === target || loaded.current.has(index)) && (
+              <ZoomImage image={images[slide.src]} fullSrc={images[slide.src].fullSrc}
+                sizes={`max(100vw, ${Math.ceil(images[slide.src].width / images[slide.src].height * 100)}svh)`}
+                alt={slide.alt} loading="eager" fetchPriority={variant === 'top' && index === 0 ? 'high' : 'auto'}
+                onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
+                onError={() => setTarget(active)}
+                className="hero-banner__zoom">
+                {'layered' in slide && slide.layered && layers ? (
+                  <LayeredIllustration {...layers} label={slide.alt}
+                    onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
+                    onError={() => setTarget(active)} />
+                ) : undefined}
+              </ZoomImage>
+            )}
+            <div className="hero-banner__shade" aria-hidden="true" />
+            <div className="hero-banner__copy">
+              <p className="eyebrow">{slide.eyebrow}</p>
+              <h1>{slide.title.split('\n').map((line) => <span key={line}>{line}</span>)}</h1>
+              <p>{slide.copy}</p>
+            </div>
+          </m.article>
+        ))}
+        <div className="hero-banner__controls">
+          <button type="button" onClick={() => move(-1)} aria-label="上一张 Banner"><ChevronLeft size={18} /></button>
+          <div className="hero-banner__dots" aria-label="选择 Banner">
+            {slideSet.map((slide, index) => (
+              <m.button
+                initial={false}
+                animate={{ width: index === active ? 26 : 7 }}
+                transition={{ duration: reducedMotion ? 0 : 0.18, ease: 'easeOut' }}
+                type="button"
+                className={index === active ? 'is-active' : ''}
+                key={slide.src}
+                onClick={() => select(index)}
+                aria-label={`第 ${index + 1} 张 Banner`}
+                aria-current={index === active ? 'true' : undefined}
+              />
+            ))}
           </div>
-        </article>
-      ))}
-      <div className="hero-banner__controls">
-        <button type="button" onClick={() => move(-1)} aria-label="上一张 Banner"><ChevronLeft size={18} /></button>
-        <div className="hero-banner__dots" aria-label="选择 Banner">
-          {slideSet.map((slide, index) => (
-            <button
-              type="button"
-              className={index === active ? 'is-active' : ''}
-              key={slide.src}
-              onClick={() => select(index)}
-              aria-label={`第 ${index + 1} 张 Banner`}
-              aria-current={index === active ? 'true' : undefined}
-            />
-          ))}
+          <button type="button" onClick={() => move(1)} aria-label="下一张 Banner"><ChevronRight size={18} /></button>
         </div>
-        <button type="button" onClick={() => move(1)} aria-label="下一张 Banner"><ChevronRight size={18} /></button>
       </div>
-    </div>
+    </SiteMotion>
   )
 }

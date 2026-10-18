@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import NomStickerGallery from '../components/nom-stickers/NomStickerGallery';
+import entries from '../data/nom-stickers.json';
+import { siteImage } from '../lib/site-images';
+import { getLocaleFromPath } from '../lib/i18n';
+import { Download, ArrowDown } from '@lucide/astro';
+import { stat } from 'node:fs/promises';
+
+const locale = getLocaleFromPath(Astro.url.pathname);
+const packSize = ((await stat('public/downloads/nom-stickers-512.zip')).size / 1024 / 1024).toFixed(1);
+const stickers = await Promise.all(entries.map(async entry => ({
+  ...entry, image: await siteImage(`/images/nom/stickers/${entry.file}`, [160, 320, 640], 90),
+})));
+---
+
+<BaseLayout title="Nom 表情包" description="把 Nom 带到日常聊天里。33 张透明贴纸，浏览表情、试搭气泡，免费下载整套 512px PNG 或单张原图。" locale={locale}>
+  <SiteHeader locale={locale} />
+  <main class="nom-page">
+    <header class="nom-page__hero" data-motion-group>
+      <div data-motion-reveal>
+        <p class="eyebrow">NOM / A MOOD FOR EVERY MOMENT</p>
+        <h1>把一点陪伴，<br />带进日常。</h1>
+        <p class="nom-page__intro">有时认真，有时困困，偶尔还会偷偷得意。<br />这里是 Nom 的小小表情室，挑一张，替今天说句话。</p>
+      </div>
+      <aside class="nom-pack" data-motion-reveal aria-label="整套表情包下载">
+        <span class="nom-pack__edition">NOM STICKERS / VOL. 01</span>
+        <p><b>{entries.length}</b><span>种心情<br />一起带走</span></p>
+        <a class="button button--primary" data-motion-feedback href="/downloads/nom-stickers-512.zip" download><Download size={18} aria-hidden="true" /> 下载整套表情包</a>
+        <small>透明 PNG · 512px · ZIP {packSize} MiB<br />8 张全身 + 25 张表情与动作</small>
+      </aside>
+    </header>
+    <div class="nom-page__divider"><span>选个表情，试句台词。</span><ArrowDown size={16} aria-hidden="true" /></div>
+    <NomStickerGallery entries={stickers} client:load />
+    <noscript><p>下方贴纸已完整展示。开启 JavaScript 后可切换分类、试搭背景和气泡；整套及单张下载无需 JavaScript。</p></noscript>
+  </main>
+  <SiteFooter locale={locale} />
+</BaseLayout>
+
+<style>
+  .nom-page { width: min(1120px, calc(100% - 180px)); margin: auto; padding-top: calc(var(--loom-site-header-height) + 100px); }
+  .nom-page__hero { display: grid; grid-template-columns: 1.4fr .75fr; gap: 70px; align-items: center; padding-bottom: 64px; }
+  h1 { margin: 22px 0; font: 550 clamp(40px, 5.6vw, 72px)/1.18 var(--loom-site-font-display); letter-spacing: -.04em; }
+  .nom-page__intro { margin: 0; color: var(--loom-site-text-muted); font-size: 15px; line-height: 1.95; }
+  .nom-pack { position: relative; padding: 30px; border-radius: 8px 26px 26px 26px; background: var(--loom-site-note-paper); color: var(--loom-site-note-ink); transform: rotate(2deg); box-shadow: 0 12px 35px rgb(10 20 30 / .08); }
+  .nom-pack__edition { color: var(--loom-site-note-muted); font: 10px var(--loom-site-font-mono); letter-spacing: .1em; }
+  .nom-pack > p { display: flex; gap: 20px; align-items: center; margin: 22px 0; }
+  .nom-pack b { font: 550 76px/1 var(--loom-site-font-display); letter-spacing: -.06em; }
+  .nom-pack p span { font-size: 14px; line-height: 1.7; }
+  .nom-pack .button { width: 100%; border: 0; background: #293238; color: white; gap: 10px; }
+  .nom-pack .button:hover { background: #43515b; }
+  .nom-pack small { display: block; margin-top: 14px; color: var(--loom-site-note-muted); font-size: 11px; line-height: 1.8; text-align: center; }
+  .nom-page__divider { display: flex; justify-content: space-between; gap: 20px; padding: 18px 0; border-top: 1px solid var(--loom-site-border-strong); color: var(--loom-site-text-muted); font-size: 12px; }
+  @media (max-width: 1100px) { .nom-page { width: min(960px, calc(100% - 48px)); } }
+  @media (max-width: 700px) {
+    .nom-page { width: calc(100% - 28px); padding-top: 146px; }
+    .nom-page__hero { grid-template-columns: 1fr; gap: 36px; padding-bottom: 44px; }
+    .nom-pack { transform: none; padding: 24px; }
+    .nom-pack > p { margin: 16px 0; }
+    .nom-pack b { font-size: 58px; }
+  }
+</style>

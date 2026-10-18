@@ -1,10 +1,9 @@
 ---
 import PortalLayout from '../layouts/PortalLayout.astro';
+import DownloadConsole from '../components/download/DownloadConsole';
+import AnimatedDetails from '../components/motion/AnimatedDetails.astro';
 import NomSticker from '../components/NomSticker.astro';
-import { ArrowUpRight, Terminal } from '@lucide/astro';
-const commands = `git clone https://github.com/The-LoomStudio/LoomStudio.git
-cd LoomStudio
-npm start`;
+import { ArrowUpRight, ChevronDown } from '@lucide/astro';
 ---
 
 <PortalLayout
@@ -16,8 +15,8 @@ npm start`;
   intro="现在可以从源码启动 Loom Studio。安装包尚未发布，先准备好 Git 和 Node.js，三行命令就能开始安装。"
 >
   <section class="portal-section portal-section--soft">
-    <div class="container download-start">
-      <div class="download-start__intro">
+    <div class="container download-start" data-motion-group>
+      <div class="download-start__intro" data-motion-reveal>
         <span class="portal-tag">从源码启动</span>
         <h2>打开终端，<br />把 Loom 带回本地</h2>
         <p>需要 <strong>Git</strong> 和 <strong>Node.js 22.18.0 或更新版本</strong>，并确保终端能使用 <code>git</code>、<code>node</code> 和 <code>npm</code>。</p>
@@ -25,12 +24,7 @@ npm start`;
         <div class="download-links"><a href="https://git-scm.com/downloads" target="_blank" rel="noreferrer">安装 Git <ArrowUpRight size={15} /></a><a href="https://nodejs.org/en/download" target="_blank" rel="noreferrer">安装 Node.js <ArrowUpRight size={15} /></a></div>
       </div>
       <div class="download-terminal">
-        <div class="download-command">
-          <div class="download-command__heading"><span><Terminal size={18} />在你准备存放程序的目录运行</span><button type="button" data-copy-install>复制命令</button></div>
-          <pre><code data-install-commands>{commands}</code></pre>
-          <p>Windows、macOS 和 Linux 都可使用这组命令。</p>
-          <span class="download-copy-status" role="status" aria-live="polite" data-copy-status></span>
-        </div>
+        <DownloadConsole client:load />
         <div class="download-tip"><NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message="第一次启动会花一点时间，记得保持终端开启。" /></div>
       </div>
     </div>
@@ -38,38 +32,22 @@ npm start`;
   <section class="portal-section">
     <div class="container">
       <div class="portal-section__heading"><div><small>START / PLAY</small><h2>启动之后</h2></div><p>日常游玩使用同一个本地服务，无需分别启动前端与后端。</p></div>
-      <div class="download-steps">
-        <article><span>01 / 打开工作台</span><h3>访问终端显示的地址</h3><p>默认是 <a href="http://127.0.0.1:18010" target="_blank" rel="noreferrer">http://127.0.0.1:18010</a>。运行期间保持服务窗口开启，结束时在终端按 Ctrl+C 停止服务。</p></article>
-        <article><span>02 / 配置模型</span><h3>接上你使用的模型</h3><p>在应用中配置账户、API 凭据和模型，并绑定预设。基础内容不附带 API Key 或模型绑定。</p></article>
-        <article><span>03 / 再次启动</span><h3>回到程序目录运行</h3><p>下次在 <code>LoomStudio</code> 目录执行 <code>npm start</code>。也可使用 Windows 的 <code>start.bat</code>、macOS 的 <code>start.command</code> 或 Linux 的 <code>./start.sh</code>。</p></article>
+      <div class="download-steps" data-motion-group>
+        <article data-motion-reveal><span>01 / 打开工作台</span><h3>访问终端显示的地址</h3><AnimatedDetails class="download-step"><span slot="summary">查看这一步<ChevronDown size={14} aria-hidden="true" /></span><p>默认是 <a href="http://127.0.0.1:18010" target="_blank" rel="noreferrer">http://127.0.0.1:18010</a>。运行期间保持服务窗口开启，结束时在终端按 Ctrl+C 停止服务。</p></AnimatedDetails></article>
+        <article data-motion-reveal><span>02 / 配置模型</span><h3>接上你使用的模型</h3><AnimatedDetails class="download-step"><span slot="summary">查看这一步<ChevronDown size={14} aria-hidden="true" /></span><p>在应用中配置账户、API 凭据和模型，并绑定预设。基础内容不附带 API Key 或模型绑定。</p></AnimatedDetails></article>
+        <article data-motion-reveal><span>03 / 再次启动</span><h3>回到程序目录运行</h3><AnimatedDetails class="download-step"><span slot="summary">查看这一步<ChevronDown size={14} aria-hidden="true" /></span><p>下次在 <code>LoomStudio</code> 目录执行 <code>npm start</code>。也可使用 Windows 的 <code>start.bat</code>、macOS 的 <code>start.command</code> 或 Linux 的 <code>./start.sh</code>。</p></AnimatedDetails></article>
       </div>
       <p class="download-note">macOS 启动脚本的执行权限取决于本机设置；Linux 启动脚本尚未完成实机人工验收。通用入口始终是终端中的 <code>npm start</code>。</p>
     </div>
   </section>
   <section class="portal-section portal-section--soft">
     <div class="container download-details">
-      <article><small>UPDATES / DATA</small><h2>更新前，保留好你的故事</h2><p>程序和用户数据分开保存，终端会显示实际数据目录。更新前先停止服务并备份整个数据目录。</p><p>更新源码后需要重新安装匹配的依赖并主动构建；<code>npm start</code> 不会检测已有构建是否落后于源码。</p><pre><code>{`git pull --ff-only
-npm exec --yes --package=pnpm@9.15.0 -- pnpm install --frozen-lockfile
-npm exec --yes --package=pnpm@9.15.0 -- pnpm build:app
-npm start`}</code></pre><p>如果本地改动导致 Git 无法更新，先处理改动；不要直接覆盖自己的文件。</p></article>
-      <article><small>RELEASES / COMING LATER</small><h2>安装包准备中</h2><p>目前先使用源码启动。后续正式发行包会在 GitHub Releases 提供版本、平台与校验信息。GitHub 自动生成的 Source code 压缩包仍属于源码，并非预构建成品。</p><div class="download-links"><a href="https://github.com/The-LoomStudio/LoomStudio/releases" target="_blank" rel="noreferrer">查看 Releases <ArrowUpRight size={15} /></a><a href="https://github.com/The-LoomStudio/LoomStudio/blob/main/docs/guide/beta-release.md" target="_blank" rel="noreferrer">完整安装与数据说明 <ArrowUpRight size={15} /></a></div><p>服务目前供本机使用。模型调用会把本轮构建的上下文发送给你配置的 Provider。</p><div class="download-release-nom"><NomSticker src="/images/nom/stickers/fullbody/working.png" size="medium" /></div></article>
+      <article data-motion-reveal><small>UPDATES / DATA</small><h2>更新前，保留好你的故事</h2><p>程序和用户数据分开保存，终端会显示实际数据目录。更新前先停止服务并备份整个数据目录。</p><p>更新源码后需要重新安装匹配的依赖并主动构建；<code>npm start</code> 不会检测已有构建是否落后于源码。</p><p>在上方命令面板选择「更新源码」，复制完整更新步骤。<a href="#download-console">回到命令面板 ↑</a></p><p>如果本地改动导致 Git 无法更新，先处理改动；不要直接覆盖自己的文件。</p></article>
+      <article data-motion-reveal><small>RELEASES / COMING LATER</small><h2>安装包准备中</h2><p>目前先使用源码启动。后续正式发行包会在 GitHub Releases 提供版本、平台与校验信息。GitHub 自动生成的 Source code 压缩包仍属于源码，并非预构建成品。</p><div class="download-links"><a href="https://github.com/The-LoomStudio/LoomStudio/releases" target="_blank" rel="noreferrer">查看 Releases <ArrowUpRight size={15} /></a><a href="https://github.com/The-LoomStudio/LoomStudio/blob/main/docs/guide/beta-release.md" target="_blank" rel="noreferrer">完整安装与数据说明 <ArrowUpRight size={15} /></a></div><p>服务目前供本机使用。模型调用会把本轮构建的上下文发送给你配置的 Provider。</p><div class="download-release-nom"><NomSticker src="/images/nom/stickers/fullbody/working.png" size="medium" /></div></article>
     </div>
   </section>
 </PortalLayout>
 
-<script>
-  const button = document.querySelector<HTMLButtonElement>('[data-copy-install]');
-  const commands = document.querySelector<HTMLElement>('[data-install-commands]');
-  const status = document.querySelector<HTMLElement>('[data-copy-status]');
-  button?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(commands!.textContent!);
-      status!.textContent = '已复制，可以粘贴到终端。';
-    } catch {
-      status!.textContent = '无法访问剪贴板，请选中上方命令手动复制。';
-    }
-  });
-</script>
 <style>
   .download-start, .download-details { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: clamp(28px, 5vw, 76px); }
   .download-start h2, .download-details h2 { font: 580 clamp(28px, 3.5vw, 42px)/1.3 var(--loom-site-font-display); margin: 24px 0; }
@@ -79,21 +57,16 @@ npm start`}</code></pre><p>如果本地改动导致 Git 无法更新，先处理
   .download-terminal { min-width: 0; }
   .download-tip { margin-top: 22px; }
   .download-release-nom { display: flex; justify-content: flex-end; margin-top: 24px; }
-  .download-command { min-width: 0; border: 1px solid var(--loom-site-border-strong); border-radius: 22px; padding: 24px; background: var(--loom-site-bg); }
-  .download-command__heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; font-size: 12px; }
-  .download-command__heading span { display: inline-flex; align-items: center; gap: 8px; }
-  .download-command button { min-height: 44px; padding: 0 16px; border: 1px solid var(--loom-site-border-strong); border-radius: 999px; background: var(--loom-site-surface); color: var(--loom-site-text); cursor: pointer; }
-  .download-command button:hover { background: var(--loom-site-surface-raised); }
-  .download-command button:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: 4px; }
   pre { max-width: 100%; overflow-x: auto; padding: 20px 0; font: 12px/1.9 var(--loom-site-font-mono); }
   code { font-family: var(--loom-site-font-mono); }
-  .download-command p, .download-copy-status { font-size: 12px; }
-  .download-copy-status { display: block; min-height: 20px; color: var(--loom-site-text-muted); }
   .download-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
   .download-steps article { border-top: 1px solid var(--loom-site-border); padding-top: 24px; }
   .download-steps span, .download-details small { font: 11px var(--loom-site-font-mono); color: var(--loom-site-text-muted); }
   .download-steps h3 { font-size: 20px; margin: 24px 0 14px; }
   .download-note { margin-top: 32px; font-size: 12px; }
   .download-details article { min-width: 0; }
-  @media (max-width: 760px) { .download-start, .download-details, .download-steps { grid-template-columns: 1fr; } .download-command { padding: 20px; } }
+  @media (max-width: 760px) { .download-start, .download-details, .download-steps { grid-template-columns: 1fr; } }
+  .download-step :global(summary) { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; cursor: pointer; font-size: 12px; list-style: none; color: var(--loom-site-text); }
+  .download-step :global(summary::-webkit-details-marker) { display: none; }
+  .download-step :global(summary) > span { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 </style>

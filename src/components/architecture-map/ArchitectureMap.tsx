@@ -1,3 +1,6 @@
+import { LayoutGroup, domMax } from 'motion/react';
+import SiteMotion from '../motion/SiteMotion';
+import { MapSidebar } from './MapSidebar';
 import { useEffect, useState } from 'react';
 import {
   Background, BackgroundVariant, BaseEdge, EdgeLabelRenderer, Handle, MarkerType, Panel, Position,
@@ -452,7 +455,7 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
           </ReactFlow>
         </section>
 
-        <aside className="am-sidebar" id="architecture-sidebar" aria-label="架构说明" aria-hidden={!sidebarOpen} inert={!sidebarOpen}>
+        <MapSidebar open={sidebarOpen}>
           <div className="am-sidebar-heading">
             <span>{concept ? '数据概念' : selected ? '模块详情' : selectedRegion ? '系统模块' : journey ? '操作路径' : '架构总览'}</span>
           </div>
@@ -546,7 +549,7 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
             </>}
           </div>
           <footer className="am-snapshot"><span>核对于 {snapshot.date}</span><span>{snapshot.baseline.slice(0, 7)} · 只读文档</span></footer>
-        </aside>
+        </MapSidebar>
       </div>
       <footer className="am-status">
         <span><i />{simulationActive ? simulationStatus : `${journey?.title ?? '系统总览'} · ${journey ? `${journey.steps.length} 个步骤` : `${regions.length} 个分区 / ${items.length} 个模块`}`}</span>
@@ -567,7 +570,7 @@ export default function ArchitectureMap(props: MapProps) {
     window.addEventListener('hashchange', openLinkedView);
     return () => window.removeEventListener('hashchange', openLinkedView);
   }, []);
-  return view === 'modules' || view === 'flows'
+  return <SiteMotion features={domMax}><LayoutGroup id="architecture-map">{view === 'modules' || view === 'flows'
     ? <ReactFlowProvider key="legacy"><MapCanvas {...props} view={view} setView={setView} /></ReactFlowProvider>
-    : <ReactFlowProvider key={view}><SemanticMap scene={semanticScenes[view]} nomGuide={props.nomGuide} onViewChange={setView} /></ReactFlowProvider>;
+    : <ReactFlowProvider key={view}><SemanticMap scene={semanticScenes[view]} nomGuide={props.nomGuide} onViewChange={setView} /></ReactFlowProvider>}</LayoutGroup></SiteMotion>;
 }

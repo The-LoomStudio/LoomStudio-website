@@ -82,14 +82,14 @@ const officialTag = currentLocale === 'ja' ? 'Loom Studio 公式拡張' : curren
 <BaseLayout title={meta.title} description={meta.description} locale={currentLocale}>
   <SiteHeader locale={currentLocale} />
   <main class="marketplace">
-    <header class="market-heading">
+    <header class="market-heading" data-motion-reveal>
       <span class="market-sticker"><Puzzle size={17} aria-hidden="true" />{stickerText}</span>
       <h1>Extensions <span>/ Marketplace</span></h1>
       <p>{subHeading}</p>
     </header>
-    <section class="extension-board" aria-label="Official Extensions">
+    <section class="extension-board" data-motion-group aria-label="Official Extensions">
       {extensions.map((extension) => (
-        <article class:list={['extension-tile', `extension-tile--${extension.kind}`]}>
+        <article data-motion-reveal data-motion-feedback class:list={['extension-tile', `extension-tile--${extension.kind}`]}>
           <a class="extension-tile__art" href={extension.href} aria-label={`About ${extension.name}`}><ExtensionArtwork kind={extension.kind} compact /></a>
           <div class="extension-tile__copy">
             <span class="extension-tile__tag">{extension.label}</span>
@@ -98,7 +98,7 @@ const officialTag = currentLocale === 'ja' ? 'Loom Studio 公式拡張' : curren
             <h3>{extension.headline}</h3>
             <p>{extension.copy}</p>
             <ul>{extension.tags.map((tag) => <li>{tag}</li>)}</ul>
-            <a class="extension-tile__link" href={extension.href}>{extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
+            <a class="extension-tile__link" data-motion-feedback href={extension.href}>{extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
           </div>
         </article>
       ))}

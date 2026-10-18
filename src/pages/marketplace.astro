@@ -25,14 +25,14 @@ const extensions = [
 <BaseLayout title="官方扩展 · Marketplace" description="探索 Loom Studio 官方扩展：用 ST Data Bridge 迁移 SillyTavern 资源，用 The World 为故事建立时间、地点、场景与天气。">
   <SiteHeader />
   <main class="marketplace">
-    <header class="market-heading">
+    <header class="market-heading" data-motion-reveal>
       <span class="market-sticker"><Puzzle size={17} aria-hidden="true" />给工作台的一点新灵感</span>
       <h1>Extensions <span>/ 官方扩展</span></h1>
       <p>带来熟悉的角色，或为故事添上一整个世界。</p>
     </header>
-    <section class="extension-board" aria-label="官方扩展">
+    <section class="extension-board" data-motion-group aria-label="官方扩展">
       {extensions.map((extension) => (
-        <article class:list={['extension-tile', `extension-tile--${extension.kind}`]}>
+        <article data-motion-reveal data-motion-feedback class:list={['extension-tile', `extension-tile--${extension.kind}`]}>
           <a class="extension-tile__art" href={extension.href} aria-label={`了解 ${extension.name}`}><ExtensionArtwork kind={extension.kind} compact /></a>
           <div class="extension-tile__copy">
             <span class="extension-tile__tag">{extension.label}</span>
@@ -41,12 +41,12 @@ const extensions = [
             <h3>{extension.headline}</h3>
             <p>{extension.copy}</p>
             <ul>{extension.tags.map((tag) => <li>{tag}</li>)}</ul>
-            <a class="extension-tile__link" href={extension.href}>认识 {extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
+            <a class="extension-tile__link" data-motion-feedback href={extension.href}>认识 {extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
           </div>
         </article>
       ))}
     </section>
-    <aside class="market-help">
+    <aside class="market-help" data-motion-reveal>
       <div class="market-help__nom"><NomSticker src="/images/nom/stickers/bust/gift.png" size="small" /></div>
       <div class="market-help__copy"><h2>慢慢搭出自己的工作台。</h2><p>从扩展中心安装与管理。每个扩展页都有功能介绍、使用步骤和源码入口。</p></div>
       <a href="/docs/concepts/extension-system">了解扩展体系 <ArrowRight size={16} aria-hidden="true" /></a>

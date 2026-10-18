@@ -21,14 +21,11 @@
 .hero-banner__slide {
   position: absolute;
   inset: 0;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 700ms ease;
 }
 
 .hero-banner__slide.is-active {
   z-index: 1;
-  opacity: 1;
   pointer-events: auto;
 }
 
@@ -177,18 +174,16 @@
 }
 
 .hero-banner__dots button {
-  width: 7px;
   height: 7px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: 999px;
   background: rgba(255, 255, 255, .42);
   cursor: pointer;
-  transition: width 180ms ease, background 180ms ease;
+  transition: background 180ms ease;
 }
 
 .hero-banner__dots button.is-active {
-  width: 26px;
   border-radius: 999px;
   background: #fff;
 }
@@ -250,7 +245,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hero-banner--bottom,
-  .hero-banner__slide,
   .hero-banner__slide img,
   .hero-banner__controls > button,
   .hero-banner__dots button {

@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { AnimatePresence, useIsPresent, useReducedMotion } from 'motion/react'
+import * as m from 'motion/react-m'
+import SiteMotion from '../motion/SiteMotion'
 import { Menu, PanelRight, Check, ChevronDown, LoaderCircle } from 'lucide-react'
 import './story-demo.css'
 import { ChatComposer } from '../studio-demo/snapshot/widgets/chat-composer/chat-composer.js'
@@ -15,6 +18,19 @@ type Message = { id: string; role: 'user' | 'assistant'; text: string; streaming
 type AgentEntry = { id: string; kind: 'user' | 'assistant' | 'tool'; text: string; complete?: boolean }
 type Job = { id: number; text: string; type: 'intro' | 'choice' | 'manual' }
 const t = createTranslator('zh-CN')
+
+function AgentPanel({ children }: { children: ReactNode }) {
+  const present = useIsPresent()
+  const reducedMotion = useReducedMotion()
+  return <m.aside id="story-agent" className="story-flow__agent" aria-label="Agent 会话浮层"
+    inert={!present} aria-hidden={!present}
+    initial={{ opacity: 0, x: reducedMotion ? 0 : 18 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: reducedMotion ? 0 : 18 }}
+    transition={{ duration: reducedMotion ? 0 : 0.22, ease: 'easeOut' }}>
+    {children}
+  </m.aside>
+}
 
 export default function StoryDemo() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -139,7 +155,7 @@ export default function StoryDemo() {
   function closeAgent() { setAgentOpen(false); toggleRef.current?.focus() }
   const clock = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
 
-  return <section ref={rootRef} className="story-flow" aria-label="Loom Studio 剧情游玩模拟"
+  return <SiteMotion><section ref={rootRef} className="story-flow" aria-label="Loom Studio 剧情游玩模拟"
     onKeyDown={event => { if (event.key === 'Escape' && agentOpen) { event.stopPropagation(); closeAgent() } }}>
     <header className="story-native-header">
       <span className="story-native-menu" aria-hidden="true"><Menu /></span>
@@ -174,15 +190,17 @@ export default function StoryDemo() {
             onChangeInput={setInput} onPreviewPrompt={() => {}} onSubmit={submit} />
         </div>
       </div>
-      {agentOpen && <aside id="story-agent" className="story-flow__agent" aria-label="Agent 会话浮层">
-        <header><span>TOOLS</span><span>{busy ? '执行中' : '已同步'}</span></header>
-        <div ref={agentRef} className="story-flow__agent-content">
-          {agentEntries.filter(entry => entry.kind === 'tool').length === 0 ? <p>选择一个行动，查看工具执行过程。</p> : agentEntries.filter(entry => entry.kind === 'tool').map(entry =>
-            <div key={entry.id} data-agent-kind={entry.kind} className={`story-flow__agent-entry story-flow__agent-entry--${entry.kind}`}>
-              {entry.kind === 'tool' ? <>{entry.complete ? <Check aria-hidden="true" /> : <LoaderCircle className="story-flow__spinner" aria-hidden="true" />}<span>{entry.text} · {entry.complete ? '完成' : '执行中'}</span></> : entry.text}
-            </div>)}
-        </div>
-      </aside>}
+      <AnimatePresence>
+        {agentOpen && <AgentPanel key="agent">
+          <header><span>TOOLS</span><span>{busy ? '执行中' : '已同步'}</span></header>
+          <div ref={agentRef} className="story-flow__agent-content">
+            {agentEntries.filter(entry => entry.kind === 'tool').length === 0 ? <p>选择一个行动，查看工具执行过程。</p> : agentEntries.filter(entry => entry.kind === 'tool').map(entry =>
+              <div key={entry.id} data-agent-kind={entry.kind} className={`story-flow__agent-entry story-flow__agent-entry--${entry.kind}`}>
+                {entry.kind === 'tool' ? <>{entry.complete ? <Check aria-hidden="true" /> : <LoaderCircle className="story-flow__spinner" aria-hidden="true" />}<span>{entry.text} · {entry.complete ? '完成' : '执行中'}</span></> : entry.text}
+              </div>)}
+          </div>
+        </AgentPanel>}
+      </AnimatePresence>
     </div>
-  </section>
+  </section></SiteMotion>
 }

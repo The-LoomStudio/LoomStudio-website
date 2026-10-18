@@ -24,15 +24,15 @@ const overviewHeadings = [
   frontmatter={{ title: '文档概览', description: '从 Narrative、Agent Session 与 Prompt Build 三条主线，理解 Loom Studio 如何支撑长篇角色扮演与深度叙事' }}
   headings={overviewHeadings}
 >
-  <section class="docs-intro">
+  <section class="docs-intro" data-motion-reveal>
     <h2 id="从故事开始">从故事开始</h2>
     <p>Loom Studio 是面向深度长篇角色扮演与互动叙事的桌面创作工具，故事可以持续生长，Agent 可以在幕后推演，提示词装配完全清晰可查</p>
     <blockquote data-callout="boundary">当前公开文档只描述适合对外理解的产品概念。产品仓库中的内部设计规范不会自动发布到这里</blockquote>
   </section>
 
-  <section class="docs-card-grid">
+  <section class="docs-card-grid" data-motion-group>
     {cards.map((card) => (
-      <a href={card.href}>
+      <a href={card.href} data-motion-reveal data-motion-feedback>
         <span>{card.tag}</span>
         <h3>{card.title}</h3>
         <p>{card.copy}</p>
@@ -80,11 +80,10 @@ Provider</code></pre>
     border-radius: 18px;
     padding: 24px;
     background: var(--loom-site-surface);
-    transition: 160ms ease;
+    transition: background 160ms ease;
   }
   .docs-card-grid a:hover {
     background: var(--loom-site-surface-raised);
-    transform: translateY(-2px);
   }
   .docs-card-grid span {
     color: var(--loom-site-accent);

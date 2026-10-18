@@ -31,13 +31,13 @@ function Card({ image, alt }: { image: DisplayImage; alt: string }) {
 
 export default function CardMarquee({ images }: { images: Record<string, DisplayImage> }) {
   return (
-    <div className="card-showcase card-showcase--marquee" aria-label="角色卡展示">
-      <div className="card-showcase__lane card-showcase__lane--forward">
+    <div className="card-showcase card-showcase--marquee" data-zoom-marquee aria-label="角色卡展示">
+      <div className="card-showcase__lane card-showcase__lane--forward" data-zoom-lane>
         <div className="card-showcase__track">
           {[...cards, ...cards].map((card, index) => <Card key={`forward-${index}`} image={images[card.src]} alt={card.alt} />)}
         </div>
       </div>
-      <div className="card-showcase__lane card-showcase__lane--reverse">
+      <div className="card-showcase__lane card-showcase__lane--reverse" data-zoom-lane>
         <div className="card-showcase__track">
           {[...cards.slice().reverse(), ...cards.slice().reverse()].map((card, index) => (
             <Card key={`reverse-${index}`} image={images[card.src]} alt={card.alt} />

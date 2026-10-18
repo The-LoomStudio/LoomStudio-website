@@ -1,0 +1,63 @@
+.install-console { --loom-site-bg: #141b22; --loom-site-bg-soft: #1c252e; --loom-site-text: #dce6ef; --loom-site-text-muted: #adbcca; --loom-site-text-subtle: #8e9eaf; --loom-site-border: #303b46; --loom-site-border-strong: #465463; --loom-site-surface: #293542; --loom-site-silver: #dce6ef; --loom-site-accent-strong: #c7a9ef; overflow: hidden; min-width: 0; border: 1px solid var(--loom-site-border-strong); border-radius: 16px; background: var(--loom-site-bg); box-shadow: 0 24px 70px rgb(8 15 24 / .16); scroll-margin-top: 120px; }
+.install-console button { color: inherit; font: inherit; cursor: pointer; }
+.install-console button:focus-visible, .install-step-tabs button:focus-visible { outline: 2px solid var(--loom-site-accent-strong); outline-offset: 3px; }
+.install-console__header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--loom-site-bg-soft); border-bottom: 1px solid var(--loom-site-border); }
+.install-console__header > span:nth-child(2) { display: inline-flex; align-items: center; gap: 8px; color: var(--loom-site-text-muted); font: 9px var(--loom-site-font-mono); letter-spacing: .08em; }
+.install-console__dots { display: inline-flex; gap: 5px; }
+.install-console__dots i { width: 7px; height: 7px; border-radius: 50%; background: #f07878; }
+.install-console__dots i:nth-child(2) { background: #e6bd68; }
+.install-console__dots i:nth-child(3) { background: #7cc7a1; }
+.install-console__source { margin-left: auto; color: var(--loom-site-text-subtle); font: 8px var(--loom-site-font-mono); letter-spacing: .12em; }
+.install-modes { display: flex; gap: 4px; padding: 12px 14px 0; }
+.install-modes button { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; flex: 1; gap: 8px; min-height: 36px; padding: 7px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--loom-site-text-muted); font-size: 12px; }
+.install-modes button[aria-selected=true] { color: var(--loom-site-text); }
+.install-modes small { font: 9px var(--loom-site-font-mono); opacity: .65; }
+.install-mode-highlight { position: absolute; z-index: -1; inset: 0; border: 1px solid var(--loom-site-border); border-radius: 10px; background: var(--loom-site-surface); }
+.install-platforms { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 20px 0; }
+.install-platforms button { padding: 6px 12px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--loom-site-text-subtle); font-size: 11px; }
+.install-platforms button[aria-pressed=true] { border-color: var(--loom-site-border-strong); color: var(--loom-site-text); }
+.install-console__body { padding: 10px 20px 16px; }
+.install-context { margin: 0 0 10px; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.7; }
+.install-console__project { color: #788da2; }
+.install-code { display: grid; gap: 8px; padding: 4px 0 10px; }
+.install-prompt-context { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; margin-bottom: 2px; font: 10px/1.8 var(--loom-site-font-mono); user-select: none; }
+.install-prompt-directory { color: #95baff; font-weight: 600; }
+.install-prompt-word { color: #8995a8; font-style: italic; }
+.install-prompt-branch, .install-prompt-runtime { display: inline-flex; align-items: center; gap: 5px; }
+.install-prompt-branch { color: #c7a9ef; }
+.install-prompt-runtime { color: #b6d69a; }
+.install-command__input { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.install-prompt-character { color: #8490a6; font: 600 15px/28px var(--loom-site-font-mono); user-select: none; }
+.install-command[data-active=true] .install-prompt-character { color: #d1afff; text-shadow: 0 0 12px rgb(193 153 255 / .35); }
+.install-code pre { min-width: 0; margin: 0; padding: 0; overflow-x: auto; color: #dce6ef; font: 11px/28px var(--loom-site-font-mono); scrollbar-width: thin; scrollbar-color: #536575 transparent; }
+.install-code code { font: inherit; }
+.install-terminal-cursor { display: inline-block; width: .6em; height: 1.15em; margin-left: .5em; vertical-align: -.2em; background: #c7a9ef; animation: install-cursor-blink 1.2s steps(1) infinite; user-select: none; }
+@keyframes install-cursor-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .install-terminal-cursor { animation: none; } }
+.install-code .shell-command { color: #94d8c0; font-weight: 600; }
+.install-code .shell-argument { color: #e9d49b; }
+.install-code .shell-flag { color: #c8b4f2; }
+.install-code .shell-value { color: #f0b58f; }
+.install-code .shell-url { color: #95cbf3; }
+.install-code .shell-path { color: #b5d69a; }
+.install-code ::selection { background: #405b70; color: #fff; }
+.install-copy-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--loom-site-border); }
+.install-copy-status { flex: 1 1 160px; color: var(--loom-site-text-muted); font-size: 11px; line-height: 1.8; }
+.install-copy-status[data-state=copied] { color: var(--loom-site-success); }
+.install-copy-status[data-state=error] { color: var(--loom-site-danger); }
+.install-console .install-copy { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 9px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--loom-site-border-strong); border-radius: 999px; background: var(--loom-site-silver); color: var(--loom-site-bg); font-size: 12px; }
+.install-copy > span { display: inline-flex; }
+.install-copy:disabled { cursor: progress; opacity: .7; }
+.install-walkthrough { padding: 16px 4px 0; }
+.install-walkthrough__caption { color: var(--loom-site-text-subtle); font-size: 10px; }
+.install-step-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.install-step-tabs button { font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 6px 9px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--loom-site-text-muted); font-size: 10px; }
+.install-step-tabs button[aria-pressed=true] { background: var(--loom-site-surface); color: var(--loom-site-text); border-color: var(--loom-site-border); }
+.install-step-tabs button > span { font: 9px var(--loom-site-font-mono); }
+.install-step-help { margin: 10px 0; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.8; }
+.install-platform-tip { margin: 0; padding-top: 10px; border-top: 1px solid var(--loom-site-border); color: var(--loom-site-text-subtle); font-size: 11px; line-height: 1.8; }
+.install-console__footer { display: flex; align-items: center; gap: 8px; padding: 10px 4px; color: var(--loom-site-text-subtle); font-size: 10px; }
+.install-availability { margin: 16px 8px 0; color: var(--loom-site-text-subtle); font-size: 11px; line-height: 1.8; text-align: center; }
+.install-noscript { margin-top: 24px; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.8; }
+.install-noscript pre { overflow-x: auto; font-size: 11px; }
+@media (max-width: 600px) { .install-console__header { padding-inline: 18px; gap: 12px; } .install-console__source { display: none; } .install-modes { padding-inline: 12px; } .install-modes button { font-size: 11px; padding-inline: 7px; gap: 5px; } .install-modes small { display: none; } .install-console__body { padding-inline: 16px; } .install-platforms { padding-inline: 18px; } .install-copy-row { align-items: stretch; } .install-copy { flex: 1 1 auto; } }

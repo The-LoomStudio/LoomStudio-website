@@ -61,7 +61,7 @@ const galleryTitle = currentLocale === 'ja' ? 'コンセプト作品ウォール
         <b>00</b>
         <i></i>
       </div>
-      <div class="showcase-feature__copy">
+      <div class="showcase-feature__copy" data-motion-reveal>
         <span class="portal-tag">FEATURED CONCEPT</span>
         <p class="eyebrow">A journey beyond the transcript</p>
         <h2>{featuredTitle}</h2>
@@ -76,12 +76,12 @@ const galleryTitle = currentLocale === 'ja' ? 'コンセプト作品ウォール
 
   <section class="portal-section">
     <div class="container">
-      <div class="portal-section__heading">
+      <div class="portal-section__heading" data-motion-reveal>
         <div><small>GALLERY / WORLDS</small><h2>{galleryTitle}</h2></div>
       </div>
-      <div class="showcase-grid">
+      <div class="showcase-grid" data-motion-group>
         {worlds.map((world) => (
-          <article class="showcase-card">
+          <article class="showcase-card" data-motion-reveal data-motion-feedback>
             <span>{world.chapter}</span>
             <h3>{world.title}</h3>
             <p>{world.copy}</p>

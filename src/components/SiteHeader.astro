@@ -141,6 +141,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
 </dialog>
 
 <script>
+  import { setupThemeToggle } from '../scripts/theme-toggle';
   const trigger = document.querySelector<HTMLButtonElement>('[data-menu-trigger]')!;
   const menu = document.querySelector<HTMLDialogElement>('[data-route-menu]')!;
   const scroller = menu.querySelector<HTMLElement>('[data-menu-scroll]')!;
@@ -150,31 +151,13 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   const next = menu.querySelector<HTMLButtonElement>('[data-menu-next]')!;
   const counter = menu.querySelector<HTMLElement>('[data-menu-counter]')!;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const themeToggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  setupThemeToggle(document.querySelector<HTMLButtonElement>('[data-theme-toggle]'));
   let progress = Number(menu.dataset.currentIndex);
   let targetProgress = progress;
   let frame = 0;
   let lastTime = 0;
   let drag: { id: number; x: number; y: number; start: number } | null = null;
   let dragged = false;
-
-  const syncThemeToggle = () => {
-    if (!themeToggle) return;
-    const dark = document.documentElement.dataset.theme === 'dark';
-    const label = dark ? '切换至浅色模式' : '切换至暗色模式';
-    themeToggle.setAttribute('aria-pressed', String(dark));
-    themeToggle.setAttribute('aria-label', label);
-    themeToggle.title = label;
-  };
-  themeToggle?.addEventListener('click', () => {
-    const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-    document.querySelector<HTMLMetaElement>('[data-theme-color]')?.setAttribute('content', theme === 'dark' ? '#252b31' : '#82919b');
-    try { localStorage.setItem('loom-site-theme', theme); } catch {}
-    syncThemeToggle();
-  });
-  syncThemeToggle();
 
   const wrap = (value: number) => ((value % links.length) + links.length) % links.length;
   const offsetFrom = (index: number, position: number) => wrap(index - position + links.length / 2) - links.length / 2;
@@ -349,6 +332,10 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   const localeToggle = document.querySelector<HTMLButtonElement>('[data-locale-toggle]');
   const localeMenu = document.querySelector<HTMLElement>('[data-locale-menu]');
   if (localeToggle && localeMenu) {
+    const closeLocaleMenu = () => {
+      localeMenu.hidden = true;
+      localeToggle.setAttribute('aria-expanded', 'false');
+    };
     localeToggle.addEventListener('click', (e) => {
       e.stopPropagation();
       const open = !localeMenu.hidden;
@@ -361,9 +348,17 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
         try { localStorage.setItem('loom-site-locale', target.dataset.localeChoice); } catch {}
       }
       if (!localeMenu.hidden && !localeMenu.contains(e.target as Node)) {
-        localeMenu.hidden = true;
-        localeToggle.setAttribute('aria-expanded', 'false');
+        closeLocaleMenu();
       }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !localeMenu.hidden) {
+        closeLocaleMenu();
+        localeToggle.focus();
+      }
+    });
+    localeToggle.parentElement!.addEventListener('focusout', (event) => {
+      if (!localeToggle.parentElement!.contains(event.relatedTarget as Node | null)) closeLocaleMenu();
     });
   }
 
@@ -407,6 +402,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
     min-width: 100px;
     z-index: 450;
   }
+  .locale-menu[hidden] { display: none; }
   html[data-theme='dark'] .locale-menu {
     background: #1a1e22;
     border-color: rgba(255,255,255,0.12);
@@ -671,6 +667,14 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
     --title-area: 2 / 1 / 5 / 6;
     --caption-area: 7 / 6 / 9 / 13;
   }
+  .route-menu__entry[data-composition='stickers'] {
+    --main-area: 2 / 1 / 9 / 7;
+    --detail-area: 5 / 10 / 9 / 13;
+    --title-area: 2 / 7 / 5 / 13;
+    --caption-area: 5 / 7 / 8 / 10;
+  }
+  .route-menu__entry[data-composition='stickers'] .route-menu__image { background: transparent; }
+  .route-menu__entry[data-composition='stickers'] .route-menu__image img { object-fit: contain; transform: none; }
   .route-menu__image img {
     width: 100%;
     height: 100%;
@@ -702,7 +706,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
     .site-quick-nav { flex-direction: row; gap: 16px; }
   }
   @media (max-width: 600px) {
-    .site-quick-nav { left: 18px; top: 58px; gap: 14px; font-size: 11px; }
+    .site-quick-nav { left: 18px; top: 58px; max-width: calc(100vw - 36px); flex-wrap: wrap; gap: 0 14px; font-size: 11px; }
     .route-menu__edition { display: none; }
     .route-menu__stage { --step-x: 90vw; --step-y: 52dvh; }
     .route-menu__entry { width: 84vw; height: min(500px, calc(100dvh - 150px)); grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
@@ -733,6 +737,10 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
     .route-menu__entry[data-composition='news'] {
       --main-area: 3 / 3 / 7 / 7; --detail-area: 4 / 1 / 8 / 3;
       --title-area: 2 / 1 / 3 / 7; --caption-area: 7 / 3 / 9 / 7;
+    }
+    .route-menu__entry[data-composition='stickers'] {
+      --main-area: 3 / 1 / 8 / 5; --detail-area: 5 / 5 / 8 / 7;
+      --title-area: 2 / 1 / 3 / 7; --caption-area: 8 / 1 / 9 / 7;
     }
     .route-menu__title { font-size: 28px; }
     .route-menu__caption { font-size: 12px; }
