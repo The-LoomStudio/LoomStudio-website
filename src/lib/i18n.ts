@@ -151,13 +151,13 @@ export function getHomeFeatures(locale: SiteLocale) {
         index: '02',
         title: 'Agent 忙了些什么',
         sticker: '/images/nom/stickers/fullbody/working.png',
-        paragraphs: ['整理线索、调用工具、生成回复，Agent 的工作记录留在独立面板里。', '出了岔子，也有记录可查。'],
+        paragraphs: ['故事输入与讨论沿用同一会话历史，工作过程可按需展开；辅助 Agent 会话也可独立使用。', '运行记录、诊断与工具结果可按各自范围查看。'],
       },
       {
         index: '03',
         title: '这一轮，模型看到了什么',
         sticker: '/images/nom/stickers/bust/thinking.png',
-        paragraphs: ['哪些设定进入了上下文、提示词怎样排列，可以展开构建记录查看。', '模型漏了设定？先从这里找找原因。'],
+        paragraphs: ['哪些来源进入上下文、提示词怎样排列，可按该轮已有的构建观察查看。', '模型漏了设定？可以从可用记录开始排查。'],
       },
     ],
     'en': [
@@ -165,19 +165,19 @@ export function getHomeFeatures(locale: SiteLocale) {
         index: '01',
         title: 'Open the story, pick up where you left off',
         sticker: '/images/nom/stickers/fullbody/reading.png',
-        paragraphs: ['Story text and Agent execution logs are kept separate. Read uninterrupted, expanding tool workflows only when you want to.', 'Never have your reading broken by unexpected blocks of raw tool calls.'],
+        paragraphs: ['Story text and Agent work details have separate views over the same story history. Expand the work details when you want to.', 'Never have your reading broken by unexpected blocks of raw tool calls.'],
       },
       {
         index: '02',
         title: 'See what the Agent has been working on',
         sticker: '/images/nom/stickers/fullbody/working.png',
-        paragraphs: ['Clue gathering, tool invocation, and draft generation stay neatly contained in a dedicated panel.', 'When something unexpected happens, full audit logs are always within reach.'],
+        paragraphs: ['Roleplay and discussion share the story session history, with work details available on demand; auxiliary Agent sessions can run separately.', 'Run records, diagnostics, and tool results can be inspected within their available scope.'],
       },
       {
         index: '03',
         title: 'Inspect what the model saw this turn',
         sticker: '/images/nom/stickers/bust/thinking.png',
-        paragraphs: ['Expand prompt build steps to see exact context ordering and which lore entries got activated.', 'Did the model miss a key detail? Trace it directly from here.'],
+        paragraphs: ['Inspect the build observations available for a turn to see source selection, ordering, and activation details.', 'Did the model miss a key detail? Start with the records available for that turn.'],
       },
     ],
     'ja': [
@@ -191,13 +191,13 @@ export function getHomeFeatures(locale: SiteLocale) {
         index: '02',
         title: 'Agent が何をしていたのか確認する',
         sticker: '/images/nom/stickers/fullbody/working.png',
-        paragraphs: ['手がかりの整理、ツールの実行、返答の生成。Agent の足跡は専用パネルに残ります。', '万が一の挙動も、記録を辿って確認できます。'],
+        paragraphs: ['ロールプレイと相談は物語の同じセッション履歴を使い、作業の詳細は必要に応じて展開できます。補助 Agent の会話は別に利用できます。', 'Run 記録、診断、ツール結果を、それぞれ確認できる範囲で辿れます。'],
       },
       {
         index: '03',
         title: 'このターン、モデルに何が見えていたのか',
         sticker: '/images/nom/stickers/bust/thinking.png',
-        paragraphs: ['どの設定がコンテキストに入り、プロンプトがどう並べられたかをビルド履歴で展開可能。', 'モデルが設定を見落とした？ここから原因をすぐ特定できます。'],
+        paragraphs: ['そのターンにあるビルド観察から、Source の選択、順序、Activation の詳細を確認できます。', 'モデルが設定を見落とした？利用できる記録から原因を探れます。'],
       },
     ],
     'ko': [
@@ -211,13 +211,13 @@ export function getHomeFeatures(locale: SiteLocale) {
         index: '02',
         title: 'Agent가 어떤 작업을 수행했는지 확인',
         sticker: '/images/nom/stickers/fullbody/working.png',
-        paragraphs: ['단서 정리, 도구 호출, 응답 생성 등 Agent의 작업 기록은 독립된 패널에 보관됩니다.', '문제가 발생해도 언제든 원인을 추적할 수 있습니다.'],
+        paragraphs: ['역할극과 논의는 이야기의 같은 세션 기록을 사용하며, 작업 과정은 필요할 때 펼쳐 볼 수 있습니다. 보조 Agent 세션은 별도로 사용할 수 있습니다.', '실행 기록, 진단, 도구 결과를 각각 확인 가능한 범위에서 살펴볼 수 있습니다.'],
       },
       {
         index: '03',
         title: '이번 턴에 모델이 무엇을 확인했는지',
         sticker: '/images/nom/stickers/bust/thinking.png',
-        paragraphs: ['어떤 설정이 컨텍스트에 포함되었는지, 프롬프트가 어떻게 정렬되었는지 빌드 기록에서 펼쳐볼 수 있습니다.', '모델이 설정을 놓쳤다면? 여기서 원인을 찾아보세요.'],
+        paragraphs: ['해당 턴에 남은 빌드 관찰에서 Source 선택, 정렬, 활성화 정보를 확인할 수 있습니다.', '모델이 설정을 놓쳤다면? 확인 가능한 기록부터 살펴보세요.'],
       },
     ],
   };
@@ -368,7 +368,7 @@ export const pageMeta = {
       eyebrow: 'Documentation & Guide',
       marker: 'PAGE / 04 · DOCS',
       headline: '翻开工作台的使用手册',
-      intro: '从第一步到故事的深处。掌握角色卡结构、提示词预设编排以及状态变量的全部用法。',
+      intro: '从第一步到故事的深处。了解角色资源、提示词构建、Session 工作历史与本地数据边界。',
     },
     'en': {
       title: 'Documentation',
@@ -376,7 +376,7 @@ export const pageMeta = {
       eyebrow: 'Documentation & Guide',
       marker: 'PAGE / 04 · DOCS',
       headline: 'Open the workbench guide',
-      intro: 'From your first steps into the depths of your stories. Master character card structures, prompt pipelines, and runtime state variables.',
+      intro: 'From your first steps into the depths of your stories. Learn about character resources, prompt construction, Session work history, and local data boundaries.',
     },
     'ja': {
       title: '公式ドキュメント',
@@ -384,7 +384,7 @@ export const pageMeta = {
       eyebrow: 'Documentation & Guide',
       marker: 'PAGE / 04 · DOCS',
       headline: 'スタジオのマニュアルを開く',
-      intro: '最初の一歩から物語の深淵へ。キャラクターカードの構造、プロンプトプリセットの組み立て、ステート変数の活用法を解説します。',
+      intro: '最初の一歩から物語の深層へ。キャラクターリソース、Prompt 構築、Session の作業履歴、ローカルデータの境界を紹介します。',
     },
     'ko': {
       title: '공식 문서',
@@ -392,7 +392,7 @@ export const pageMeta = {
       eyebrow: 'Documentation & Guide',
       marker: 'PAGE / 04 · DOCS',
       headline: '작업대 사용 설명서를 펼쳐보세요',
-      intro: '첫걸음부터 이야기의 깊은 곳까지. 캐릭터 카드 구조, 프롬프트 파이프라인 조립, 런타임 상태 변수 활용법을 마스터하세요.',
+      intro: '첫걸음부터 이야기의 깊은 곳까지. 캐릭터 리소스, Prompt 구성, Session 작업 기록, 로컬 데이터 경계를 알아봅니다.',
     },
   },
 } as const;

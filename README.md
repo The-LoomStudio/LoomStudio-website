@@ -10,7 +10,7 @@ Loom Studio 的独立产品官网与公开文档站。首版使用 Astro 静态�
 
 ## 本地运行
 
-环境与产品仓库保持一致：Node.js 22.18.0、pnpm 9.15.0。
+网站工具链使用 Node.js 22.18.0（`package.json` 限定 `>=22.18.0 <23`）与 pnpm 9.15.0。桌面产品仓库使用 Node.js 24.22.0 或更新版本；两者是独立项目，不要把网站的 Node 版本当成产品启动要求。
 
 ~~~bash
 corepack pnpm install
@@ -44,6 +44,21 @@ corepack pnpm preview
 - 公开文档由本仓库单独维护，不自动同步产品仓库中的 Workbench 或 Archive。
 - src/styles/global.css 是网站自己的银灰色视觉 Token，不 import 产品仓库样式。
 - Cloudflare Pages 部署暂缓，待本地版本确认后再配置。
+
+## 依赖职责与复用入口
+
+网站依赖只服务本仓库，不属于桌面产品依赖。复用边界按当前实际入口维护：
+
+| 依赖 | 当前消费者 | 职责边界 |
+| --- | --- | --- |
+| Astro / `@astrojs/react` / React / React DOM | `src/pages/`；React 岛如 [`ArchitectureMap.tsx`](src/components/architecture-map/ArchitectureMap.tsx)、[`DownloadConsole.tsx`](src/components/download/DownloadConsole.tsx) | Astro 生成页面；React 仅承载互动岛。 |
+| Motion | [`SiteMotion.tsx`](src/components/motion/SiteMotion.tsx)、各 React 岛、[`site-motion.ts`](src/scripts/site-motion.ts) | React 动画与 Astro 原生 DOM 动效共用 Motion，不为相同职责另造帧循环。 |
+| `@xyflow/react` | [`ArchitectureMap.tsx`](src/components/architecture-map/ArchitectureMap.tsx)、[`SemanticMap.tsx`](src/components/architecture-map/SemanticMap.tsx) | 架构节点、边与视图交互。 |
+| `@dnd-kit/core` | [`file-tree.tsx`](src/components/studio-demo/snapshot/shared/ui/file-tree/file-tree.tsx) | 产品演示文件树的拖放样例。 |
+| CodeMirror 语言包 | [`code-highlight.tsx`](src/components/studio-demo/snapshot/shared/ui/markdown-content/code-highlight.tsx) | 演示代码语法高亮，不作为桌面产品编辑器依赖。 |
+| Pagefind | [`site-search.ts`](src/integrations/site-search.ts)、[`site-search.ts`](src/scripts/site-search.ts) | 构建静态全文索引并在浏览器查询。 |
+
+新增或手写前先复用这些现有消费者和依赖能力，不把网站演示依赖混入产品依赖。
 
 ## 目录
 
@@ -106,4 +121,4 @@ Motion 当前覆盖 Banner、叠放卡片、图片放大、Agent 浮层、表情
 - **首次开发或更新内容后先执行 `pnpm build`**。`pnpm dev` 通过中间件读取 `dist/pagefind/` 中最近一次索引；不自动随源码热更新重建搜索索引。`pnpm preview` 可验证完整生产搜索。
 - 新增新闻卡片必须有稳定的 `news-` 前缀 ID 和标题；架构索引复用地图的数据源，避免维护另一份摘要。
 
-本次通过 Astro 类型检查、生产构建，以及真实 Pagefind 索引的范围浏览、中文两字词、新闻和架构定位查询；视觉与交互手感仍由用户验收。
+维护边界：上述检查与查询步骤用于人工维护验证；历史审查记录只代表其记录日期与源码版本，不代表当前工作树已重新验证。页面示意、截图和演示组件也不等同于实时产品数据或工作区连接。

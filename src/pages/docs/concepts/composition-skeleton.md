@@ -22,7 +22,8 @@ Composition Skeleton (提示词如何装配)
   ├── [系统指令槽] System Prompt
   ├── [世界设定挂载点] 世界观 ← 浮空城
   ├── [角色定义挂载点] 角色设定 ← 艾莉丝
-  └── [剧情历史槽] Narrative Timeline
+  ├── [故事正文与工作历史] @chat.session（Timeline 根 Session 的统一顺序投影）
+  └── [辅助会话正文] @chat.narrative（需要时作为文本贡献）
 ~~~
 
 ## 挂载点（Mount Point）与槽位（Slot）

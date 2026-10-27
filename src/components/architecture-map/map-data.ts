@@ -26,9 +26,9 @@ export type Journey = {
 };
 
 export const snapshot = {
-  date: '2026-10-13',
-  baseline: 'faeaba7001be77bb1b046ace483ccae069ea462c',
-  note: '依据固定提交 faeaba7 核对；包含 Lore 命名切换，不包含后续未提交修改。',
+  date: '2026-10-27',
+  baseline: '6440e4e61ef9ef282a4cc1aaedab71935d41c737',
+  note: '只核对图中涉及的主要模块入口与当前主仓工作区合同，不构成全仓源码审计；工作区未提交改动不在此固定链接中，后续相关变更需复核。',
 };
 
 export const regions: { id: RegionId; title: string; subtitle: string; x: number; y: number; width: number; height: number }[] = [
@@ -51,7 +51,7 @@ export const items: MapItem[] = [
   {
     id: 'play', region: 'client', title: '剧情工作区', kind: 'CLIENT',
     summary: '选择 Card，创建 Timeline，提交用户正文。',
-    detail: '创建 Timeline 调用 narratives.create。发送正文时先 appendInput，再校验已有主写作 Agent Session，最后以已提交 inputNodeId 创建 Run。',
+    detail: '创建 Timeline 调用 narratives.create。发送正文时先 appendInput，再校验已有 Timeline 根 Session，最后以已提交 inputNodeId 创建 Run。',
     boundary: '界面状态不是权威存储；创建 Timeline 后会重置当前 Session 选择，不代表删除历史 Session。',
     source: { path: 'apps/studio-client/src/features/narrative-runtime/model/use-narrative-runtime.ts', line: 466 },
   },
@@ -60,14 +60,14 @@ export const items: MapItem[] = [
     summary: '业务类型映射与 HTTP JSON-RPC 传输分离。',
     detail: 'studio-api 定义具体业务调用；client-bridge 封装 fetch、RPC ID 和错误映射。浏览器 401 时可进行一次应用会话刷新。',
     boundary: '会话刷新不是业务重试、提交幂等或防丢失保证。',
-    source: { path: 'apps/studio-client/src/shared/api/studio-api.ts', line: 635 },
+    source: { path: 'apps/studio-client/src/shared/api/studio-api.ts', line: 300, endLine: 307 },
   },
   {
     id: 'extension-ui', region: 'client', title: '扩展管理', kind: 'CLIENT',
     summary: '显式安装、导入资源、启用模块与授权。',
     detail: '用户操作进入 extensions API。安装目标区分全局与 Card；模块启用和资源导入并非同一动作。',
     boundary: '界面列出包不意味着它的模块正在运行。',
-    source: { path: 'apps/studio-client/src/shared/api/studio-api.ts', line: 661 },
+    source: { path: 'apps/studio-client/src/shared/api/trpc-client.ts', line: 10, endLine: 26 },
   },
   {
     id: 'http', region: 'server', title: 'HTTP / 应用会话', kind: 'BOUNDARY',
@@ -88,7 +88,7 @@ export const items: MapItem[] = [
     summary: '将 application.* 与平台 RPC 分派给所有者。',
     detail: 'Server 组装 Runtime 和 Kernel。Application 负责 AIRP 语义；Kernel 负责平台 RPC、服务与事件，二者不互相伪装。',
     boundary: 'Kernel 不选择模型，不定义 Card / Session，也不执行领域 PromptBuild。',
-    source: { path: 'apps/studio-server/src/rpc/studio-rpc-router.ts', line: 1 },
+    source: { path: 'apps/studio-server/src/rpc/trpc/router.ts', line: 20, endLine: 40 },
   },
   {
     id: 'kernel', region: 'server', title: 'Kernel / 事件', kind: 'PLATFORM',
@@ -127,9 +127,9 @@ export const items: MapItem[] = [
   },
   {
     id: 'session', region: 'runtime', title: 'Agent Session', kind: 'WORK',
-    summary: '持久化工作身份，引用 Preset 与可选 Timeline。',
-    detail: 'Session Header 保存 agentPresetId 和可选 timelineId。Transcript 保存 message、reasoning、Invocation、Result、Observation 与 Run 状态。',
-    boundary: 'Session 与 Timeline 关联但不互相拥有。可无 Timeline 创建 Session。',
+    summary: '普通工作身份与 Timeline 根 Session 共用 Transcript 合同。',
+    detail: '普通 kind: agent Session 固定引用 Preset，可选关联 Timeline；kind: timeline 根 Session 与 Timeline 同 ID，承接故事输入框并在安全边界调整 Preset。Transcript 保存 message、reasoning、Invocation、Result、Observation 与 Run 状态。',
+    boundary: '根 Session 不等于 Narrative 正文；其工作记录与故事正文投影按本轮上下文合同组合。普通 Session 仍可无 Timeline。',
     source: { path: 'packages/application-runtime/src/runtime/agents-runtime.ts', line: 200 },
   },
   {
@@ -161,6 +161,20 @@ export const items: MapItem[] = [
     source: { path: 'packages/application-runtime/src/prompt/process-prompt.ts', line: 22, endLine: 110 },
   },
   {
+    id: 'history-text', region: 'runtime', title: 'Narrative / Session 文本投影', kind: 'PROJECTION',
+    summary: '同一有效规则集服务 Prompt、Display 与 Extractor。',
+    detail: '对 Narrative History 与 Agent Session History 冻结投影；Loom Script 可贡献声明式 text-transform 与 text-extractor。展示、Prompt 与提取消费变换结果，canonical 正文和 Transcript 原文保留。',
+    boundary: '不处理 Provider Observation、Tool Invocation / Result 或 Run State；规则变化影响后续投影，不回写原文。',
+    source: { path: 'packages/application-runtime/src/scripts/loom-script-text-pipeline.ts', line: 16 },
+  },
+  {
+    id: 'loom-script', region: 'extensions', title: 'Loom Script / Mount', kind: 'SCRIPT',
+    summary: '独立 Script 文档按目标采用声明或运行环境。',
+    detail: 'Script Document 保存 Metadata 与 Blob 源码；Mount 保存目标、采用版本、启用、配置和授权。声明式文本贡献可以不执行 JS；Client、Worker、Server Runtime 各有不同宿主边界。',
+    boundary: '保存不启动或刷新实例；Server 是同进程可信代码，Worker 线程隔离不等于权限沙箱。',
+    source: { path: 'docs/architecture/extensions/loom-script-runtime.md', line: 5 },
+  },
+  {
     id: 'gateway', region: 'runtime', title: 'AI Gateway', kind: 'ADAPTER',
     summary: '解析 Model 绑定、凭据与 Provider Adapter。',
     detail: 'Preset 引用 Provider Profile / Model。Gateway 使用已授权 Secret 和 Adapter 发出请求，将流事件与结果映射回应用合同。',
@@ -169,7 +183,7 @@ export const items: MapItem[] = [
   },
   {
     id: 'provider', region: 'external', title: '模型服务', kind: 'EXTERNAL',
-    summary: '接收 messages / tools，返回流、用量与调用。',
+    summary: '接收 messages / tools，返回响应；支持时报告用量。',
     detail: '通过官方 Adapter 对接 OpenAI、Anthropic、Google 或 compatible Provider。Provider 返回事实由 Gateway 归一化。',
     boundary: '外部 Provider 不拥有本地 Timeline，也不直接执行 Studio Tool。',
     source: { path: 'packages/ai-gateway/src/provider-registry.ts', line: 1 },
@@ -193,7 +207,7 @@ export const items: MapItem[] = [
     summary: '本地 SHA-256 字节与稳定 assetId。',
     detail: 'Blob 通过 staging、hash 和 finalize 保存原始字节；Media Asset 在 SQLite 保存可查询 metadata。多个业务记录可以引用同一 Blob。',
     boundary: '删除业务引用不会自动物理删除 Blob；目前不做完整物理 GC。',
-    source: { path: 'packages/blob-store/src/index.ts', line: 1 },
+    source: { path: 'packages/asset-store/src/blobs/store.ts', line: 24, endLine: 58 },
   },
   {
     id: 'resources', region: 'storage', title: 'Card / Prompt Resource', kind: 'SQLITE',
@@ -205,8 +219,8 @@ export const items: MapItem[] = [
   {
     id: 'narratives', region: 'storage', title: 'Narrative / State', kind: 'SQLITE',
     summary: '故事节点、Branch Head 与结构化 Revision。',
-    detail: 'Narrative 保存故事权威树；State 保存可校验的结构化快照与版本。分支通过 Head 引用节点及对应 State Revision。',
-    boundary: '不是 Provider message array，也不是 Agent Transcript。',
+    detail: 'Narrative 保存 Timeline / Branch 与楼层节点索引；canonical 正文消息由同 ID 的 Timeline 根 Session Transcript 保存，节点关联对应消息。State 保存可校验的结构化快照与版本。',
+    boundary: 'Narrative Node 是分支位置索引，不是 canonical 正文副本或 Provider wire message array。',
     source: { path: 'packages/application-runtime/src/runtime/narrative-runtime.ts', line: 519 },
   },
   {
@@ -252,8 +266,10 @@ export const connections: Connection[] = [
   { id: 'session-transcript', source: 'session', target: 'transcript', label: '独立工作身份', kind: 'write' },
   { id: 'session-prompt', source: 'session', target: 'prompt', label: '准备本轮输入', kind: 'call' },
   { id: 'resources-prompt', source: 'resources', target: 'prompt', label: 'Preset / Lore', kind: 'read' },
-  { id: 'narratives-prompt', source: 'narratives', target: 'prompt', label: '授权故事投影', kind: 'read' },
-  { id: 'transcript-prompt', source: 'transcript', target: 'prompt', label: '工作历史', kind: 'read' },
+  { id: 'narratives-text', source: 'narratives', target: 'history-text', label: '正文历史', kind: 'read' },
+  { id: 'transcript-text', source: 'transcript', target: 'history-text', label: 'Session History', kind: 'read' },
+  { id: 'scripts-text', source: 'loom-script', target: 'history-text', label: '规则 / 提取器贡献', kind: 'call' },
+  { id: 'history-prompt', source: 'history-text', target: 'prompt', label: '冻结的 History 投影', kind: 'return' },
   { id: 'prompt-loop', source: 'prompt', target: 'loop', label: 'messages + tools', kind: 'return' },
   { id: 'loop-gateway', source: 'loop', target: 'gateway', label: 'Provider Step', kind: 'call' },
   { id: 'secrets-gateway', source: 'secrets', target: 'gateway', label: '授权凭据', kind: 'read' },
@@ -317,7 +333,7 @@ export const journeys: Journey[] = [
       { edge: 'router-create', title: '进入领域操作', detail: 'Server 将调用交给 Narrative Runtime。' },
       { edge: 'create-resources', title: '读取当前 Card', detail: '读取初始 State 声明、Opening 和运行依赖。' },
       { edge: 'resources-create', title: '物化初始内容', detail: '编排 State，并渲染要保存的 Opening。' },
-      { edge: 'create-narrative', title: '创建故事权威树', detail: '在共享事务中保存 State Revision、Timeline、Branch 和 Opening。' },
+      { edge: 'create-narrative', title: '创建故事与分支索引', detail: '在共享事务中保存 State Revision、Timeline、Branch 和 Opening。' },
     ],
   },
   {
