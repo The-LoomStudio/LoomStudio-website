@@ -1,3 +1,4 @@
+import { brailleCells } from '../../lib/braille-cells'
 import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react'
 import { useReducedMotion } from 'motion/react'
 import './setting-composition.css'
@@ -24,8 +25,7 @@ const reasoningParagraphs = [
 ]
 
 // 紧密连续的 ASCII 灰度阶梯（不留白，暗部亦有微字符纹理）
-const ASCII_RAMP = '@%#W8&MB$*o+=~-:;·'
-const WAVE_CHARS = '*#%+=~-:'
+const WAVE_CHARS = '⠁⠃⠇⠏⠟⠿⡿⣿'
 
 const BASE_W = 480
 const BASE_H = 700
@@ -65,12 +65,12 @@ export default function SettingComposition({ portrait }: { portrait: string }) {
     img.onload = () => {
       try {
         const off = document.createElement('canvas')
-        off.width = ASCII_COLS
-        off.height = ASCII_ROWS
+        off.width = ASCII_COLS * 2
+        off.height = ASCII_ROWS * 4
         const offCtx = off.getContext('2d', { willReadFrequently: true })
         if (offCtx) {
-          offCtx.drawImage(img, 0, 0, ASCII_COLS, ASCII_ROWS)
-          const imgData = offCtx.getImageData(0, 0, ASCII_COLS, ASCII_ROWS).data
+          offCtx.drawImage(img, 0, 0, ASCII_COLS * 2, ASCII_ROWS * 4)
+          const imgData = brailleCells(offCtx.getImageData(0, 0, ASCII_COLS * 2, ASCII_ROWS * 4).data, ASCII_COLS, ASCII_ROWS)
           const cells: AsciiCellData[] = []
 
           const cellW = BASE_W / ASCII_COLS
@@ -82,18 +82,7 @@ export default function SettingComposition({ portrait }: { portrait: string }) {
 
           for (let r = 0; r < ASCII_ROWS; r++) {
             for (let c = 0; c < ASCII_COLS; c++) {
-              const pIdx = (r * ASCII_COLS + c) * 4
-              const red = imgData[pIdx]
-              const green = imgData[pIdx + 1]
-              const blue = imgData[pIdx + 2]
-              const lum = 0.299 * red + 0.587 * green + 0.114 * blue
-
-              // 根据像素亮度选取 ASCII 字符，暗部亦保持细腻微字模
-              const rampIdx = Math.min(
-                ASCII_RAMP.length - 1,
-                Math.floor((1 - lum / 255) * ASCII_RAMP.length)
-              )
-              const char = ASCII_RAMP[rampIdx]
+              const { char, r: red, g: green, b: blue, lum } = imgData[r * ASCII_COLS + c]
 
               // 坐标完全覆盖 0 到 BASE_W、0 到 BASE_H，无任何额外缩进内边距
               const cellX = (c + 0.5) * cellW
@@ -233,7 +222,7 @@ export default function SettingComposition({ portrait }: { portrait: string }) {
     // 【阶段二】：直接从推理位置向全框扩散 (Diffusion)，覆盖并扩展为全幅高密 ASCII (0.32 ~ 0.80)
     if (diffuseP > 0 && p <= 0.80 && dataReady) {
       ctx.globalAlpha = loopAlpha * asciiFadeOut
-      ctx.font = '11px -apple-system, BlinkMacSystemFont, monospace'
+      ctx.font = '11px "Apple Braille", "Segoe UI Symbol", monospace'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 

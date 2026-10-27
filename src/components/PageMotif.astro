@@ -1,0 +1,67 @@
+---
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { Sparkles, Download, Images, Blocks, BookOpen, Network, Newspaper, Smile } from 'lucide-react';
+import sharp from 'sharp';
+
+interface Props { path: string }
+const { path } = Astro.props;
+const section = path.split('/').filter(Boolean)[0] ?? '';
+const icons = { download: Download, showcase: Images, marketplace: Blocks, docs: BookOpen, news: Newspaper, stickers: Smile };
+const Icon = path.startsWith('/docs/architecture') ? Network : icons[section as keyof typeof icons] ?? Sparkles;
+// Sample the existing icon into actual Unicode braille (2 × 4 dots per cell).
+// This runs during Astro rendering; the browser receives only decorative text.
+const columns = 52;
+const rows = 26;
+const svg = renderToStaticMarkup(createElement(Icon, { size: 208, strokeWidth: 1.1, color: '#000' }));
+const { data, info } = await sharp(Buffer.from(svg)).resize(columns * 2, rows * 4).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+const bits = [[0, 3], [1, 4], [2, 5], [6, 7]];
+const lines = Array.from({ length: rows }, (_, row) => Array.from({ length: columns }, (_, column) => {
+  let value = 0;
+  for (let y = 0; y < 4; y++) for (let x = 0; x < 2; x++) {
+    const pixel = ((row * 4 + y) * info.width + column * 2 + x) * info.channels;
+    if (data[pixel + 3] > 64) value |= 1 << bits[y][x];
+  }
+  return String.fromCharCode(0x2800 + value);
+}).join('')).join('\n');
+---
+<div class="page-motif" aria-hidden="true" inert>
+  <svg viewBox="0 0 688 688" focusable="false">
+    {lines.split('\n').map((line, row) => <text fill="var(--page-motif-ink, #f2f4f5)" x="32" y={54 + row * 24} textLength="624" lengthAdjust="spacingAndGlyphs" xml:space="preserve">{line}</text>)}
+  </svg>
+</div>
+
+<style>
+  .page-motif {
+    position: fixed;
+    --motif-size: clamp(340px, 38vw, 560px);
+    inset: auto auto -36px -48px;
+    width: var(--motif-size);
+    aspect-ratio: 1;
+    z-index: 2;
+    pointer-events: none;
+    user-select: none;
+    --page-motif-ink: var(--loom-site-note-ink);
+    color: var(--page-motif-ink);
+    opacity: .14;
+    transform: rotate(-13deg);
+    mask-image: linear-gradient(45deg, #000 12%, rgb(0 0 0 / .85) 35%, rgb(0 0 0 / .4) 65%, transparent 100%);
+    overflow: visible;
+    contain: layout;
+  }
+  /* Explicit line width prevents font fallback from overflowing the mask box.
+     The SVG includes padding around all four sides of the sampled icon. */
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  text {
+    fill: var(--page-motif-ink, #f2f4f5);
+    font-family: 'DejaVu Sans Mono', 'Apple Symbols', monospace;
+    font-size: 20px;
+    font-weight: 400;
+    white-space: pre;
+  }
+  :global(html[data-theme='dark']) .page-motif { --page-motif-ink: var(--loom-site-silver); }
+  @media (max-width: 680px) {
+    .page-motif { --motif-size: min(310px, 80vw); left: -32px; bottom: -24px; opacity: .1; }
+  }
+  @media print { .page-motif { display: none; } }
+</style>

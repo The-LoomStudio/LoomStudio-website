@@ -1,3 +1,4 @@
+import { brailleCells } from '../../lib/braille-cells'
 import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react'
 import { useReducedMotion } from 'motion/react'
 import './story-branching.css'
@@ -8,8 +9,7 @@ const smooth = (t: number) => t * t * (3 - 2 * t)
 const LOOP_DURATION = 13000 // 13秒完整双轨顺序推演循环
 
 // 紧密连续的 ASCII 灰度阶梯（不留白，暗部亦保持细腻微字模）
-const ASCII_RAMP = '@%#W8&MB$*o+=~-:;·'
-const WAVE_CHARS = '*#%+=~-:'
+const WAVE_CHARS = '⠁⠃⠇⠏⠟⠿⡿⣿'
 
 // 分支 A（活跃推进线：雨夜钟楼）参数设定 (16:10 比例)
 const BASE_A_W = 480
@@ -65,30 +65,20 @@ function sampleImageToCells(
   originY: number
 ): AsciiCellData[] {
   const off = document.createElement('canvas')
-  off.width = cols
-  off.height = rows
+  off.width = cols * 2
+  off.height = rows * 4
   const offCtx = off.getContext('2d', { willReadFrequently: true })
   if (!offCtx) return []
 
-  offCtx.drawImage(img, 0, 0, cols, rows)
-  const imgData = offCtx.getImageData(0, 0, cols, rows).data
+  offCtx.drawImage(img, 0, 0, cols * 2, rows * 4)
+  const imgData = brailleCells(offCtx.getImageData(0, 0, cols * 2, rows * 4).data, cols, rows)
   const cells: AsciiCellData[] = []
   const cellW = baseW / cols
   const cellH = baseH / rows
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const pIdx = (r * cols + c) * 4
-      const red = imgData[pIdx]
-      const green = imgData[pIdx + 1]
-      const blue = imgData[pIdx + 2]
-      const lum = 0.299 * red + 0.587 * green + 0.114 * blue
-
-      const rampIdx = Math.min(
-        ASCII_RAMP.length - 1,
-        Math.floor((1 - lum / 255) * ASCII_RAMP.length)
-      )
-      const char = ASCII_RAMP[rampIdx]
+      const { char, r: red, g: green, b: blue, lum } = imgData[r * cols + c]
 
       // 坐标严格覆盖 0..baseW, 0..baseH，零多余边距
       const cellX = (c + 0.5) * cellW
@@ -448,7 +438,7 @@ export default function StoryBranching({
     // 【阶段二】：从推理处直接扩散为全幅彩色高密 ASCII (0.22 ~ 0.44)
     if (diffuseP > 0 && asciiFadeOut > 0 && dataReady) {
       ctx.globalAlpha = loopAlpha * asciiFadeOut
-      ctx.font = '10px -apple-system, BlinkMacSystemFont, monospace'
+      ctx.font = '10px "Apple Braille", "Segoe UI Symbol", monospace'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
@@ -550,7 +540,7 @@ export default function StoryBranching({
     // 【阶段二】：分支 B 从推理处扩散为全幅高密 ASCII (0.64 ~ 0.84)
     if (diffuseP > 0 && asciiFadeOut > 0 && dataReady) {
       ctx.globalAlpha = loopAlpha * asciiFadeOut
-      ctx.font = '9.5px -apple-system, BlinkMacSystemFont, monospace'
+      ctx.font = '9.5px "Apple Braille", "Segoe UI Symbol", monospace'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 

@@ -24,8 +24,9 @@ function LogoTransition({ progress, reducedMotion = false, children }: {
 
   const { width, height } = size
   const baseScale = Math.min(width * 0.64, height * 0.84, 540) / 1254
-  // 60 units fits inside the traced central hole. At the end it covers every corner.
-  const finalZoom = Math.hypot(width, height) / (2 * 60 * baseScale) * 1.08
+  // Only the central opening reveals the destination; ring gaps stay opaque.
+  const apertureRadius = 60
+  const finalZoom = Math.hypot(width, height) / (2 * apertureRadius * baseScale) * 1.08
   const zoom = Math.exp(ramp(progress, 0.58, 1) ** 1.35 * Math.log(finalZoom))
   const transform = `translate(${width / 2} ${height / 2}) scale(${baseScale * zoom}) translate(-620 -619)`
   const reveal = ramp(progress, 0.47, 0.59)
@@ -39,7 +40,7 @@ function LogoTransition({ progress, reducedMotion = false, children }: {
         <mask id={`${id}-aperture`} maskUnits="userSpaceOnUse" x="0" y="0" width={width} height={height} style={{ maskType: 'luminance' }}>
           <rect width={width} height={height} fill="white" />
           {!reducedMotion && <g transform={transform}>
-            <circle cx="620" cy="619" r="348" fill="black" opacity={reveal} />
+            <circle cx="620" cy="619" r={apertureRadius} fill="black" opacity={reveal} />
             {loomMarkParts.map(part => <path key={part.id} d={part.d} fill="white" fillRule="evenodd" />)}
           </g>}
         </mask>

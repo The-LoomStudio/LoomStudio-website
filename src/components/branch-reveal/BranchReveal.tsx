@@ -1,3 +1,4 @@
+import { brailleCells, type BrailleCell } from '../../lib/braille-cells'
 import { useEffect, useRef, useState } from 'react'
 import ZoomImage from '../illustration/ZoomImage'
 import type { DisplayImage } from '../../lib/site-images'
@@ -14,7 +15,7 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
   const [imageReady, setImageReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [focused, setFocused] = useState(false)
-  const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null)
+  const [pixels, setPixels] = useState<BrailleCell[] | null>(null)
   const rows = Math.max(12, Math.round(44 * image.height / image.width))
   const choice = text ?? ['如果换一个选择，故事会往哪里走？', '沿着另一条可能，展开接下来的一幕。', '同一个起点，也可以走向不同的远方。'][order % 3]
   const copy = `${choice}
@@ -56,11 +57,11 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
     const sample = new Image()
     sample.onload = () => {
       const buffer = document.createElement('canvas')
-      buffer.width = 44
-      buffer.height = rows
+      buffer.width = 44 * 2
+      buffer.height = rows * 4
       const context = buffer.getContext('2d')!
-      context.drawImage(sample, 0, 0, 44, rows)
-      setPixels(context.getImageData(0, 0, 44, rows).data)
+      context.drawImage(sample, 0, 0, 44 * 2, rows * 4)
+      setPixels(brailleCells(context.getImageData(0, 0, 44 * 2, rows * 4).data, 44, rows))
     }
     sample.onerror = () => setFailed(true)
     sample.src = image.src
@@ -71,17 +72,15 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
     const context = canvas.current!.getContext('2d')
     if (!context || !pixels) return
     context.clearRect(0, 0, 440, rows * 10)
-    context.font = '10px monospace'
+    context.font = '10px "Apple Braille", "Segoe UI Symbol", monospace'
     const wave = clamp((shown - .64) / .22) * 1.4
     const fade = 1 - clamp((shown - .88) / .12)
-    const chars = ' .:-=+*#%@'
     for (let row = 0; row < rows; row++) for (let col = 0; col < 44; col++) {
       const alpha = clamp((wave - Math.hypot(col / 44 - .15, row / rows - .2)) * 10) * fade
       if (!alpha) continue
-      const offset = (row * 44 + col) * 4
-      const [r, g, b] = pixels.subarray(offset, offset + 3)
-      context.fillStyle = `rgba(${r},${g},${b},${alpha})`
-      context.fillText(chars[Math.min(9, Math.floor((r * .299 + g * .587 + b * .114) / 255 * 10))], col * 10, row * 10 + 9)
+      const cell = pixels[row * 44 + col]
+      context.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${alpha * cell.alpha})`
+      context.fillText(cell.char, col * 10, row * 10 + 9)
     }
   }, [shown, pixels, rows])
 

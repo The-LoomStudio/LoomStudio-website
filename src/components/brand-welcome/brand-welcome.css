@@ -6,7 +6,7 @@
 .brand-welcome__card-position--3 { left: 69%; top: 42%; rotate: -12deg; z-index: 3; }
 .brand-welcome__card-position--4 { left: 86%; top: 63%; rotate: 19deg; scale: .86; z-index: 4; }
 .brand-welcome__card-position:focus-within, .brand-welcome__card-position:hover { z-index: 6; }
-.brand-welcome__card { border-radius: 14px; box-shadow: 0 18px 36px rgb(8 12 16 / .3); }
+.brand-welcome__card { border-radius: 14px; }
 .brand-welcome__card .zoom-image__trigger { aspect-ratio: 188 / 262; border-radius: 14px; overflow: hidden; }
 .brand-welcome__card .zoom-image__trigger img { height: 100%; object-fit: cover; }
 .brand-welcome__logo-position { position: absolute; z-index: 5; width: min(510px, 52%); left: 50%; top: 42%; translate: -50% -50%; pointer-events: none; }
@@ -31,3 +31,5 @@
 .brand-ascii > canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; border-radius: inherit; }
 .brand-ascii .zoom-image__trigger, .brand-ascii > .brand-welcome__logo { opacity: var(--brand-image-opacity, 1); }
 .brand-welcome__card .brand-ascii { border-radius: 14px; }
+
+.brand-welcome__card .zoom-image__trigger { filter: drop-shadow(0 18px 18px rgb(8 12 16 / .3)); }

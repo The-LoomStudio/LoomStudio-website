@@ -4,7 +4,7 @@
 
 - `loom-mark.json`：从 `public/brand/loom-logo.png` 的灰色区域提取的三个轮廓，坐标为 1254 × 1254。保留中心孔和不规则原始曲线，不包含白色贴纸。
 - `LoomMark.tsx`：共享路径与灰阶渐变。
-- `LogoTransition.tsx`：由 `progress`（0–1）驱动的可复用遮罩；`children` 是后景。支持减少动态效果。先描绘填色，再从同心圆间隙透出，最后穿过中央孔。
+- `LogoTransition.tsx`：由 `progress`（0–1）驱动的可复用遮罩；`children` 是后景。支持减少动态效果。先描绘填色，仅从最中心圆孔透出后景，再放大穿过中央孔；其余圆环间隙由主题底色遮实。Menu 与首次加载共享此行为。
 - `LogoTransitionStudy.tsx`：仅预览使用的播放、暂停、进度拖动和 PNG 叠合对照。
 - `public/brand/loom-mark.svg`：同一几何数据导出的独立 SVG。后续改几何或填色时须同步导出。
 

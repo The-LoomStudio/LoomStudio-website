@@ -1,78 +1,103 @@
+import { brailleCells } from '../../lib/braille-cells'
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
 type Props = { src: string; ratio: number; entered: boolean; reduced: boolean; delay: number; logo?: boolean; children: ReactNode }
+const clamp = (value: number) => Math.max(0, Math.min(1, value))
+const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t) }
 
-/** Image-colored glyphs stay inside each artwork's existing geometry and stacking layer. */
+/** Cache glyphs once; animate only a local diffusion mask and the final image opacity. */
 export default function BrandAsciiReveal({ src, ratio, entered, reduced, delay, logo = false, children }: Props) {
+  const root = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null)
-  const [progress, setProgress] = useState(0)
+  const [artwork, setArtwork] = useState<HTMLCanvasElement | null>(null)
   const [failed, setFailed] = useState(false)
-  const rows = Math.round(60 / ratio)
-  const p = reduced || failed ? 1 : progress
-  const imageOpacity = Math.max(0, Math.min(1, (p - .38) / .62))
+  const rows = Math.round(44 / ratio)
+  const width = 440
+  const height = rows * 10
 
   useEffect(() => {
+    if (reduced) return
     const image = new Image()
     image.onload = () => {
       const sample = document.createElement('canvas')
-      sample.width = 60
-      sample.height = rows
+      sample.width = 88
+      sample.height = rows * 4
       const context = sample.getContext('2d')!
-      // Match the existing card cover crop; the transparent logo keeps its natural ratio.
       const sourceRatio = image.width / image.height
-      const width = sourceRatio > ratio ? image.height * ratio : image.width
-      const height = sourceRatio > ratio ? image.height : image.width / ratio
-      context.drawImage(image, (image.width - width) / 2, (image.height - height) / 2, width, height, 0, 0, 60, rows)
-      setPixels(context.getImageData(0, 0, 60, rows).data)
+      const cropWidth = sourceRatio > ratio ? image.height * ratio : image.width
+      const cropHeight = sourceRatio > ratio ? image.height : image.width / ratio
+      context.drawImage(image, (image.width - cropWidth) / 2, (image.height - cropHeight) / 2, cropWidth, cropHeight, 0, 0, 88, rows * 4)
+      const pixels = context.getImageData(0, 0, 88, rows * 4).data
+      const bitmap = document.createElement('canvas')
+      bitmap.width = width
+      bitmap.height = height
+      const ink = bitmap.getContext('2d')!
+      const cells = brailleCells(pixels, 44, rows, logo)
+      ink.font = '10px "Apple Braille", "Segoe UI Symbol", monospace'
+      cells.forEach((cell, index) => {
+        if (!cell.alpha) return
+        ink.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${cell.alpha})`
+        ink.fillText(cell.char, index % 44 * 10, Math.floor(index / 44) * 10 + 9)
+      })
+      setArtwork(bitmap)
     }
     image.onerror = () => setFailed(true)
     image.src = src
     return () => { image.onload = null; image.onerror = null }
-  }, [src, ratio, rows])
+  }, [src, ratio, rows, height, logo, reduced])
 
   useEffect(() => {
-    if (!entered || !pixels || reduced) return
+    const host = root.current!
+    const context = canvas.current!.getContext('2d')!
+    const finish = () => {
+      host.style.setProperty('--brand-image-opacity', '1')
+      host.inert = false
+      context.clearRect(0, 0, width, height)
+    }
+    if (reduced || failed) { finish(); return }
+    if (!entered || !artwork) return
     let frame = 0
     let previous = 0
     let elapsed = -delay
+    let complete = false
+    const originX = width * .18
+    const originY = height * .18
+    const radius = Math.hypot(width - originX, height - originY) + 30
     const tick = (now: number) => {
       if (previous) elapsed += now - previous
       previous = now
-      setProgress(Math.max(0, Math.min(1, elapsed / 2100)))
-      if (elapsed < 2100) frame = requestAnimationFrame(tick)
+      const p = clamp(elapsed / 2200)
+      context.clearRect(0, 0, width, height)
+      if (p > 0) {
+        const reveal = smooth((p - .66) / .34)
+        context.save()
+        context.globalAlpha = 1 - reveal
+        context.drawImage(artwork, 0, 0)
+        context.globalCompositeOperation = 'destination-in'
+        const edge = Math.max(1, smooth(p / .68) * radius)
+        const mask = context.createRadialGradient(originX, originY, Math.max(0, edge - 28), originX, originY, edge)
+        mask.addColorStop(0, '#fff')
+        mask.addColorStop(1, 'transparent')
+        context.fillStyle = mask
+        context.fillRect(0, 0, width, height)
+        context.restore()
+        host.style.setProperty('--brand-image-opacity', String(reveal))
+      }
+      if (p < 1) frame = requestAnimationFrame(tick)
+      else { complete = true; finish() }
     }
     const resume = () => {
       cancelAnimationFrame(frame)
       previous = 0
-      if (!document.hidden) frame = requestAnimationFrame(tick)
+      if (!document.hidden && !complete) frame = requestAnimationFrame(tick)
     }
     resume()
     document.addEventListener('visibilitychange', resume)
     return () => { cancelAnimationFrame(frame); document.removeEventListener('visibilitychange', resume) }
-  }, [entered, pixels, reduced, delay])
+  }, [entered, artwork, reduced, failed, delay, height])
 
-  useEffect(() => {
-    const context = canvas.current!.getContext('2d')
-    if (!context || !pixels) return
-    context.clearRect(0, 0, 600, rows * 10)
-    if (p >= 1 || !entered) return
-    const glyphs = logo ? 'LOOMSTUDIO' : '.:-=+*#%@'
-    context.font = '10px monospace'
-    const appear = Math.min(1, p / .12)
-    for (let row = 0; row < rows; row++) for (let col = 0; col < 60; col++) {
-      const offset = (row * 60 + col) * 4
-      const [r, g, b, a] = pixels.subarray(offset, offset + 4)
-      if (a < 20) continue
-      const luminance = (r * .299 + g * .587 + b * .114) / 255
-      const index = logo ? (row * 60 + col) % glyphs.length : Math.min(glyphs.length - 1, Math.floor(luminance * glyphs.length))
-      context.fillStyle = `rgba(${r},${g},${b},${a / 255 * appear * (1 - imageOpacity)})`
-      context.fillText(glyphs[index], col * 10, row * 10 + 9)
-    }
-  }, [p, pixels, rows, entered, logo, imageOpacity])
-
-  return <div className="brand-ascii" inert={p < 1} style={{ '--brand-image-opacity': imageOpacity } as CSSProperties}>
+  return <div ref={root} className="brand-ascii" inert={!reduced && !failed} style={{ '--brand-image-opacity': reduced || failed ? 1 : 0 } as CSSProperties}>
     {children}
-    <canvas ref={canvas} width={600} height={rows * 10} aria-hidden="true" />
+    <canvas ref={canvas} width={width} height={height} aria-hidden="true" />
   </div>
 }

@@ -1,3 +1,4 @@
+import { brailleCells, type BrailleCell } from '../../lib/braille-cells'
 import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 import './prompt-composition.css'
@@ -21,7 +22,7 @@ export default function PromptComposition({ portrait }: { portrait: string }) {
   const [progress, setProgress] = useState(0)
   const [playing, setPlaying] = useState(true)
   const [visible, setVisible] = useState(false)
-  const [pixels, setPixels] = useState<Uint8ClampedArray | null>(null)
+  const [pixels, setPixels] = useState<BrailleCell[] | null>(null)
   const [imageFailed, setImageFailed] = useState(false)
   const reduced = useReducedMotion()
   const p = reduced ? 1 : progress
@@ -37,11 +38,11 @@ export default function PromptComposition({ portrait }: { portrait: string }) {
     const image = new Image()
     image.onload = () => {
       const sample = document.createElement('canvas')
-      sample.width = 48
-      sample.height = 70
+      sample.width = 48 * 2
+      sample.height = 70 * 4
       const context = sample.getContext('2d')!
-      context.drawImage(image, 0, 0, 48, 70)
-      setPixels(context.getImageData(0, 0, 48, 70).data)
+      context.drawImage(image, 0, 0, 48 * 2, 70 * 4)
+      setPixels(brailleCells(context.getImageData(0, 0, 48 * 2, 70 * 4).data, 48, 70))
     }
     image.onerror = () => setImageFailed(true)
     image.src = portrait
@@ -85,21 +86,18 @@ export default function PromptComposition({ portrait }: { portrait: string }) {
     context.clearRect(0, 0, 480, 700)
     if (reduced || p < .50 || p >= .90) return
     context.textAlign = 'center'
-    context.font = '10px monospace'
+    context.font = '10px "Apple Braille", "Segoe UI Symbol", monospace'
     const wave = ramp(p, .50, .78) * 1.3
     const fade = 1 - ramp(p, .78, .90)
-    const chars = ' .:-=+*#%@'
     for (let row = 0; row < 70; row++) {
       for (let col = 0; col < 48; col++) {
         // Expand locally from the reasoning text; no geometry crosses the two columns.
         const distance = Math.hypot((col + .5) / 48 - .18, (row + .5) / 70 - .18)
         const alpha = clamp((wave - distance) * 12) * fade
         if (!alpha) continue
-        const index = (row * 48 + col) * 4
-        const [r, g, b] = pixels.subarray(index, index + 3)
-        const lum = (r * .299 + g * .587 + b * .114) / 255
-        context.fillStyle = `rgba(${r},${g},${b},${alpha})`
-        context.fillText(chars[Math.min(9, Math.floor(lum * 10))], col * 10 + 5, row * 10 + 9)
+        const cell = pixels[row * 48 + col]
+        context.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${alpha * cell.alpha})`
+        context.fillText(cell.char, col * 10 + 5, row * 10 + 9)
       }
     }
   }, [p, pixels, reduced])
