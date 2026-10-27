@@ -1,0 +1,16 @@
+.branch-reveal { position: relative; }
+.branch-reveal__surface { position: relative; }
+.branch-reveal .zoom-image__trigger { opacity: var(--branch-image, 1); }
+.branch-reveal canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.branch-reveal__text { position: absolute; inset: 12% 8% auto; pointer-events: none; color: var(--loom-site-text); font: clamp(11px, 1.05vw, 14px)/1.75 var(--loom-site-font-mono); }
+.branch-reveal__text span { font-size: 10px; color: var(--loom-site-text-muted); }
+.branch-reveal__text p { margin: 12px 0 0; white-space: pre-line; }
+@media (max-width: 680px) {
+  .branch-reveal__text { font-size: 11px; line-height: 1.5; }
+  .branch-reveal__text span { font-size: 9px; }
+}
+
+.branch-reveal__caption { position: relative; z-index: 1; padding: 14px 2px 26px; color: var(--loom-site-text); transform: translateY(clamp(-18px, var(--parallax-y, 0px), 18px)); }
+.branch-reveal__caption span { font: 10px var(--loom-site-font-mono); color: var(--loom-site-text-muted); }
+.branch-reveal__caption p { margin: 8px 0 0; font: 13px/1.65 var(--loom-site-font-sans); }
+@media (prefers-reduced-motion: reduce) { .branch-reveal__caption { transform: none; } }

@@ -1,0 +1,19 @@
+.text-logo { position: relative; }
+.text-logo .logo-transition__curtain > g { opacity: var(--text-logo-solid); }
+.text-logo__characters { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; font-family: var(--loom-site-font-mono), var(--loom-site-font-sans); }
+.text-logo-study__choices { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0; }
+.text-logo-study__choices button { background: transparent; border: 1px solid var(--loom-site-border-strong); border-radius: 999px; padding: 11px 20px; color: var(--loom-site-text-muted); font: inherit; font-size: 13px; cursor: pointer; }
+.text-logo-study__choices button[aria-pressed='true'] { color: var(--loom-site-bg); background: var(--loom-site-silver); border-color: var(--loom-site-silver); }
+.text-logo-study__steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 36px; }
+.text-logo-study__steps button { text-align: left; font: inherit; background: transparent; color: var(--loom-site-text-muted); border: 0; border-top: 1px solid var(--loom-site-border-strong); padding: 16px 0; cursor: pointer; }
+.text-logo-study__steps strong { display: block; color: var(--loom-site-text); font-size: 15px; margin-bottom: 8px; }
+.text-logo-study__steps span { font-size: 12px; line-height: 1.7; }
+@media(max-width: 640px) { .text-logo-study__steps { grid-template-columns: 1fr 1fr; } }
+
+.text-logo__thinking { position: absolute; display: flex; align-items: center; gap: 10px; color: var(--loom-site-silver); pointer-events: none; }
+.text-logo__thinking b { width: 2px; height: 100%; background: currentColor; animation: text-logo-caret 1s steps(2, jump-none) infinite; }
+.text-logo__thinking i { width: 14px; height: 14px; box-sizing: border-box; border: 1.5px solid color-mix(in srgb, currentColor 25%, transparent); border-top-color: currentColor; border-radius: 50%; animation: text-logo-thinking 1s linear infinite; }
+.text-logo__thinking--reduced { left: 50%; top: calc(50% + 100px); transform: translateX(-50%); }
+@keyframes text-logo-caret { to { opacity: 0; } }
+@keyframes text-logo-thinking { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .text-logo__thinking b, .text-logo__thinking i { animation: none; } }

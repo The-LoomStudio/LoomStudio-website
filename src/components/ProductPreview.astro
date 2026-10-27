@@ -1,11 +1,9 @@
 ---
 import StudioDemo from './studio-demo/StudioDemo';
 import AnimatedDetails from './motion/AnimatedDetails.astro';
-import DeviceShowcase from './DeviceShowcase';
 ---
 
 <div class="product-preview">
-  <DeviceShowcase client:visible={{ rootMargin: '400px' }} />
   <AnimatedDetails class="component-draft"><span slot="summary">展开工作区演示</span><StudioDemo client:visible /></AnimatedDetails>
   <noscript>启用 JavaScript 后可体验工作区与 Agent 组件。</noscript>
 </div>

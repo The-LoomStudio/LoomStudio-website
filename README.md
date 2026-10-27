@@ -96,15 +96,17 @@ Nom 是 Loom Studio 的看板娘。网站、项目 README 和社区内容共用�
 
 ## 局部动画
 
+首页品牌区由 `BrandWelcome.tsx` 承载：首次进入时四张卡依次落下，Logo 随后贴入，只保留下载入口。独立 `NomGuide.tsx` 从品牌区开始介绍自己，按阅读章节切换表情、标题和正文；点击人物可触发简短反应，支持缩小、展开和关闭。桌面固定左下角，移动端固定底部居中，气泡自然撑开，不含输入框或回复选项。中英日韩文案由 `home-guide.ts` 提供，不调用模型或保存持久偏好。本轮 Banner 与品牌区开发预览已移除，后续直接在首页迭代。
+
 页面导航继续使用浏览器跨文档 View Transitions。主题切换使用同文档 View Transitions，从主题按钮中心做圆形扩散；不支持 API 或系统减少动态效果时即时切换。
 
-Motion 当前覆盖 Banner、叠放卡片、图片放大、Agent 浮层、表情包分类与气泡换边重排、设备切换、架构视图指示器与侧栏、全站搜索，以及文档目录 / 新闻 / 工作区演示的原生折叠块。新闻分类使用按行排列的响应式 Grid，卡片由 Motion FLIP 过渡到新位置。简单颜色、阴影反馈和循环跑马灯仍使用 CSS。
+Motion 当前覆盖 Banner、叠放卡片、图片放大、Agent 浮层、表情包分类与气泡换边重排、设备切换、架构视图指示器与侧栏、全站搜索，以及文档目录 / 新闻 / 工作区演示的原生折叠块。新闻分类使用按行排列的响应式 Grid，卡片由 Motion FLIP 过渡到新位置。简单颜色与阴影反馈使用 CSS。首页角色区现为四列 / 移动端三列瀑布流，`CharacterJourney.tsx` 以滚动进度连接角色头像与 Timeline 演示；减少动态效果时顺序显示静态内容。
 
 下载页使用 `src/components/download/DownloadConsole.tsx`，提供首次安装 / 日常启动 / 更新源码页签、系统提示、逐步说明与真实剪贴板反馈。四种语言共用 `download-copy.ts` 中的命令清单；复制只写入剪贴板，不执行安装或模拟安装进度。没有 JavaScript 时，首次安装和更新命令仍可手动复制。
 
 `src/scripts/site-motion.ts` 只处理页面显式标注的 `data-motion-reveal`（分组进场）、`data-motion-feedback`（鼠标 / 键盘 / 按压反馈）和 `data-motion-drift`（滚动层次），并驱动阅读进度和发布页章节定位反馈。发布页、展厅、文档入口、市场、扩展详情和贴纸页面已接入；不要把这些标记加到已有视差、React 布局重排或图片缩放正在控制的节点上。减少动态效果时关闭进场位移、手势回弹和漂移，保留阅读进度与章节信息。
 
-图片放大由 Motion 驱动 FLIP 进度。关闭时逐帧测量缩略图的位置，因此双行跑马灯可以继续滚动；循环换位后，回缩目标取同一行中最靠近视口中心的同图副本。原生 `dialog` 继续负责模态、Escape 与焦点恢复。
+图片放大由 Motion 驱动 FLIP 进度。关闭时逐帧测量缩略图的位置，适应布局位置变化。原生 `dialog` 继续负责模态、Escape 与焦点恢复。
 
 `src/components/motion/SiteMotion.tsx` 为每个需要动画的 React island 提供 `MotionConfig` 和 `LazyMotion`，组件从 `motion/react-m` 导入 `m`。默认使用 `domAnimation`，需要布局动画的 island 显式传入 `domMax`；Astro 组件通过 Motion 的原生 DOM API 控制动画，无需转成 React。不要让 CSS transition、手写逐帧更新和 Motion 同时控制同一元素的同一属性；静态定位与动态变换可以分别使用 CSS `translate` 和 Motion 的旋转 / 缩放。
 

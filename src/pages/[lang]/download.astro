@@ -19,6 +19,51 @@ const currentLocale = lang as SiteLocale;
 const meta = pageMeta.download[currentLocale] ?? pageMeta.download['en'];
 
 const tipText = currentLocale === 'ja' ? '初回起動には少し時間がかかります。ターミナルを開いたままお待ちください。' : currentLocale === 'ko' ? '첫 실행에는 시간이 조금 걸립니다. 터미널 창을 닫지 마세요.' : 'Initial startup takes a few moments. Keep your terminal open.';
+
+const stepsData: Record<SiteLocale, {
+  heading: string;
+  more: string;
+  steps: { index: string; title: string; desc: string; link?: string }[];
+}> = {
+  'en': {
+    heading: 'Next Steps',
+    more: 'More details',
+    steps: [
+      { index: '01 / Workbench', title: '127.0.0.1:18010', desc: '', link: 'http://127.0.0.1:18010' },
+      { index: '02 / Models', title: 'API & Credentials', desc: 'Configure model providers, keys, and assign them to your presets.' },
+      { index: '03 / Re-launch', title: 'npm start', desc: 'Run npm start in the LoomStudio folder anytime you play.' },
+    ],
+  },
+  'ja': {
+    heading: '次のステップ',
+    more: '詳細',
+    steps: [
+      { index: '01 / ワークベンチ', title: '127.0.0.1:18010', desc: '', link: 'http://127.0.0.1:18010' },
+      { index: '02 / モデル設定', title: 'API 設定と認証', desc: 'モデル Provider と API キーを設定し、プリセットに割り当てます。' },
+      { index: '03 / 次回の起動', title: 'npm start', desc: '次回以降は LoomStudio フォルダで npm start を実行します。' },
+    ],
+  },
+  'ko': {
+    heading: '다음 단계',
+    more: '자세히 보기',
+    steps: [
+      { index: '01 / 작업대', title: '127.0.0.1:18010', desc: '', link: 'http://127.0.0.1:18010' },
+      { index: '02 / 모델 설정', title: 'API 및 인증 정보', desc: '모델 Provider와 키를 설정하고 프리셋에 연결하세요.' },
+      { index: '03 / 다시 실행', title: 'npm start', desc: '다음 플레이 시 LoomStudio 폴더에서 npm start를 입력하세요.' },
+    ],
+  },
+  'zh-CN': {
+    heading: '后续步骤',
+    more: '查看详情',
+    steps: [
+      { index: '01 / 工作台', title: '127.0.0.1:18010', desc: '', link: 'http://127.0.0.1:18010' },
+      { index: '02 / 模型配置', title: 'API 与凭据', desc: '配置模型 Provider 与密钥，并将其分配给你的预设。' },
+      { index: '03 / 再次启动', title: 'npm start', desc: '下次游玩时，在 LoomStudio 目录运行 npm start。' },
+    ],
+  },
+};
+
+const stepInfo = stepsData[currentLocale] ?? stepsData['en'];
 ---
 
 <PortalLayout
@@ -49,23 +94,20 @@ const tipText = currentLocale === 'ja' ? '初回起動には少し時間がか�
   </section>
   <section class="portal-section">
     <div class="container">
-      <div class="portal-section__heading"><div><small>START / PLAY</small><h2>Next Steps</h2></div></div>
+      <div class="portal-section__heading"><div><small>START / PLAY</small><h2>{stepInfo.heading}</h2></div></div>
       <div class="download-steps" data-motion-group>
-        <article data-motion-reveal>
-          <span>01 / Workbench</span>
-          <h3>127.0.0.1:18010</h3>
-          <AnimatedDetails class="download-step"><span slot="summary">More details<ChevronDown size={14} aria-hidden="true" /></span><p><a href="http://127.0.0.1:18010" target="_blank" rel="noreferrer">http://127.0.0.1:18010</a></p></AnimatedDetails>
-        </article>
-        <article data-motion-reveal>
-          <span>02 / Models</span>
-          <h3>API & Credentials</h3>
-          <AnimatedDetails class="download-step"><span slot="summary">More details<ChevronDown size={14} aria-hidden="true" /></span><p>Configure model providers, keys, and assign them to your presets.</p></AnimatedDetails>
-        </article>
-        <article data-motion-reveal>
-          <span>03 / Re-launch</span>
-          <h3>npm start</h3>
-          <AnimatedDetails class="download-step"><span slot="summary">More details<ChevronDown size={14} aria-hidden="true" /></span><p>Run <code>npm start</code> in the LoomStudio folder anytime you play.</p></AnimatedDetails>
-        </article>
+        {stepInfo.steps.map((s) => (
+          <article data-motion-reveal>
+            <span>{s.index}</span>
+            <h3>{s.title}</h3>
+            <AnimatedDetails class="download-step">
+              <span slot="summary">{stepInfo.more}<ChevronDown size={14} aria-hidden="true" /></span>
+              <p>
+                {s.link ? <a href={s.link} target="_blank" rel="noreferrer">{s.link}</a> : s.desc}
+              </p>
+            </AnimatedDetails>
+          </article>
+        ))}
       </div>
     </div>
   </section>

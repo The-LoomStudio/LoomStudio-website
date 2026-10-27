@@ -31,6 +31,68 @@ const categoriesData: Record<string, [string, string][]> = {
 };
 const categories = categoriesData[currentLocale] ?? categoriesData['en'];
 const subHeading = currentLocale === 'ja' ? '最新情報、小さな修正、創作の合間のひらめき。' : currentLocale === 'ko' ? '새 소식, 소소한 개선, 그리고 창작 여정의 영감.' : 'Updates, refinements, and creative sparks along the way.';
+
+const newsCardsData: Record<string, {
+  card1: { tag: string; title: string; desc: string; alt: string };
+  card2: { tag: string; title: string; desc: string };
+  card3: { tag: string; title: string; desc: string };
+}> = {
+  en: {
+    card1: {
+      tag: 'WEBSITE / Release',
+      title: 'A new menu,<br />unfolding across angles.',
+      desc: 'Full-screen navigation menu updated with smooth diagonal carousel flow.',
+      alt: 'Nom holding a book in front of the Loom Studio wordmark',
+    },
+    card2: {
+      tag: 'Fix',
+      title: 'Smooth scroll<br />on touch.',
+      desc: 'Improved touch and trackpad momentum scrolling across dialogs.',
+    },
+    card3: {
+      tag: 'Beta Release',
+      title: 'Loom Studio Beta<br />Now available from source.',
+      desc: 'Clone via git and run with npm start to begin weaving your stories.',
+    },
+  },
+  ja: {
+    card1: {
+      tag: 'WEBSITE / リリース',
+      title: '斜線に沿って、<br />次のページへ。',
+      desc: '全画面ナビゲーションメニューを更新。斜めのカルーセルに沿って画像とテキストが滑らかに展開します。',
+      alt: 'Loom Studio の文字の前で本を抱える Nom',
+    },
+    card2: {
+      tag: '修正記録',
+      title: 'タッチ操作を、<br />もっと滑らかに。',
+      desc: 'ダイアログやモーダルでのタッチ・トラックパッドの慣性スクロールを改善しました。',
+    },
+    card3: {
+      tag: 'Beta Release',
+      title: 'Loom Studio Beta<br />ソースから起動可能。',
+      desc: 'Git でクローンし、npm start を実行するだけであなたの物語を紡ぎ始められます。',
+    },
+  },
+  ko: {
+    card1: {
+      tag: 'WEBSITE / 릴리스',
+      title: '대각선을 따라,<br />다음 페이지를 만나다.',
+      desc: '전체 화면 메뉴를 새롭게 단장했습니다. 대각선 캐러셀을 따라 이미지와 텍스트가 부드럽게 펼쳐집니다.',
+      alt: 'Loom Studio 글자 앞에서 책을 안고 있는 Nom',
+    },
+    card2: {
+      tag: '수정 기록',
+      title: '터치 스크롤을,<br />더욱 부드럽게.',
+      desc: '대화상자 전반에서 터치 및 트랙패드 관성 스크롤 동작을 개선했습니다.',
+    },
+    card3: {
+      tag: 'Beta Release',
+      title: 'Loom Studio Beta<br />소스로 실행 가능.',
+      desc: 'Git으로 클론하고 npm start를 실행해 나만의 이야기를 시작해 보세요.',
+    },
+  },
+};
+const cards = newsCardsData[currentLocale] ?? newsCardsData['en'];
 ---
 
 <BaseLayout title={meta.title} description={meta.description} locale={currentLocale}>
@@ -59,27 +121,27 @@ const subHeading = currentLocale === 'ja' ? '最新情報、小さな修正、�
       <div class="news-motion-card" data-news-card data-category="update"><article id="news-diagonal-menu" class="news-item news-cover" data-category="update">
         <img class="news-cover__image" src={cover.src} srcset={cover.srcSet}
           width={cover.width} height={cover.height} sizes="(max-width: 680px) 90vw, 380px"
-          alt="Nom" />
+          alt={cards.card1.alt} />
         <div class="news-copy">
-          <span class="news-tag">WEBSITE / Release</span>
-          <h2>A new menu,<br />unfolding across angles.</h2>
-          <p>Full-screen navigation menu updated with smooth diagonal carousel flow.</p>
+          <span class="news-tag">{cards.card1.tag}</span>
+          <h2 set:html={cards.card1.title} />
+          <p>{cards.card1.desc}</p>
           <footer><time datetime="2026-10-07">2026.10.07</time><Sparkles size={19} aria-hidden="true" /></footer>
         </div>
       </article></div>
 
       <div class="news-motion-card" data-news-card data-category="fix"><article id="news-touch-scroll" class="news-item news-ticket" data-category="fix">
-        <header><span class="news-tag">Fix</span><MoveDown size={22} aria-hidden="true" /></header>
+        <header><span class="news-tag">{cards.card2.tag}</span><MoveDown size={22} aria-hidden="true" /></header>
         <div class="ticket-perforation" aria-hidden="true"></div>
-        <h2>Smooth scroll<br />on touch.</h2>
-        <p>Improved touch and trackpad momentum scrolling across dialogs.</p>
+        <h2 set:html={cards.card2.title} />
+        <p>{cards.card2.desc}</p>
         <footer><time datetime="2026-10-05">2026.10.05</time></footer>
       </article></div>
 
       <div class="news-motion-card" data-news-card data-category="update"><article id="news-beta-release" class="news-item news-letter" data-category="update">
-        <header><span class="news-tag">Beta Release</span><Feather size={20} aria-hidden="true" /></header>
-        <h2>Loom Studio Beta<br />Now available from source.</h2>
-        <p>Clone via git and run with <code>npm start</code> to begin weaving your stories.</p>
+        <header><span class="news-tag">{cards.card3.tag}</span><Feather size={20} aria-hidden="true" /></header>
+        <h2 set:html={cards.card3.title} />
+        <p set:html={cards.card3.desc} />
         <footer><time datetime="2026-10-01">2026.10.01</time><Check size={20} aria-hidden="true" /></footer>
       </article></div>
     </section>

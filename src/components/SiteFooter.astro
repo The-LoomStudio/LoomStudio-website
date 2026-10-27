@@ -1,93 +1,90 @@
 ---
 import { type SiteLocale, getLocaleFromPath, getLocalizedPath, t } from '../lib/i18n';
 import { getRoutes } from '../lib/site-routes';
+import { siteImage } from '../lib/site-images';
+import FooterArtwork from './illustration/FooterArtwork';
 
-interface Props {
-  easterEgg?: boolean;
-  locale?: SiteLocale;
-}
-
+interface Props { easterEgg?: boolean; locale?: SiteLocale; }
 const { easterEgg = false, locale: propLocale } = Astro.props;
 const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
+const copy = {
+  'zh-CN': { explore: '探索 Loom', learn: '使用与了解', connect: '动态与社区', expand: '展开插画' },
+  en: { explore: 'Explore Loom', learn: 'Learn & create', connect: 'News & community', expand: 'View illustration' },
+  ja: { explore: 'Loom を探す', learn: '使い方と仕組み', connect: 'ニュースと交流', expand: 'イラストを開く' },
+  ko: { explore: 'Loom 둘러보기', learn: '사용법과 구조', connect: '소식과 커뮤니티', expand: '일러스트 펼치기' },
+}[currentLocale];
+const routes = getRoutes(currentLocale);
+const columns = [
+  { title: copy.explore, ids: ['download', 'showcase', 'marketplace'] },
+  { title: copy.learn, ids: ['docs', 'architecture'] },
+  { title: copy.connect, ids: ['news', 'stickers'] },
+];
+const artwork = easterEgg ? await siteImage('/images/nom/banners/nom-banner-013.png', [768, 1280, 1920], 90) : null;
 ---
-
-<footer class:list={['footer', { 'footer--sky': easterEgg, 'footer--solid': !easterEgg }]}>
-  <div class="container footer__inner">
-    <div>
-      {easterEgg ? (
-        <button class="footer__mark" type="button" aria-label={t(currentLocale, 'footer.easterEgg')} aria-pressed="false" data-sakura-trigger>
-          <img src="/brand/loom-logo.png" alt="" width="34" height="34" />
-        </button>
-      ) : (
-        <img src="/brand/loom-logo.png" alt="" width="34" height="34" />
-      )}
+<div class:list={['footer-reveal', { 'footer-reveal--curtain': easterEgg }]} data-footer-reveal={easterEgg || undefined}>
+<footer class:list={['site-footer', { 'site-footer--illustrated': easterEgg, 'site-footer--solid': !easterEgg }]}>
+  {artwork && <img class="site-footer__background" src={artwork.src} srcset={artwork.srcSet} sizes="100vw" width={artwork.width} height={artwork.height} loading="lazy" alt="" />}
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <div class="site-footer__brand-line">
+        {easterEgg ? <button class="site-footer__mark" type="button" aria-label={t(currentLocale, 'footer.easterEgg')} aria-pressed="false" data-sakura-trigger>
+          <img src="/brand/loom-logo.png" alt="" width="42" height="42" />
+        </button> : <img src="/brand/loom-logo.png" alt="" width="42" height="42" />}
+        <a href={getLocalizedPath('/', currentLocale)}>Loom Studio</a>
+      </div>
       <p>{t(currentLocale, 'footer.slogan')}</p>
+      {artwork && <FooterArtwork client:visible image={artwork} label={copy.expand} />}
     </div>
-    <div class="footer__links">
-      <a href={getLocalizedPath('/showcase', currentLocale)}>{t(currentLocale, 'footer.showcase')}</a>
-      <a href={getLocalizedPath('/marketplace', currentLocale)}>{t(currentLocale, 'footer.marketplace')}</a>
-      <a href={getLocalizedPath('/docs', currentLocale)}>{t(currentLocale, 'footer.docs')}</a>
-      <a href={getLocalizedPath('/download', currentLocale)}>{t(currentLocale, 'footer.download')}</a>
-      <a href={getLocalizedPath('/news', currentLocale)}>{t(currentLocale, 'footer.news')}</a>
-      <a href={getLocalizedPath('/stickers', currentLocale)}>{getRoutes(currentLocale).find(route => route.id === 'stickers')!.label}</a>
-      <a href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">{t(currentLocale, 'footer.source')}</a>
-      <span>Cloudflare deployment pending</span>
-    </div>
+    {columns.map((column, index) => <nav class="site-footer__column" aria-label={column.title}>
+      <h2>{column.title}</h2>
+      {column.ids.map(id => { const route = routes.find(route => route.id === id)!; return <a href={route.href}>{route.label}</a>; })}
+      {index === 2 && <a href="https://github.com/The-LoomStudio/LoomStudio" target="_blank" rel="noreferrer">GitHub ↗</a>}
+    </nav>)}
   </div>
 </footer>
-
-<style>
-  .footer {
-    padding: 42px 0 48px;
-    background: transparent;
+</div>
+<style is:inline>
+  .site-footer { position: relative; z-index: 2; isolation: isolate; padding: 76px 0; background: var(--loom-site-bg); }
+  .site-footer--solid { background: var(--loom-site-bg-soft); }
+  /* Clip the fixed picture and navigation together to this document-flow slot.
+     The preceding page reveals the single footer panel as it scrolls away. */
+  .footer-reveal--curtain { position: relative; height: 100svh; clip-path: inset(0); }
+  .footer-reveal--curtain .site-footer--illustrated {
+    position: fixed; inset: 0; height: 100svh; box-sizing: border-box;
+    padding-top: clamp(56px, 8vw, 112px);
   }
-  .footer--solid { background: var(--loom-site-bg-soft); }
-  :global(html[data-sky-text='dark']) .footer--sky {
-    --loom-site-text: #26343d;
-    --loom-site-text-muted: #3d4c55;
-    --loom-site-text-subtle: #53636c;
-  }
-  .footer__inner {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 32px;
-  }
-  .footer img { width: 34px; height: 34px; opacity: 0.82; }
-  .footer__mark {
-    width: 34px;
-    height: 34px;
-    display: block;
-    margin: 0;
-    border: 0;
-    padding: 0;
-    appearance: none;
-    -webkit-appearance: none;
-    color: inherit;
-    background: none;
-    box-shadow: none;
-    cursor: pointer;
-    transition: transform 180ms ease, opacity 180ms ease;
-  }
-  .footer__mark:hover { transform: rotate(-8deg) scale(1.08); }
-  .footer__mark[aria-pressed='true'] { transform: rotate(8deg) scale(1.08); }
-  .footer__mark:disabled { cursor: default; opacity: 0.5; transform: none; }
-  .footer p {
-    margin: 14px 0 0;
-    color: var(--loom-site-text-muted);
-    font-family: var(--loom-site-font-display);
-  }
-  .footer__links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 10px 22px;
-    color: var(--loom-site-text-subtle);
-    font-size: 12px;
-  }
-  .footer__links a:hover { color: var(--loom-site-text); }
-  @media (max-width: 680px) {
-    .footer__inner { align-items: flex-start; flex-direction: column; }
-    .footer__links { justify-content: flex-start; }
+  .site-footer__background { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .site-footer__inner { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 44px; align-items: start; }
+  .site-footer__brand-line { display: flex; gap: 12px; align-items: center; font-size: 23px; font-weight: 650; }
+  .site-footer__brand-line img { display: block; width: 42px; height: 42px; }
+  .site-footer__mark { display: block; flex: none; width: 42px; height: 42px; margin: 0; border: 0; padding: 0; background: none; cursor: pointer; }
+  .site-footer__mark:hover { transform: rotate(-8deg); }
+  .site-footer__mark[aria-pressed='true'] { transform: rotate(8deg); }
+  .site-footer__brand p { max-width: 25ch; margin: 20px 0 24px; color: var(--loom-site-text-muted); line-height: 1.8; font-size: 14px; }
+  .site-footer__brand .footer-artwork .zoom-image__trigger { width: auto; color: var(--loom-site-text-muted); font: inherit; font-size: 13px; padding-block: 8px; }
+  .site-footer__column { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+  .site-footer__column h2 { margin: 10px 0 10px; font: 600 15px/1.5 var(--loom-site-font-sans, sans-serif); color: var(--loom-site-text); }
+  .site-footer__column a { color: var(--loom-site-text-muted); font-size: 14px; }
+  .site-footer__column a:hover { color: var(--loom-site-text); text-decoration: underline; text-underline-offset: 5px; }
+  @media (max-width: 900px) { .site-footer__inner { grid-template-columns: repeat(3, 1fr); gap: 32px; } .site-footer__brand { grid-column: 1 / -1; } }
+  @media (max-width: 560px) { .site-footer__inner { grid-template-columns: repeat(2, 1fr); } .site-footer__background { object-position: 65% center; } }
+  @media (max-height: 660px), (prefers-reduced-motion: reduce) {
+    .footer-reveal--curtain { height: auto; clip-path: none; }
+    .footer-reveal--curtain .site-footer--illustrated { position: relative; min-height: 100svh; height: auto; padding-bottom: 100px; }
   }
 </style>
+<script>
+  // Clipped links must not receive keyboard focus before the footer is revealed.
+  document.querySelectorAll<HTMLElement>('[data-footer-reveal]').forEach(slot => {
+    const panel = slot.querySelector<HTMLElement>('footer')!;
+    const sync = () => {
+      const rect = slot.getBoundingClientRect();
+      panel.inert = rect.top >= innerHeight || rect.bottom <= 0;
+    };
+    const observer = new IntersectionObserver(sync);
+    observer.observe(slot);
+    sync();
+    window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
+    window.addEventListener('pageshow', event => { if (event.persisted) { observer.observe(slot); sync(); } });
+  });
+</script>

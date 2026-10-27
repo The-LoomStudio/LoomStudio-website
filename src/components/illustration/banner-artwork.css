@@ -1,0 +1,38 @@
+.banner-artwork { position: absolute; inset: 0; }
+.banner-intro {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 8.3%;
+  width: 45%;
+  display: grid;
+  gap: clamp(24px, 3vh, 40px);
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #fffdf5;
+  text-align: left;
+  text-shadow: 0 2px 4px rgb(0 0 0 / .65), 0 5px 18px rgb(0 0 0 / .4);
+}
+.banner-wordmark { margin: 0; }
+.banner-wordmark span {
+  display: block;
+  font: 850 clamp(68px, 9.5vw, 180px)/.86 "Hiragino Kaku Gothic ProN", "Yu Gothic", "Hiragino Sans", "PingFang SC", sans-serif;
+  letter-spacing: -.065em;
+  /* 大字号的字面留白需要抵消，才能与中文文案的可见左边缘对齐。 */
+  margin-left: -.045em;
+}
+.banner-wordmark, .banner-copy h2 {
+  -webkit-text-stroke: 1px rgb(20 26 31 / .8);
+  paint-order: stroke fill;
+}
+.banner-copy { width: min(480px, 100%); }
+.banner-copy .eyebrow { margin: 0; color: white; font-size: 12px; }
+.banner-copy h2 { margin: 12px 0 16px; font: 540 clamp(24px, 2.7vw, 42px)/1.2 var(--loom-site-font-display); letter-spacing: -.025em; }
+.banner-copy h2 span { display: block; white-space: nowrap; }
+.banner-copy > p:last-child { font-size: 15px; line-height: 1.85; margin: 0; }
+@media (max-width: 680px) {
+  .banner-intro { left: 6%; width: 86%; gap: 24px; }
+  .banner-wordmark span { font-size: min(21vw, 104px); }
+  .banner-copy h2 { font-size: 30px; }
+  .banner-copy > p:last-child { font-size: 13px; }
+}

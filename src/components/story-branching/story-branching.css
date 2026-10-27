@@ -1,0 +1,455 @@
+.story-branching {
+  position: relative;
+  height: 100svh;
+  min-height: 100svh;
+  background: var(--loom-site-bg, #14181c);
+  overflow: hidden;
+  user-select: none;
+  color: var(--loom-site-text, #f2f4f5);
+  font-family: var(--loom-site-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+}
+
+.story-branching__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 全屏宏大 ASCII 分支时间线网格背景画布 */
+.story-branching__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 连接源节点与分支画面的动态 SVG 时间线脉络 */
+.story-branching__connectors {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* 顶栏 */
+.story-branching__top {
+  position: absolute;
+  z-index: 10;
+  inset: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 6%;
+  font: 11px var(--loom-site-font-mono, monospace);
+  letter-spacing: .08em;
+  color: var(--loom-site-text-subtle, #6c7882);
+}
+
+.story-branching__top button {
+  padding: 4px 12px;
+  border: 1px solid var(--loom-site-border, rgba(255, 255, 255, 0.1));
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  color: var(--loom-site-text-muted, #9da8af);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.story-branching__top button:hover {
+  color: var(--loom-site-text, #f2f4f5);
+  border-color: var(--loom-site-text-muted, #9da8af);
+}
+
+/* 左侧：源节点（共同前情画面与选择点）
+   遵循用户要求：完全去除外层卡片与不同颜色背景，图片下直接排布文字 */
+.story-branching__source {
+  position: absolute;
+  left: 6%;
+  top: 9%;
+  width: min(34vw, 420px);
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.source-node {
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+/* 图一：源节点默认前情静止插画 */
+.source-node__viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: transparent;
+  border: none;
+}
+
+.source-node__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.source-node__badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--loom-site-font-mono, monospace);
+  font-size: 11px;
+  margin-bottom: 8px;
+  letter-spacing: 0.06em;
+}
+
+.source-node__dot {
+  color: #6b9ac4;
+  font-size: 8px;
+}
+
+.source-node__label {
+  color: #8faec9;
+}
+
+.source-node__content {
+  margin-bottom: 12px;
+}
+
+.source-node__narration {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--loom-site-text-muted, #9da8af);
+}
+
+.source-node__dialogue {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--loom-site-text, #f2f4f5);
+  padding-left: 8px;
+  border-left: 2px solid rgba(107, 154, 196, 0.4);
+}
+
+.source-node__forks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--loom-site-font-mono, monospace);
+  font-size: 11.5px;
+}
+
+.source-fork {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-left: 2px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s ease;
+}
+
+.source-fork__left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.source-fork__marker {
+  color: var(--loom-site-text-subtle, #6c7882);
+}
+
+.source-fork__title {
+  color: var(--loom-site-text, #f2f4f5);
+}
+
+.source-fork__tag {
+  font-size: 10.5px;
+}
+
+.source-fork--a[data-active="true"] {
+  border-left-color: #6b9ac4;
+  background: rgba(107, 154, 196, 0.08);
+}
+
+.source-fork--a[data-active="true"] .source-fork__marker,
+.source-fork--a[data-active="true"] .source-fork__tag {
+  color: #6b9ac4;
+}
+
+.source-fork--b[data-active="true"] {
+  border-left-color: #82939e;
+  background: rgba(130, 147, 158, 0.08);
+}
+
+.source-fork--b[data-active="true"] .source-fork__tag {
+  color: #82939e;
+}
+
+/* 前景文案区：置于左下角 */
+.story-branching__copy {
+  position: absolute;
+  left: 6%;
+  bottom: 24px;
+  width: min(34vw, 420px);
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.story-branching__badge {
+  display: inline-block;
+  font-family: var(--loom-site-font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #6b9ac4;
+  margin-bottom: 8px;
+}
+
+.story-branching h1 {
+  margin: 0 0 10px;
+  font-family: var(--loom-site-font-display, "Fredoka", sans-serif);
+  font-weight: 500;
+  font-size: clamp(24px, 2.8vw, 36px);
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  color: var(--loom-site-text, #f2f4f5);
+}
+
+.story-branching p.story-branching__lead {
+  margin: 0 0 10px;
+  font-size: clamp(12.5px, 0.85vw, 14px);
+  line-height: 1.65;
+  color: var(--loom-site-text-muted, #9da8af);
+  text-wrap: pretty;
+}
+
+.story-branching__meta-list {
+  display: flex;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  font-family: var(--loom-site-font-mono, monospace);
+  font-size: 10.5px;
+  color: var(--loom-site-text-subtle, #6c7882);
+}
+
+.story-branching__meta-item span {
+  color: var(--loom-site-text-muted, #9da8af);
+  margin-left: 4px;
+}
+
+/* 右侧分支两张画面的浮动展示区域 */
+.story-branching__previews {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* 分支卡片槽位 */
+.branch-card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.5s ease, filter 0.4s ease;
+  pointer-events: auto;
+}
+
+/* 分支 A：活跃推进线（右上） */
+.branch-card--a {
+  top: 8%;
+  right: 6%;
+  width: min(34vw, 480px);
+  z-index: 5;
+}
+
+/* 分支 B：平行保留线（右下）
+   图片完全不透明，由整卡 filter 提供低饱和归档感，绝不透出背景或底层文字 */
+.branch-card--b {
+  top: 52%;
+  right: 16%;
+  width: min(30vw, 400px);
+  z-index: 4;
+  filter: brightness(0.72) contrast(0.96);
+}
+
+.branch-card--b:hover {
+  filter: brightness(0.96) contrast(1);
+}
+
+/* 顶部极简元信息标签 */
+.branch-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+  font-family: var(--loom-site-font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--loom-site-text-subtle, #6c7882);
+  transition: opacity 0.3s ease;
+}
+
+.branch-card__tag {
+  color: var(--loom-site-text, #f2f4f5);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.branch-card__tag::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #6b9ac4;
+}
+
+.branch-card--b .branch-card__tag::before {
+  background: #546069;
+}
+
+.branch-card__status {
+  color: #6b9ac4;
+}
+
+.branch-card--b .branch-card__status {
+  color: var(--loom-site-text-subtle, #6c7882);
+}
+
+/* 画面视窗：严格 16:10 比例，纯净无外边框，由 ASCII 与图像自发界定边界 */
+.branch-card__viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+}
+
+.branch-card__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.branch-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 角色回应文案 */
+.branch-card__reply {
+  margin: 8px 0 0;
+  font-family: var(--loom-site-font-sans, sans-serif);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--loom-site-text-muted, #9da8af);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.branch-card__reply[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.branch-card__reply strong {
+  font-family: var(--loom-site-font-mono, monospace);
+  font-weight: 500;
+  color: var(--loom-site-text, #f2f4f5);
+  margin-right: 4px;
+}
+
+/* 底栏进度 */
+.story-branching__bottom {
+  position: absolute;
+  inset: auto 6% 14px;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  font: 11px var(--loom-site-font-mono, monospace);
+  color: var(--loom-site-text-subtle, #6c7882);
+  letter-spacing: 0.05em;
+}
+
+.story-branching__progress {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 10;
+  height: 1px;
+  background: var(--loom-site-text-subtle, #6c7882);
+  transform-origin: left;
+  transform: scaleX(var(--compose-progress, 0));
+  transition: transform 0.05s linear;
+}
+
+/* 移动端响应式适配 */
+@media (max-width: 960px) {
+  .story-branching {
+    height: auto;
+    min-height: 100svh;
+    overflow-y: auto;
+  }
+  .story-branching__stage {
+    min-height: 100svh;
+    padding-bottom: 60px;
+  }
+  .story-branching__source {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 90%;
+    margin: 70px auto 20px;
+  }
+  .story-branching__copy {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 90%;
+    margin: 20px auto 30px;
+  }
+  .story-branching__previews {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 90%;
+    margin: 0 auto 60px;
+  }
+  .branch-card--a,
+  .branch-card--b {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+  }
+  .story-branching__connectors {
+    display: none;
+  }
+}

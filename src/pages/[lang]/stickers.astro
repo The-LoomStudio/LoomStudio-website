@@ -1,9 +1,13 @@
 ---
 import StickersPage from '../stickers.astro';
+import type { SiteLocale } from '../../lib/i18n';
 
 export function getStaticPaths() {
   return ['en', 'ja', 'ko'].map(lang => ({ params: { lang } }));
 }
+
+const { lang } = Astro.params;
+const currentLocale = lang as SiteLocale;
 ---
 
-<StickersPage />
+<StickersPage locale={currentLocale} />

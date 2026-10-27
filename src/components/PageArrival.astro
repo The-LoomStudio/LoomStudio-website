@@ -1,89 +1,30 @@
 ---
-import { siteImage } from '../lib/site-images';
+import PageArrivalScene from './logo-transition/PageArrivalScene';
 import type { SiteLocale } from '../lib/i18n';
 interface Props { locale: SiteLocale }
 const { locale } = Astro.props;
-const banner = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
 const label = { 'zh-CN': '正在准备画面', en: 'Preparing the page', ja: 'ページを準備しています', ko: '페이지 준비 중' }[locale];
 ---
 <div class="page-arrival" aria-label={label} aria-busy="true" data-page-arrival>
-  <div class="page-arrival__content">
-    <img src={banner.src} srcset={banner.srcSet} sizes="(max-width: 720px) 80vw, 640px" width={banner.width} height={banner.height} alt="Loom Studio" loading="eager" fetchpriority="high" />
-    <div class="page-arrival__progress"><progress max="100" value="0" aria-label={label}></progress>
-    <span>{label} <output>0%</output></span></div>
-  </div>
+  <PageArrivalScene client:load />
 </div>
 <style is:global>
-  .page-arrival { display: none; position: fixed; inset: 0; z-index: 10000; place-items: center; background: #252b31; opacity: 1; transition: opacity 520ms ease; }
-  html[data-arrival] .page-arrival { display: grid; }
-  html[data-arrival='leaving'] .page-arrival { opacity: 0; pointer-events: none; }
-  .page-arrival__content { position: relative; width: min(80vw, 640px); }
-  .page-arrival img { display: block; width: 100%; height: auto; }
-  .page-arrival__progress { position: absolute; top: calc(100% + 24px); left: 0; width: 100%; display: grid; justify-items: center; gap: 18px; }
-  .page-arrival__content { opacity: 0; }
-  .page-arrival[data-banner-ready] .page-arrival__content { animation: arrival-content 480ms ease both; }
-  .page-arrival progress { appearance: none; width: min(240px, 60vw); height: 3px; border: 0; overflow: hidden; border-radius: 3px; background: var(--loom-site-border); }
-  .page-arrival progress::-webkit-progress-bar { background: var(--loom-site-border); }
-  .page-arrival progress::-webkit-progress-value { background: var(--loom-site-accent-strong); transition: width 180ms ease; }
-  .page-arrival progress::-moz-progress-bar { background: var(--loom-site-accent-strong); }
-  .page-arrival span { color: var(--loom-site-text-muted); font-size: 12px; }
-  .page-arrival output { margin-left: 8px; font-variant-numeric: tabular-nums; }
-  @keyframes arrival-content { from { opacity: 0; } to { opacity: 1; } }
+  .page-arrival { display: none; position: fixed; inset: 0; z-index: 10000; background: var(--loom-site-bg); }
+  html[data-arrival] { overflow: hidden; }
+  html[data-arrival] .page-arrival { display: block; }
+  html[data-arrival='revealing'] .page-arrival { background: transparent; }
+  .page-arrival__scene, .page-arrival .text-logo, .page-arrival .logo-transition { width: 100%; height: 100%; }
+  .page-arrival .logo-transition { border: 0; border-radius: 0; aspect-ratio: auto; }
 </style>
 <script is:inline>
   if (!document.documentElement.dataset.routeTransition) {
-    document.documentElement.dataset.arrival = 'loading';
+    let seen = false;
+    try { seen = sessionStorage.getItem('loom-site-arrival-seen') === '1'; } catch {}
+    if (!seen) document.documentElement.dataset.arrival = 'loading';
   }
 </script>
 <script>
   const root = document.documentElement;
-  const overlay = document.querySelector<HTMLElement>('[data-page-arrival]')!;
-  const bannerImage = overlay.querySelector('img')!;
-  let bannerReadyAt = 0;
-  void bannerImage.decode().catch(() => {}).then(() => { bannerReadyAt = performance.now(); overlay.dataset.bannerReady = ''; });
-  const progress = overlay.querySelector('progress')!;
-  const output = overlay.querySelector('output')!;
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, reduced ? 0 : ms));
-  async function reveal() {
-    const started = performance.now();
-    // Only eager and visible images gate arrival; off-screen lazy images must remain lazy.
-    const images = [...document.images].filter(image => {
-      const bounds = image.getBoundingClientRect();
-      return image.loading !== 'lazy' || (bounds.width > 0 && bounds.bottom > 0 && bounds.top < innerHeight);
-    });
-    let settled = 0;
-    await Promise.all(images.map(image => new Promise<void>(resolve => {
-      let finished = false;
-      const finish = (count: boolean) => {
-        if (finished) return;
-        finished = true;
-        clearTimeout(timeout);
-        image.removeEventListener('load', done);
-        image.removeEventListener('error', done);
-        if (count) {
-          const value = Math.round(++settled / images.length * 100);
-          progress.value = value;
-          output.value = `${value}%`;
-        }
-        resolve();
-      };
-      // A stalled image must not make the website inaccessible; it can finish after reveal.
-      const done = () => { void image.decode().catch(() => {}).then(() => finish(true)); };
-      const timeout = setTimeout(() => finish(false), 12000);
-      image.addEventListener('load', done, { once: true });
-      image.addEventListener('error', done, { once: true });
-      if (image.complete) done();
-    })));
-    if (overlay.hasAttribute('data-banner-ready')) {
-      await delay(Math.max(0, 900 - (performance.now() - started), 520 - (performance.now() - bannerReadyAt)));
-    }
-    overlay.setAttribute('aria-busy', 'false');
-    root.dataset.arrival = 'leaving';
-    await delay(540);
-    delete root.dataset.arrival;
-  }
-  if (root.dataset.arrival === 'loading') void reveal();
   document.addEventListener('click', event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (!(event.target instanceof Element)) return;

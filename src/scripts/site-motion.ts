@@ -15,15 +15,6 @@ function setup() {
     const stop = scroll(animation)
     cleanups.push(() => { stop(); animation.cancel() })
   }
-  document.querySelectorAll<HTMLElement>('[data-motion-chapter]').forEach(section => {
-    const link = document.querySelector<HTMLAnchorElement>(`[data-chapter-link="${section.id}"]`)!
-    cleanups.push(inView(section, () => {
-      document.querySelectorAll('[data-chapter-link]').forEach(item => item.removeAttribute('aria-current'))
-      link.setAttribute('aria-current', 'location')
-      return () => link.removeAttribute('aria-current')
-    }, { margin: '-25% 0px -50% 0px' }))
-    cleanups.push(() => link.removeAttribute('aria-current'))
-  })
 
   if (!reducedMotion.matches) {
     const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-motion-reveal]'))

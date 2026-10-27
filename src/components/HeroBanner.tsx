@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
 import SiteMotion from './motion/SiteMotion'
 import LayeredIllustration from './illustration/LayeredIllustration'
 import ZoomImage from './illustration/ZoomImage'
+import { BannerArtwork, BannerIntro } from './illustration/BannerArtwork'
 import type { DisplayImage } from '../lib/site-images'
 import './hero-banner.css'
 
@@ -12,100 +12,44 @@ export const slides = [
   {
     src: '/images/nom/layers/nom-layer-composite-002-004.png',
     alt: '诺姆与另一位人物置于 Loom Studio 海岸构图前',
-    textSide: 'left',
     mobilePosition: '58%',
     layered: true,
-    eyebrow: 'LOOM STUDIO / 01',
-    title: '一个角色\n一段未完的故事',
-    copy: 'Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台。角色、世界设定、故事分支，都在这里接着写。',
   },
   {
     src: '/images/nom/banners/nom-banner-015.png',
     alt: '带有 Loom Studio 品牌字样的诺姆横幅',
-    textSide: 'none',
     mobilePosition: '58%',
-    eyebrow: 'LOOM STUDIO / 02',
-    title: '',
-    copy: '',
   },
   {
     src: '/images/nom/banners/nom-banner-011.png',
     alt: '带有 Loom Studio 品牌字样的诺姆海岸横幅',
-    textSide: 'none',
     mobilePosition: '42%',
-    eyebrow: 'LOOM STUDIO / 03',
-    title: '',
-    copy: '',
-  },
-]
-
-export const bottomSlides = [
-  {
-    src: '/images/nom/banners/nom-banner-001.png',
-    alt: '诺姆坐在夜色湖畔',
-    textSide: 'none',
-    mobilePosition: '64%',
-    eyebrow: '',
-    title: '',
-    copy: '',
-  },
-  {
-    src: '/images/nom/banners/nom-banner-006.png',
-    alt: '诺姆与另一位人物坐在篝火旁',
-    textSide: 'none',
-    mobilePosition: '56%',
-    eyebrow: '',
-    title: '',
-    copy: '',
-  },
-  {
-    src: '/images/nom/banners/nom-banner-010.png',
-    alt: '诺姆坐在海岸木栈桥上阅读',
-    textSide: 'none',
-    mobilePosition: '38%',
-    eyebrow: '',
-    title: '',
-    copy: '',
   },
 ]
 
 type Props = {
   className?: string
-  variant?: 'top' | 'bottom'
   images: Record<string, DisplayImage & { fullSrc: string }>
   layers?: { background: DisplayImage; foreground: DisplayImage }
 }
 
-export default function HeroBanner({ className = '', variant = 'top', images, layers }: Props) {
+export default function HeroBanner({ className = '', images, layers }: Props) {
   const reducedMotion = useReducedMotion()
   const root = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [target, setTarget] = useState(0)
-  const [enabled, setEnabled] = useState(variant === 'top')
   const [playing, setPlaying] = useState(false)
+  const [paused, setPaused] = useState(false)
   const loaded = useRef(new Set<number>())
-  const slideSet = variant === 'bottom' ? bottomSlides : slides
+  const slideSet = slides
 
   useEffect(() => {
-    if (variant !== 'bottom') return
-    // Observe the document-flow boundary, not the fixed footer behind the page.
-    const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) {
-        setEnabled(true)
-        observer.disconnect()
-      }
-    }, { rootMargin: '800px' })
-    observer.observe(document.getElementById('footer-banner-start')!)
-    return () => observer.disconnect()
-  }, [variant])
-
-  useEffect(() => {
-    if (!enabled || !playing || reducedMotion || target !== active) return
+    if (!playing || paused || reducedMotion || target !== active) return
     const timer = window.setTimeout(() => {
       select((active + 1) % slideSet.length)
     }, 7000)
     return () => window.clearTimeout(timer)
-  }, [active, target, enabled, playing, reducedMotion, slideSet.length])
+  }, [active, target, playing, paused, reducedMotion, slideSet.length])
 
   useEffect(() => {
     let frame = 0
@@ -113,17 +57,11 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
     const update = () => {
       frame = 0
       const height = banner.clientHeight
-      if (variant === 'bottom') {
-        // Move the whole footer into place behind the content, not its image.
-        banner.style.setProperty('--hero-bottom-offset', window.scrollY >= height ? '0px' : '-100%')
-        setPlaying(!document.hidden && document.getElementById('footer-banner-start')!.getBoundingClientRect().top < window.innerHeight)
-      } else {
-        const progress = Math.min(1, window.scrollY / height)
-        banner.style.visibility = progress < 1 ? 'visible' : 'hidden'
-        const position = 50 - window.scrollY * 100 / document.documentElement.scrollHeight
-        banner.style.setProperty('--hero-image-y', `${Math.max(0, position)}%`)
-        setPlaying(!document.hidden && progress < 1)
-      }
+      const progress = Math.min(1, window.scrollY / height)
+      banner.style.visibility = progress < 1 ? 'visible' : 'hidden'
+      const position = 50 - window.scrollY * 100 / document.documentElement.scrollHeight
+      banner.style.setProperty('--hero-image-y', `${Math.max(0, position)}%`)
+      setPlaying(!document.hidden && progress < 1)
     }
     const requestUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(update)
@@ -138,15 +76,11 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
       document.removeEventListener('visibilitychange', requestUpdate)
       window.cancelAnimationFrame(frame)
     }
-  }, [variant])
+  }, [])
 
   function select(index: number) {
     setTarget(index)
     if (loaded.current.has(index)) setActive(index)
-  }
-
-  const move = (direction: number) => {
-    select((active + direction + slideSet.length) % slideSet.length)
   }
 
   const updateLayeredPointer = (event: ReactPointerEvent<HTMLElement>) => {
@@ -164,15 +98,35 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
     layered?.style.setProperty('--illustration-y', '0')
   }
 
+  const controls = <div className="hero-banner__controls" onFocus={() => setPaused(true)} onBlur={event => {
+    if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false)
+  }}>
+    <div className="hero-banner__dots" aria-label="选择 Banner">
+      {slideSet.map((slide, index) => (
+        <m.button
+          initial={false}
+          animate={{ width: index === active ? 26 : 7 }}
+          transition={{ duration: reducedMotion ? 0 : 0.18, ease: 'easeOut' }}
+          type="button"
+          className={index === active ? 'is-active' : ''}
+          key={slide.src}
+          onClick={() => select(index)}
+          aria-label={`第 ${index + 1} 张 Banner`}
+          aria-current={index === active ? 'true' : undefined}
+        />
+      ))}
+    </div>
+  </div>
+
   return (
     <SiteMotion>
-      <div ref={root} className={`hero-banner hero-banner--${variant} ${className}`} aria-label="Loom Studio 介绍 Banner">
+      <div ref={root} className={`hero-banner hero-banner--top ${className}`} aria-label="Loom Studio 介绍 Banner">
         {slideSet.map((slide, index) => (
           <m.article
             initial={false}
             animate={{ opacity: index === active ? 1 : 0 }}
             transition={{ duration: reducedMotion ? 0 : 0.7, ease: 'easeInOut' }}
-            className={`hero-banner__slide hero-banner__slide--text-${slide.textSide}${index === active ? ' is-active' : ''}`}
+            className={`hero-banner__slide${index === active ? ' is-active' : ''}`}
             style={{ '--hero-mobile-position': slide.mobilePosition } as CSSProperties}
             key={slide.src}
             aria-hidden={index !== active}
@@ -180,10 +134,11 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
             onPointerMove={updateLayeredPointer}
             onPointerLeave={resetLayeredPointer}
           >
-            {enabled && (index === active || index === target || loaded.current.has(index)) && (
+            {(index === active || index === target || loaded.current.has(index)) && (
+              <BannerArtwork breathe={!('layered' in slide && slide.layered)} playing={playing && !paused && index === active}>
               <ZoomImage image={images[slide.src]} fullSrc={images[slide.src].fullSrc}
                 sizes={`max(100vw, ${Math.ceil(images[slide.src].width / images[slide.src].height * 100)}svh)`}
-                alt={slide.alt} loading="eager" fetchPriority={variant === 'top' && index === 0 ? 'high' : 'auto'}
+                alt={slide.alt} loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'}
                 onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
                 onError={() => setTarget(active)}
                 className="hero-banner__zoom">
@@ -193,35 +148,13 @@ export default function HeroBanner({ className = '', variant = 'top', images, la
                     onError={() => setTarget(active)} />
                 ) : undefined}
               </ZoomImage>
+              </BannerArtwork>
             )}
-            <div className="hero-banner__shade" aria-hidden="true" />
-            <div className="hero-banner__copy">
-              <p className="eyebrow">{slide.eyebrow}</p>
-              <h1>{slide.title.split('\n').map((line) => <span key={line}>{line}</span>)}</h1>
-              <p>{slide.copy}</p>
-            </div>
+            {'layered' in slide && slide.layered === true && <BannerIntro />}
           </m.article>
         ))}
-        <div className="hero-banner__controls">
-          <button type="button" onClick={() => move(-1)} aria-label="上一张 Banner"><ChevronLeft size={18} /></button>
-          <div className="hero-banner__dots" aria-label="选择 Banner">
-            {slideSet.map((slide, index) => (
-              <m.button
-                initial={false}
-                animate={{ width: index === active ? 26 : 7 }}
-                transition={{ duration: reducedMotion ? 0 : 0.18, ease: 'easeOut' }}
-                type="button"
-                className={index === active ? 'is-active' : ''}
-                key={slide.src}
-                onClick={() => select(index)}
-                aria-label={`第 ${index + 1} 张 Banner`}
-                aria-current={index === active ? 'true' : undefined}
-              />
-            ))}
-          </div>
-          <button type="button" onClick={() => move(1)} aria-label="下一张 Banner"><ChevronRight size={18} /></button>
-        </div>
       </div>
+      {controls}
     </SiteMotion>
   )
 }

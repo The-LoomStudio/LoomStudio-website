@@ -1,6 +1,6 @@
 ---
 import { siteImage } from '../lib/site-images';
-import ZoomImage from './illustration/ZoomImage';
+import BranchReveal from './branch-reveal/BranchReveal';
 
 const portraits = [
   { src: '/images/nom/illustrations/nom-illustration-001.png', alt: '诺姆手持书本的竖向插画', speed: '-0.08', className: 'story-wall__image--portrait-a' },
@@ -44,18 +44,19 @@ const denseSizes = [
 ];
 ---
 
-<section id="vertical-parallax" class="story-wall" aria-label="竖排视差章节">
+<section id="vertical-parallax" class="story-wall" aria-labelledby="story-wall-title">
   <div class="container story-wall__intro" data-motion-reveal>
-    <p class="eyebrow">A story keeps unfolding</p>
-    <h2 id="story-wall-title">窗外还有好多故事</h2>
-    <p>雨天的街道、夜里的列车、还亮着灯的书店。下一幕会发生在哪里？</p>
+    <p class="eyebrow">ONE STORY, MANY POSSIBILITIES</p>
+    <h2 id="story-wall-title">如果当时，选了另一条路</h2>
+    <p>留下读完那本书，走进雨里的街道，或搭上夜间列车。同一个故事，可以继续走向不同的下一幕。</p>
   </div>
 
   <div class="story-wall__portrait-field" aria-label="故事的最初片段">
-    {portraits.map((image) => (
+    {portraits.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <ZoomImage client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
-          sizes="(max-width: 680px) clamp(108px, 31vw, 150px), clamp(150px, 18vw, 250px)"
+        <BranchReveal client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          order={[1, 0, 2][index]} text={index === 0 ? "选择留下。她翻开那本书，让故事从窗边继续。" : undefined}
+          sizes="(max-width: 680px) clamp(150px, 42vw, 190px), clamp(150px, 18vw, 250px)"
           alt={image.alt} />
       </figure>
     ))}
@@ -64,7 +65,8 @@ const denseSizes = [
   <div class="story-wall__wide-field" aria-label="故事逐渐展开">
     {wide.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <ZoomImage client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+        <BranchReveal client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          order={index + 3} text={index === 1 ? "如果走进雨里，下一幕就在街道展开。伞下的人向你靠近了一点。" : undefined}
           sizes={index === 3
             ? '(max-width: 680px) clamp(175px, 48vw, 250px), clamp(240px, 31vw, 420px)'
             : '(max-width: 680px) clamp(190px, 55vw, 290px), clamp(280px, 38vw, 520px)'}
@@ -76,12 +78,14 @@ const denseSizes = [
   <div class="story-wall__dense-field" aria-label="交织的故事片段">
     {dense.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <ZoomImage client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+        <BranchReveal client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          order={index + 7}
           sizes={denseSizes[index]} alt={image.alt} />
       </figure>
     ))}
   </div>
 </section>
+<noscript><style is:inline>.branch-reveal .zoom-image__trigger { opacity: 1 !important; }.branch-reveal__text, .branch-reveal canvas { display: none; }.branch-reveal__caption { opacity: 1 !important; }</style></noscript>
 
 <style>
   .story-wall {
@@ -127,7 +131,7 @@ const denseSizes = [
   }
 
   .story-wall__wide-field {
-    height: 940px;
+    height: 1190px;
     margin-top: 40px;
   }
 
@@ -164,9 +168,9 @@ const denseSizes = [
   }
 
   .story-wall__image--wide-a { top: 80px; left: 2%; }
-  .story-wall__image--wide-b { top: 330px; right: 4%; }
-  .story-wall__image--wide-c { top: 590px; left: 19%; }
-  .story-wall__image--wide-d { top: 210px; left: 42%; width: clamp(240px, 31vw, 420px) !important; }
+  .story-wall__image--wide-b { top: 440px; right: 0; z-index: 4; }
+  .story-wall__image--wide-c { top: 800px; left: 6%; }
+  .story-wall__image--wide-d { top: 120px; left: 55%; width: clamp(240px, 31vw, 420px) !important; }
 
   .story-wall__image--dense-a { top: 40px; left: 0; width: clamp(360px, 45vw, 620px); }
   .story-wall__image--dense-b { top: 250px; left: 34%; width: clamp(190px, 23vw, 320px); }
@@ -192,17 +196,17 @@ const denseSizes = [
       width: calc(100% - 28px);
     }
     .story-wall__portrait-field { height: 620px; margin-top: 50px; }
-    .story-wall__wide-field { height: 760px; margin-top: 10px; }
+    .story-wall__wide-field { height: 1000px; margin-top: 10px; }
     .story-wall__dense-field { padding-top: 930px; }
-    .story-wall__portrait-field .story-wall__image { width: clamp(108px, 31vw, 150px); }
+    .story-wall__portrait-field .story-wall__image { width: clamp(150px, 42vw, 190px); }
     .story-wall__image--portrait-a { top: 320px; left: 0; }
     .story-wall__image--portrait-b { top: 0; left: 50%; }
     .story-wall__image--portrait-c { top: 345px; right: 0; }
     .story-wall__wide-field .story-wall__image { width: clamp(190px, 55vw, 290px); }
     .story-wall__image--wide-a { top: 40px; left: 0; }
-    .story-wall__image--wide-b { top: 220px; right: 0; }
-    .story-wall__image--wide-c { top: 450px; left: 8%; }
-    .story-wall__image--wide-d { top: 150px; left: 34%; width: clamp(175px, 48vw, 250px) !important; }
+    .story-wall__image--wide-b { top: 390px; right: 0; }
+    .story-wall__image--wide-c { top: 700px; left: 8%; }
+    .story-wall__image--wide-d { top: 130px; left: 40%; width: clamp(175px, 48vw, 250px) !important; }
     .story-wall__image--dense-a { top: 20px; left: 0; width: 68vw; }
     .story-wall__image--dense-b { top: 170px; left: 43%; width: 35vw; }
     .story-wall__image--dense-c { top: 250px; right: 0; width: 64vw; }

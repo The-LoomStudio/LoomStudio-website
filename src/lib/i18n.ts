@@ -45,6 +45,8 @@ export function getLocalizedPath(pathname: string, targetLocale: SiteLocale): st
 
 export const uiMessages = {
   'zh-CN': {
+    'nav.menuTitle': '页面导航',
+    'nav.menuEntries': '页面入口',
     'nav.menuOpen': '打开页面导航',
     'nav.menuClose': '关闭页面导航',
     'nav.quick': '快捷导航',
@@ -67,6 +69,8 @@ export const uiMessages = {
     'portal.homeSuffix': '· 官方发布与文档门户',
   },
   'en': {
+    'nav.menuTitle': 'Page Navigation',
+    'nav.menuEntries': 'Page entries',
     'nav.menuOpen': 'Open navigation menu',
     'nav.menuClose': 'Close navigation menu',
     'nav.quick': 'Quick navigation',
@@ -89,6 +93,8 @@ export const uiMessages = {
     'portal.homeSuffix': '· Official Release & Documentation Portal',
   },
   'ja': {
+    'nav.menuTitle': 'ページナビゲーション',
+    'nav.menuEntries': 'ページ一覧',
     'nav.menuOpen': 'ナビゲーションメニューを開く',
     'nav.menuClose': 'ナビゲーションメニューを閉じる',
     'nav.quick': 'クイックナビゲーション',
@@ -111,6 +117,8 @@ export const uiMessages = {
     'portal.homeSuffix': '· 公式リリースとドキュメントポータル',
   },
   'ko': {
+    'nav.menuTitle': '페이지 내비게이션',
+    'nav.menuEntries': '페이지 목록',
     'nav.menuOpen': '내비게이션 메뉴 열기',
     'nav.menuClose': '내비게이션 메뉴 닫기',
     'nav.quick': '빠른 내비게이션',
@@ -220,6 +228,414 @@ export function getHomeFeatures(locale: SiteLocale) {
         paragraphs: ['해당 턴에 남은 빌드 관찰에서 Source 선택, 정렬, 활성화 정보를 확인할 수 있습니다.', '모델이 설정을 놓쳤다면? 확인 가능한 기록부터 살펴보세요.'],
       },
     ],
+  };
+  return data[locale] ?? data['zh-CN'];
+}
+
+export function getHomeCopy(locale: SiteLocale) {
+  const data = {
+    'zh-CN': {
+      sectionsLabel: 'SECTIONS',
+      sections: [
+        { href: '#story', id: 'story', label: '01 叙事' },
+        { href: '#system', id: 'system', label: '02 系统' },
+        { href: '#architecture', id: 'architecture', label: '03 架构' },
+      ],
+      scroll: '往下看看',
+      brand: { copy: '编织世界，交织故事。', download: '下载与启动' },
+      cardBanner: {
+        eyebrow: 'A gallery of possibilities',
+        title: '故事从谁开始？',
+        nomMessage: '唔……都想认识一下。选谁好呢？',
+      },
+      manifesto: {
+        eyebrow: 'A home for your stories',
+        title: '正文归正文<br />幕后也有地方放',
+        paragraphs: [
+          '读故事时看正文，调整设定时打开工作区。',
+          'Agent 的工作记录、工具结果和提示词构建也各有位置，需要时再展开。',
+        ],
+      },
+      product: {
+        eyebrow: 'Inside the studio',
+        title: '故事写到哪儿<br />工作台就开在哪儿',
+        paragraphs: [
+          '角色、设定和对话放在同一个工作台里，不用来回翻找。',
+          '下面是一段交互演示，可以读读故事，也可以展开工作区看看。',
+        ],
+        legend: [
+          { index: '01', title: '故事时间线', desc: '阅读剧情，查看故事分支' },
+          { index: '02', title: 'Agent 工作区', desc: '查看对话、工具调用与运行记录' },
+          { index: '03', title: '提示词构建', desc: '检查本轮上下文用了哪些设定' },
+        ],
+      },
+      architecture: {
+        eyebrow: 'A little look backstage',
+        title: '工作台里面<br />是怎么运转的',
+        paragraphs: [
+          '故事正文、Agent 会话和提示词构建由不同模块负责。',
+          '架构地图把它们连起来，方便沿着一次操作查找对应的代码。',
+        ],
+        nomMessage: '啊，里面还有这么多……我先从认识的地方看起。',
+        button: '开发者架构地图',
+      },
+      stickersBanner: {
+        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
+        title: '故事之外，<br />也想陪你聊聊天。',
+        paragraphs: [
+          '认真、开心、困困，偶尔还会气鼓鼓。',
+          '33 张透明贴纸，把 Nom 的小表情带进日常。',
+        ],
+        button: '去挑一张表情',
+      },
+    },
+    'en': {
+      sectionsLabel: 'SECTIONS',
+      sections: [
+        { href: '#story', id: 'story', label: '01 Story' },
+        { href: '#system', id: 'system', label: '02 System' },
+        { href: '#architecture', id: 'architecture', label: '03 Architecture' },
+      ],
+      scroll: 'Scroll down',
+      brand: { copy: 'Weave worlds, interweave stories.', download: 'Download & Launch' },
+      cardBanner: {
+        eyebrow: 'A gallery of possibilities',
+        title: 'Whose story starts here?',
+        nomMessage: 'Hmm... I want to meet them all. Who should we pick?',
+      },
+      manifesto: {
+        eyebrow: 'A home for your stories',
+        title: 'Story in front,<br />the workshop behind',
+        paragraphs: [
+          'Read prose cleanly, open the workspace when adjusting lore.',
+          'Agent runs, tool outputs, and prompt assemblies each have their place, expanding on demand.',
+        ],
+      },
+      product: {
+        eyebrow: 'Inside the studio',
+        title: 'Where your story goes,<br />the workbench follows',
+        paragraphs: [
+          'Characters, lore, and dialogues together in one workbench—no endless tabs.',
+          'Explore the interactive demo below to read the story or inspect the workspace.',
+        ],
+        legend: [
+          { index: '01', title: 'Narrative Timeline', desc: 'Read prose and branch narratives' },
+          { index: '02', title: 'Agent Workspace', desc: 'Inspect dialogues, tool calls & runs' },
+          { index: '03', title: 'Prompt Assembly', desc: 'Check which lore entered this turn' },
+        ],
+      },
+      architecture: {
+        eyebrow: 'A little look backstage',
+        title: 'How the studio<br />runs behind the scenes',
+        paragraphs: [
+          'Story text, Agent sessions, and prompt assemblies are handled by modular systems.',
+          'The architecture map traces them together to make code discovery intuitive.',
+        ],
+        nomMessage: "Whoa, there's so much inside... I'll start with the parts I know.",
+        button: 'Architecture Map',
+      },
+      stickersBanner: {
+        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
+        title: 'Beyond stories,<br />here to keep you company.',
+        paragraphs: [
+          'Earnest, joyful, sleepy, or occasionally pouting.',
+          '33 transparent stickers to bring Nom into your daily chats.',
+        ],
+        button: 'Pick a sticker',
+      },
+    },
+    'ja': {
+      sectionsLabel: 'SECTIONS',
+      sections: [
+        { href: '#story', id: 'story', label: '01 叙事' },
+        { href: '#system', id: 'system', label: '02 システム' },
+        { href: '#architecture', id: 'architecture', label: '03 設計' },
+      ],
+      scroll: 'もっと見る',
+      brand: { copy: '世界を紡ぎ、物語を交差させる。', download: 'ダウンロードと起動' },
+      cardBanner: {
+        eyebrow: 'A gallery of possibilities',
+        title: '誰から物語を始めよう？',
+        nomMessage: 'うーん……みんな気になるな。誰にしよう？',
+      },
+      manifesto: {
+        eyebrow: 'A home for your stories',
+        title: '本文は本文へ、<br />舞台裏もすっきりと',
+        paragraphs: [
+          '読むときは本文に没入し、設定変更時はワークスペースへ。',
+          'Agent の作業履歴、ツール結果、プロンプト構築もそれぞれの場所に整理され、必要な時だけ展開できます。',
+        ],
+      },
+      product: {
+        eyebrow: 'Inside the studio',
+        title: '物語が進む場所へ、<br />スタジオも共に開く',
+        paragraphs: [
+          'キャラクター、設定、対話をひとつのスタジオに統合。タブを行き来する必要はありません。',
+          '以下のインタラクティブデモで、物語を読むかワークスペースを展開してみてください。',
+        ],
+        legend: [
+          { index: '01', title: 'ストーリータイムライン', desc: '本文を読み、分岐を確認' },
+          { index: '02', title: 'Agent ワークスペース', desc: '対話、ツール呼び出し、実行記録を確認' },
+          { index: '03', title: 'プロンプト構築', desc: 'このターンに投入された設定を確認' },
+        ],
+      },
+      architecture: {
+        eyebrow: 'A little look backstage',
+        title: 'スタジオの裏側は<br />どう動いているか',
+        paragraphs: [
+          '本文、Agent セッション、プロンプト構築は独立したモジュールが担当します。',
+          'アーキテクチャマップがそれらを繋ぎ、コードの追跡を容易にします。',
+        ],
+        nomMessage: 'わあ、こんなにたくさんあるんだ……まずは知っているところから見てみよう。',
+        button: 'アーキテクチャマップ',
+      },
+      stickersBanner: {
+        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
+        title: '物語の外でも、<br />お話し相手になりたいな。',
+        paragraphs: [
+          '真面目、嬉しい、眠い、ときどきぷんぷん。',
+          '透過スタンプ 33 枚。Nom の小さな表情を毎日の会話に。',
+        ],
+        button: 'スタンプを見に行く',
+      },
+    },
+    'ko': {
+      sectionsLabel: 'SECTIONS',
+      sections: [
+        { href: '#story', id: 'story', label: '01 서사' },
+        { href: '#system', id: 'system', label: '02 시스템' },
+        { href: '#architecture', id: 'architecture', label: '03 아키텍처' },
+      ],
+      scroll: '아래로 스크롤',
+      brand: { copy: '세계를 엮고, 이야기를 교차하다.', download: '다운로드 및 실행' },
+      cardBanner: {
+        eyebrow: 'A gallery of possibilities',
+        title: '누구의 이야기부터 시작할까요?',
+        nomMessage: '음…… 다 만나보고 싶어요. 누구를 고를까요?',
+      },
+      manifesto: {
+        eyebrow: 'A home for your stories',
+        title: '본문은 이야기로,<br />무대 뒤도 깔끔하게',
+        paragraphs: [
+          '이야기를 읽을 땐 본문에 집중하고, 설정을 바꿀 땐 작업실을 열어보세요.',
+          'Agent의 실행 기록, 도구 결과, 프롬프트 빌드도 제자리에 정리되어 필요할 때만 펼쳐볼 수 있습니다.',
+        ],
+      },
+      product: {
+        eyebrow: 'Inside the studio',
+        title: '이야기가 머무는 곳,<br />작업대가 함께 열립니다',
+        paragraphs: [
+          '캐릭터, 설정, 대화가 하나의 작업대에 모여 있어 번갈아 찾을 필요가 없습니다.',
+          '아래 인터랙티브 데모에서 이야기를 읽거나 작업 공간을 열어보세요.',
+        ],
+        legend: [
+          { index: '01', title: '스토리 타임라인', desc: '본문을 읽고 이야기 분기 확인' },
+          { index: '02', title: 'Agent 작업 영역', desc: '대화, 도구 호출 및 실행 기록 확인' },
+          { index: '03', title: '프롬프트 구성', desc: '이번 턴에 사용된 설정 확인' },
+        ],
+      },
+      architecture: {
+        eyebrow: 'A little look backstage',
+        title: '작업대 안쪽은<br />어떻게 돌아갈까요',
+        paragraphs: [
+          '스토리 본문, Agent 세션, 프롬프트 구성은 각 모듈이 담당합니다.',
+          '아키텍처 맵으로 연결되어 한 번의 동작과 관련된 코드를 쉽게 찾을 수 있습니다.',
+        ],
+        nomMessage: '와, 안에 이렇게 많은 게…… 아는 부분부터 천천히 살펴봐야겠어요.',
+        button: '개발자 아키텍처 맵',
+      },
+      stickersBanner: {
+        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
+        title: '이야기 너머에서도,<br />당신과 이야기 나누고 싶어요.',
+        paragraphs: [
+          '진지하고, 즐겁고, 졸리고, 때로는 토라지기도 하는.',
+          '33장의 투명 스티커로 Nom의 표정을 일상 속에 담아보세요.',
+        ],
+        button: '스티커 고르러 가기',
+      },
+    },
+  };
+  return data[locale] ?? data['zh-CN'];
+}
+
+export function getStickersCopy(locale: SiteLocale) {
+  const data = {
+    'zh-CN': {
+      hero: {
+        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
+        title: '把一点陪伴，<br />带进日常。',
+        intro: '有时认真，有时困困，偶尔还会偷偷得意。<br />这里是 Nom 的小小表情室，挑一张，替今天说句话。',
+      },
+      pack: {
+        edition: 'NOM STICKERS / VOL. 01',
+        countSuffix: '种心情<br />一起带走',
+        downloadButton: '下载整套表情包',
+        details: (packSize: string) => `透明 PNG · 512px · ZIP ${packSize} MiB<br />8 张全身 + 25 张表情与动作`,
+      },
+      divider: '选个表情，试句台词。',
+      noscript: '下方贴纸已完整展示。开启 JavaScript 后可切换分类、试搭背景和气泡；整套及单张下载无需 JavaScript。',
+      gallery: {
+        label: 'A LITTLE COMPANY',
+        groups: [
+          { id: 'all', title: '全部' },
+          { id: 'bust', title: '表情与动作' },
+          { id: 'fullbody', title: '全身陪伴' },
+        ],
+        backgrounds: [
+          { id: 'checker', title: '透明棋盘' },
+          { id: 'light', title: '浅色' },
+          { id: 'dark', title: '深色' },
+        ],
+        sides: [
+          { id: 'left', title: '气泡在左' },
+          { id: 'right', title: '气泡在右' },
+        ],
+        previewBackgroundAria: '预览背景',
+        bubblePositionAria: '气泡位置',
+        filterAria: '贴纸分类',
+        previewSectionAria: '表情与气泡试搭',
+        downloadOriginal: '下载这张原图',
+        bubbleLabel: '替她说一句',
+        bubbleNote: '只在这里试台词，下载的图片不含文字。',
+        collectionEyebrow: 'PICK YOUR MOOD',
+        collectionTitle: '今天，是哪一种心情？',
+        collectionCount: (visible: number, total: number) => `${visible} / ${total} 张`,
+        previewAria: (title: string) => `预览：${title}`,
+        downloadAria: (title: string) => `下载${title}原图`,
+      },
+    },
+    'en': {
+      hero: {
+        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
+        title: 'Bring a little company<br />into your everyday.',
+        intro: "Earnest, sleepy, or quietly proud.<br />This is Nom's little sticker room. Pick one to speak for today.",
+      },
+      pack: {
+        edition: 'NOM STICKERS / VOL. 01',
+        countSuffix: 'moods to<br />take along',
+        downloadButton: 'Download Sticker Pack',
+        details: (packSize: string) => `Transparent PNG · 512px · ZIP ${packSize} MiB<br />8 full-body + 25 expressions & gestures`,
+      },
+      divider: 'Pick a mood, try a line.',
+      noscript: 'All stickers are displayed below. Enable JavaScript to filter categories and preview bubbles; pack and single downloads do not require JavaScript.',
+      gallery: {
+        label: 'A LITTLE COMPANY',
+        groups: [
+          { id: 'all', title: 'All' },
+          { id: 'bust', title: 'Expressions' },
+          { id: 'fullbody', title: 'Companions' },
+        ],
+        backgrounds: [
+          { id: 'checker', title: 'Checker' },
+          { id: 'light', title: 'Light' },
+          { id: 'dark', title: 'Dark' },
+        ],
+        sides: [
+          { id: 'left', title: 'Bubble Left' },
+          { id: 'right', title: 'Bubble Right' },
+        ],
+        previewBackgroundAria: 'Preview background',
+        bubblePositionAria: 'Bubble position',
+        filterAria: 'Sticker categories',
+        previewSectionAria: 'Sticker & bubble preview',
+        downloadOriginal: 'Download original image',
+        bubbleLabel: 'Write a line for her',
+        bubbleNote: 'Text is for preview only; downloaded stickers are transparent.',
+        collectionEyebrow: 'PICK YOUR MOOD',
+        collectionTitle: "What's your mood today?",
+        collectionCount: (visible: number, total: number) => `${visible} / ${total} stickers`,
+        previewAria: (title: string) => `Preview: ${title}`,
+        downloadAria: (title: string) => `Download original ${title}`,
+      },
+    },
+    'ja': {
+      hero: {
+        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
+        title: '小さな寄り添いを、<br />いつもの毎日に。',
+        intro: '真面目だったり、うとうとしたり、時にはこっそり誇らしげ。<br />ここは Nom の小さなスタンプ部屋。今日の気持ちにぴったりの一枚を。',
+      },
+      pack: {
+        edition: 'NOM STICKERS / VOL. 01',
+        countSuffix: '種類の表情を<br />まとめて',
+        downloadButton: 'スタンプセットをダウンロード',
+        details: (packSize: string) => `透過 PNG · 512px · ZIP ${packSize} MiB<br />全身 8 枚 + 表情・仕草 25 枚`,
+      },
+      divider: 'スタンプを選んで、セリフを試す。',
+      noscript: 'スタンプ一覧は下に表示されています。JavaScript を有効にするとカテゴリ切替やフキダシプレビューが使えます。一括および個別ダウンロードに JavaScript は不要です。',
+      gallery: {
+        label: 'A LITTLE COMPANY',
+        groups: [
+          { id: 'all', title: 'すべて' },
+          { id: 'bust', title: '表情と仕草' },
+          { id: 'fullbody', title: '全身の相棒' },
+        ],
+        backgrounds: [
+          { id: 'checker', title: '市松模様' },
+          { id: 'light', title: 'ライト' },
+          { id: 'dark', title: 'ダーク' },
+        ],
+        sides: [
+          { id: 'left', title: '左のフキダシ' },
+          { id: 'right', title: '右のフキダシ' },
+        ],
+        previewBackgroundAria: '背景プレビュー',
+        bubblePositionAria: 'フキダシの位置',
+        filterAria: 'スタンプカテゴリ',
+        previewSectionAria: 'スタンプとフキダシのお試し',
+        downloadOriginal: 'この画像をダウンロード',
+        bubbleLabel: 'セリフを入れてみる',
+        bubbleNote: 'ここでのプレビュー用です。ダウンロードする画像に文字は入りません。',
+        collectionEyebrow: 'PICK YOUR MOOD',
+        collectionTitle: '今日は、どんな気分？',
+        collectionCount: (visible: number, total: number) => `${visible} / ${total} 枚`,
+        previewAria: (title: string) => `プレビュー：${title}`,
+        downloadAria: (title: string) => `${title}の原寸をダウンロード`,
+      },
+    },
+    'ko': {
+      hero: {
+        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
+        title: '작은 다정함을,<br />일상 속으로.',
+        intro: '진지하다가도, 졸려 하다가, 가끔은 슬그머니 뿌듯해지는.<br />여기는 Nom의 작은 스티커 방입니다. 오늘의 마음에 맞는 하나를 골라보세요.',
+      },
+      pack: {
+        edition: 'NOM STICKERS / VOL. 01',
+        countSuffix: '가지 기분을<br />함께',
+        downloadButton: '스티커 팩 전체 다운로드',
+        details: (packSize: string) => `투명 PNG · 512px · ZIP ${packSize} MiB<br />전신 8장 + 표정 및 동작 25장`,
+      },
+      divider: '스티커를 고르고, 대사를 넣어보세요.',
+      noscript: '아래에 스티커가 표시되어 있습니다. JavaScript를 활성화하면 카테고리 필터와 말풍선 미리보기를 사용할 수 있습니다. 전체 및 개별 다운로드는 JavaScript 없이도 가능합니다.',
+      gallery: {
+        label: 'A LITTLE COMPANY',
+        groups: [
+          { id: 'all', title: '전체' },
+          { id: 'bust', title: '표정과 동작' },
+          { id: 'fullbody', title: '전신 동행' },
+        ],
+        backgrounds: [
+          { id: 'checker', title: '바둑판' },
+          { id: 'light', title: '밝은 배경' },
+          { id: 'dark', title: '어두운 배경' },
+        ],
+        sides: [
+          { id: 'left', title: '왼쪽 말풍선' },
+          { id: 'right', title: '오른쪽 말풍선' },
+        ],
+        previewBackgroundAria: '미리보기 배경',
+        bubblePositionAria: '말풍선 위치',
+        filterAria: '스티커 분류',
+        previewSectionAria: '스티커 및 말풍선 미리보기',
+        downloadOriginal: '이 원본 다운로드',
+        bubbleLabel: '대사를 넣어보세요',
+        bubbleNote: '미리보기 전용입니다. 다운로드하는 이미지에는 텍스트가 포함되지 않습니다.',
+        collectionEyebrow: 'PICK YOUR MOOD',
+        collectionTitle: '오늘은 어떤 기분인가요?',
+        collectionCount: (visible: number, total: number) => `${visible} / ${total} 장`,
+        previewAria: (title: string) => `미리보기: ${title}`,
+        downloadAria: (title: string) => `${title} 원본 다운로드`,
+      },
+    },
   };
   return data[locale] ?? data['zh-CN'];
 }
@@ -393,6 +809,40 @@ export const pageMeta = {
       marker: 'PAGE / 04 · DOCS',
       headline: '작업대 사용 설명서를 펼쳐보세요',
       intro: '첫걸음부터 이야기의 깊은 곳까지. 캐릭터 리소스, Prompt 구성, Session 작업 기록, 로컬 데이터 경계를 알아봅니다.',
+    },
+  },
+  stickers: {
+    'zh-CN': {
+      title: 'Nom 表情包',
+      description: '把 Nom 带到日常聊天里。33 张透明贴纸，浏览表情、试搭气泡，免费下载整套 512px PNG 或单张原图。',
+      eyebrow: 'Nom Sticker Pack',
+      marker: 'PAGE / 06 · STICKERS',
+      headline: '把一点陪伴，带进日常',
+      intro: '33 张透明贴纸，浏览表情、试搭气泡，免费下载整套 512px PNG 或单张原图。',
+    },
+    'en': {
+      title: 'Nom Stickers',
+      description: 'Bring Nom into your everyday chats. 33 transparent stickers with preview bubbles. Free 512px PNG pack and original single downloads.',
+      eyebrow: 'Nom Sticker Pack',
+      marker: 'PAGE / 06 · STICKERS',
+      headline: 'Bring a little company into your day',
+      intro: '33 transparent stickers with preview bubbles. Free 512px PNG pack and original single downloads.',
+    },
+    'ja': {
+      title: 'Nom スタンプ',
+      description: 'Nom を日常の会話に。透過スタンプ 33 枚。セリフを試して、512px PNG パックや原寸画像を無料ダウンロード。',
+      eyebrow: 'Nom Sticker Pack',
+      marker: 'PAGE / 06 · STICKERS',
+      headline: '小さな寄り添いを、いつもの毎日に',
+      intro: '透過スタンプ 33 枚。セリフを試して、512px PNG パックや原寸画像を無料ダウンロード。',
+    },
+    'ko': {
+      title: 'Nom 스티커',
+      description: 'Nom을 일상 대화로 초대하세요. 33장의 투명 스티커와 말풍선 미리보기. 512px PNG 팩 및 개별 원본 무료 다운로드.',
+      eyebrow: 'Nom Sticker Pack',
+      marker: 'PAGE / 06 · STICKERS',
+      headline: '작은 다정함을, 일상 속으로',
+      intro: '33장의 투명 스티커와 말풍선 미리보기. 512px PNG 팩 및 개별 원본 무료 다운로드.',
     },
   },
 } as const;

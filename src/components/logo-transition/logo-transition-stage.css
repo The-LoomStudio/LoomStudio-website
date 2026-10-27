@@ -1,0 +1,3 @@
+.logo-transition { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--loom-site-border); border-radius: 20px; isolation: isolate; }
+.logo-transition__destination, .logo-transition__curtain { position: absolute; inset: 0; width: 100%; height: 100%; }
+.logo-transition__curtain { pointer-events: none; }

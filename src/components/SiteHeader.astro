@@ -66,9 +66,9 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   </div>
 </header>
 
-<dialog class="route-menu" id="route-menu" aria-label="页面导航" data-route-menu
+<dialog class="route-menu" id="route-menu" aria-label={t(currentLocale, 'nav.menuTitle')} data-route-menu
   data-current-index={activeRouteIndex}>
-  <button class="site-icon menu-close" type="button" aria-label="关闭页面导航" title="关闭页面导航" data-menu-close autofocus>
+  <button class="site-icon menu-close" type="button" aria-label={t(currentLocale, 'nav.menuClose')} title={t(currentLocale, 'nav.menuClose')} data-menu-close autofocus>
     <i class="menu-trigger__line menu-trigger__line--top" aria-hidden="true"></i>
     <i class="menu-trigger__line menu-trigger__line--middle" aria-hidden="true"></i>
     <i class="menu-trigger__line menu-trigger__line--bottom" aria-hidden="true"></i>
@@ -84,7 +84,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
 
   <div class="route-menu__scroll" data-menu-scroll tabindex="0" aria-label={t(currentLocale, 'nav.indexScroll')}>
     <div class="route-menu__track">
-      <nav class="route-menu__stage" aria-label="页面入口">
+      <nav class="route-menu__stage" aria-label={t(currentLocale, 'nav.menuEntries')}>
         {routes.map((route, index) => (
           <a class="route-menu__entry"
             href={route.href} aria-current={route.id === activeRoute ? 'page' : undefined}
@@ -139,12 +139,18 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   </div>
   </div>
 </dialog>
+<dialog class="menu-logo-transition" data-menu-transition aria-label={t(currentLocale, 'nav.menuEntries')} tabindex="-1">
+  <div data-menu-transition-mount></div>
+</dialog>
 
 <script>
+  import { setupMenuTransition } from './logo-transition/menu-transition';
   import { setupThemeToggle } from '../scripts/theme-toggle';
   const trigger = document.querySelector<HTMLButtonElement>('[data-menu-trigger]')!;
   const menu = document.querySelector<HTMLDialogElement>('[data-route-menu]')!;
   const scroller = menu.querySelector<HTMLElement>('[data-menu-scroll]')!;
+  const playMenuTransition = setupMenuTransition(document.querySelector<HTMLDialogElement>('[data-menu-transition]')!);
+  const closeButton = menu.querySelector<HTMLButtonElement>('[data-menu-close]')!;
   const surface = menu.querySelector<HTMLElement>('.route-menu__surface')!;
   const links = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-route-index]'));
   const previous = menu.querySelector<HTMLButtonElement>('[data-menu-previous]')!;
@@ -198,13 +204,15 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
     } else requestUpdate();
   };
   trigger.addEventListener('click', () => {
-    menu.showModal();
-    document.documentElement.setAttribute('data-menu-open', '');
-    trigger.setAttribute('aria-expanded', 'true');
-    goTo(Number(menu.dataset.currentIndex), true);
+    playMenuTransition(() => {
+      menu.showModal();
+      document.documentElement.setAttribute('data-menu-open', '');
+      trigger.setAttribute('aria-expanded', 'true');
+      goTo(Number(menu.dataset.currentIndex), true);
+    }, closeButton);
   });
   const closeMenu = () => {
-    if (menu.hasAttribute('data-closing')) return;
+    if (!menu.open || menu.hasAttribute('data-closing')) return;
     if (reduceMotion.matches) {
       menu.close();
       return;
@@ -214,7 +222,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   surface.addEventListener('animationend', (event) => {
     if (event.target === surface && menu.hasAttribute('data-closing')) menu.close();
   });
-  menu.querySelector('[data-menu-close]')!.addEventListener('click', closeMenu);
+  closeButton.addEventListener('click', closeMenu);
   menu.addEventListener('cancel', (event) => {
     event.preventDefault();
     closeMenu();
@@ -572,8 +580,8 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   .route-menu::backdrop { background: transparent; }
   .route-menu__surface { position: absolute; inset: 0; background: var(--loom-site-menu-bg); }
   html[data-theme='dark'] .route-menu__surface { background: #192126; }
-  .route-menu[open] .route-menu__surface { animation: menu-arrive 680ms cubic-bezier(.55, 0, .1, 1); }
   .route-menu[data-closing] .route-menu__surface { animation: menu-depart 680ms cubic-bezier(.55, 0, .1, 1) forwards; pointer-events: none; }
+  @keyframes menu-depart { from { clip-path: inset(0); } to { clip-path: inset(100% 0 0); } }
   .route-menu__header {
     position: absolute;
     z-index: 2;
@@ -700,8 +708,6 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   .route-menu__position b { color: var(--loom-site-text); font-size: 20px; font-weight: 400; }
   .route-menu__steps { display: flex; gap: 6px; }
   .route-menu__github { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12px; pointer-events: auto; }
-  @keyframes menu-arrive { from { clip-path: inset(100% 0 0); } to { clip-path: inset(0); } }
-  @keyframes menu-depart { from { clip-path: inset(0); } to { clip-path: inset(100% 0 0); } }
   @media (max-width: 1100px) {
     .site-quick-nav { flex-direction: row; gap: 16px; }
   }

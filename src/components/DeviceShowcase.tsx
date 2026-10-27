@@ -1,22 +1,19 @@
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { LayoutGroup, domMax, useReducedMotion } from 'motion/react'
-import * as m from 'motion/react-m'
-import SiteMotion from './motion/SiteMotion'
-import { Laptop, Smartphone } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useReducedMotion } from 'motion/react'
+import type { DisplayImage } from '../lib/site-images'
+import type { Weather } from './story-demo/WeatherBackdrop'
 import StoryDemo from './story-demo/StoryDemo'
 import './device-showcase.css'
 
 const devices = [
-  { id: 'phone', label: '手机', icon: Smartphone, width: 428, viewportWidth: 390, className: 'device-iphone-14-pro' },
-  { id: 'laptop', label: '电脑', icon: Laptop, width: 740, viewportWidth: 1280, className: 'device-macbook-pro device-spacegray' },
+  { id: 'phone', label: '手机', width: 428, viewportWidth: 390, className: 'device-iphone-14-pro' },
+  { id: 'laptop', label: '电脑', width: 740, viewportWidth: 1280, className: 'device-macbook-pro device-spacegray' },
 ] as const
 
-export default function DeviceShowcase() {
-  const layoutId = useId()
+export default function DeviceShowcase({ progress, avatar, weather, onWeatherChange }: { progress: number; avatar: DisplayImage; weather: Weather; onWeatherChange: (weather: Weather) => void }) {
   const reducedMotion = useReducedMotion()
   const [active, setActive] = useState(0)
   const slot = useRef<HTMLDivElement>(null)
-  const tabs = useRef<HTMLDivElement>(null)
   const screen = useRef<HTMLDivElement>(null)
   const device = devices[active]
 
@@ -41,43 +38,23 @@ export default function DeviceShowcase() {
     return () => observer.disconnect()
   }, [device.width, device.viewportWidth])
 
-  const navigateTabs = (event: KeyboardEvent<HTMLDivElement>) => {
-    let next: number
-    switch (event.key) {
-      case 'ArrowLeft':
-      case 'ArrowRight': next = 1 - active; break
-      case 'Home': next = 0; break
-      case 'End': next = 1; break
-      default: return
-    }
-    event.preventDefault()
-    setActive(next)
-    tabs.current!.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next].focus()
-  }
-
-  const transition = { duration: reducedMotion ? 0 : 0.4, ease: 'easeInOut' as const }
-  return <SiteMotion features={domMax}><LayoutGroup id={layoutId}><div className="device-showcase">
-    <div ref={tabs} className="device-tabs" role="tablist" aria-label="演示设备" onKeyDown={navigateTabs}>
-      {devices.map(({ id, label, icon: Icon }, index) => (
-        <button key={id} id={`device-tab-${id}`} type="button" role="tab"
-          aria-selected={active === index} aria-controls="device-preview-panel"
-          tabIndex={active === index ? 0 : -1} onClick={() => setActive(index)}>
-          {active === index && <m.span className="device-tab-highlight" layoutId="device-tab" aria-hidden="true"
-            transition={{ type: 'spring', stiffness: 380, damping: 34 }} />}
-          <Icon size={16} aria-hidden="true" />{label}
-        </button>
-      ))}
-    </div>
-    <m.div id="device-preview-panel" role="tabpanel" aria-labelledby={`device-tab-${device.id}`}
-      initial={false} animate={{ maxWidth: device.id === 'phone' ? 428 : 1100 }} transition={transition}
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 680px)')
+    const sync = () => setActive(query.matches ? 0 : 1)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
+  return <div className="device-showcase">
+    <div aria-label={`${device.label}端工作台演示`}
       className={`device-preview device-preview--${device.id}`}>
-      <m.div ref={slot} className="device-slot" initial={false}
-        animate={{ aspectRatio: device.id === 'phone' ? 428 / 868 : 740 / 434 }} transition={transition}>
+      <div ref={slot} className="device-slot"
+        style={{ aspectRatio: device.id === 'phone' ? 428 / 868 : 740 / 434 }}>
         <div className={`device ${device.className}`}>
           <div className="device-frame">
             <div ref={screen} className="device-screen">
               <div className="device-app-viewport">
-                <StoryDemo />
+                <StoryDemo progress={reducedMotion ? 1 : progress} avatar={avatar} weather={weather} onWeatherChange={onWeatherChange} />
               </div>
             </div>
           </div>
@@ -88,7 +65,7 @@ export default function DeviceShowcase() {
           <div className="device-power" aria-hidden="true" />
           <div className="device-home" aria-hidden="true" />
         </div>
-      </m.div>
-    </m.div>
-  </div></LayoutGroup></SiteMotion>
+      </div>
+    </div>
+  </div>
 }

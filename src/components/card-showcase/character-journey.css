@@ -1,0 +1,39 @@
+.character-journey { position: relative; }
+.character-journey__track { position: relative; height: 380svh; margin-top: -100svh; pointer-events: none; }
+.character-journey__stage { position: sticky; top: 0; height: 100svh; isolation: isolate; overflow: clip; }
+.character-journey__gallery { position: relative; mask-image: linear-gradient(transparent, #000 90px, #000 calc(100% - 100px), transparent); }
+.character-journey__scene { position: absolute; inset: 0; display: grid; align-items: center; background: linear-gradient(var(--loom-site-bg), transparent 18%, transparent 80%, var(--loom-site-bg)), url('/images/nom/banners/nom-banner-013.png') center / cover; }
+.character-journey__scene [data-journey-avatar] { visibility: hidden; }
+.character-journey__scene[data-landed=true] [data-journey-avatar] { visibility: visible; }
+.character-journey__traveller { position: absolute; z-index: 4; object-fit: cover; object-position: center 30%; pointer-events: none; }
+.character-journey .device-showcase { padding: 32px 18px; }
+.character-journey .device-preview--laptop { max-width: min(1100px, calc((100svh - 140px) * 1.7)); }
+.character-journey .device-preview--phone { max-width: min(350px, calc((100svh - 90px) * .493)); }
+/* Only the stage paints the landscape. Opaque inset rings preserve the hardware
+   while the screen reveals the same scene without a second crop. */
+.character-journey .device-frame { background: transparent; }
+.character-journey .device-macbook-pro .device-frame {
+  box-shadow: inset 0 0 0 2px #c8cacb,
+    inset 0 0 0 9px #0d0d0d,
+    inset 0 -34px 0 #0d0d0d;
+}
+.character-journey .device-iphone-14-pro .device-frame {
+  box-shadow: inset 0 0 4px 2px #c0b7cd,
+    inset 0 0 0 6px #342c3f,
+    inset 0 0 0 19px #010101;
+}
+.character-journey .device-screen { position: relative; background: transparent; }
+.character-journey .device-app-viewport { position: relative; z-index: 1; }
+.character-journey .device-showcase .story-flow { background: transparent; }
+.character-journey[data-reduced=true] .character-journey__track { height: auto; margin-top: 0; }
+.character-journey[data-reduced=true] .character-journey__stage { position: relative; height: auto; }
+.character-journey[data-reduced=true] .character-journey__gallery { position: relative; height: auto; }
+.character-journey[data-reduced=true] .character-journey__scene { position: relative; min-height: 100svh; }
+@media (max-width: 680px) {
+  .character-journey__gallery { mask-image: linear-gradient(transparent, #000 40px, #000 calc(100% - 60px), transparent); }
+}
+
+.character-journey__dusk { position: absolute; inset: 0; background: linear-gradient(135deg, #f8b365, #764366); mix-blend-mode: multiply; pointer-events: none; }
+.character-journey .device-showcase { position: relative; z-index: 1; }
+
+.character-journey__scene[data-landed=true] .story-flow { pointer-events: auto; }

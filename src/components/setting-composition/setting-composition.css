@@ -1,0 +1,217 @@
+.setting-composition {
+  position: relative;
+  height: 100svh;
+  min-height: 100svh;
+  background: var(--loom-site-bg);
+  overflow: hidden;
+  user-select: none;
+}
+
+.setting-composition__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 顶栏 */
+.setting-composition__top {
+  position: absolute;
+  z-index: 10;
+  inset: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 6%;
+  font: 11px var(--loom-site-font-mono);
+  letter-spacing: .08em;
+  color: var(--loom-site-text-subtle);
+}
+
+.setting-composition__top button {
+  padding: 4px 12px;
+  border: 1px solid var(--loom-site-border, rgba(255, 255, 255, 0.1));
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  color: var(--loom-site-text-muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.setting-composition__top button:hover {
+  color: var(--loom-site-text);
+  border-color: var(--loom-site-text-muted);
+}
+
+/* 左侧设定树：始终保持清晰与稳定 */
+.setting-composition__copy {
+  position: absolute;
+  left: 8%;
+  top: 50%;
+  width: min(40%, 500px);
+  transform: translateY(-50%);
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.setting-composition h1 {
+  margin: 0 0 32px;
+  font-family: var(--loom-site-font-display, "Fredoka", sans-serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--loom-site-text);
+}
+
+.setting-composition__tree {
+  font-family: var(--loom-site-font-mono);
+  font-size: clamp(12px, 1.05vw, 15px);
+  line-height: 1.65;
+}
+
+.setting-composition__root {
+  margin-bottom: 12px;
+  color: var(--loom-site-text);
+}
+
+.setting-composition__entry {
+  display: block;
+}
+
+.setting-composition__folder,
+.setting-composition__filename {
+  display: grid;
+  grid-template-columns: 5ch minmax(0, 1fr);
+  color: var(--loom-site-text-muted);
+}
+
+.setting-composition__filename span,
+.setting-composition__connector {
+  color: var(--loom-site-text-subtle);
+  white-space: pre;
+}
+
+.setting-composition__entry p {
+  display: grid;
+  grid-template-columns: 5ch minmax(0, 1fr);
+  margin: 0;
+  padding-bottom: 12px;
+  font-size: inherit;
+  line-height: 1.7;
+}
+
+.setting-composition__body {
+  color: var(--loom-site-text-subtle);
+  font-size: .88em;
+  text-align: justify;
+}
+
+/* 右侧 ASCII 字符肖像槽位（无任何卡片边框、无阴影，仅字符自然排列） */
+.setting-composition__art {
+  position: absolute;
+  top: 50%;
+  right: 9%;
+  width: min(34vw, 48svh);
+  aspect-ratio: 52 / 76;
+  transform: translateY(-50%);
+  z-index: 5;
+  margin: 0;
+}
+
+/* 底层：ASCII 思考文本打字机画布 */
+.setting-composition__text-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 顶层：真实插画（通过蒙版由上至下平滑渐进显影覆盖，无黑斑无断层） */
+.setting-composition__portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* 角色回应：纯文本极简主义，直接写在画面下方 */
+.setting-composition__reply {
+  position: absolute;
+  top: calc(100% + 18px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-family: var(--loom-site-font-sans);
+  font-size: clamp(13px, 0.95vw, 15px);
+  line-height: 1.65;
+  color: var(--loom-site-text);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.setting-composition__reply[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.setting-composition__bottom {
+  position: absolute;
+  inset: auto 6% 24px;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  font: 11px var(--loom-site-font-mono);
+  color: var(--loom-site-text-subtle);
+  letter-spacing: 0.05em;
+}
+
+.setting-composition__progress {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 10;
+  height: 1px;
+  background: var(--loom-site-text-subtle);
+  transform-origin: left;
+  transform: scaleX(var(--compose-progress, 0));
+  transition: transform 0.05s linear;
+}
+
+/* 响应式调整 */
+@media (max-width: 860px) {
+  .setting-composition__top { padding: 16px 6%; font-size: 10px; }
+  .setting-composition__copy {
+    left: 6%;
+    top: 12%;
+    width: 88%;
+    transform: none;
+  }
+  .setting-composition h1 { margin-bottom: 16px; font-size: 26px; }
+  .setting-composition__tree { font-size: 11px; }
+  .setting-composition__entry p { padding-bottom: 8px; line-height: 1.5; }
+  .setting-composition__art {
+    top: auto;
+    bottom: 56px;
+    right: 50%;
+    transform: translateX(50%);
+    width: min(60vw, 30svh);
+  }
+  .setting-composition__reply {
+    top: auto;
+    bottom: calc(100% + 12px);
+    font-size: 12px;
+  }
+  .setting-composition__bottom { inset: auto 6% 14px; font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setting-composition__portrait-img { opacity: 1 !important; mask-image: none !important; -webkit-mask-image: none !important; }
+}

@@ -4,21 +4,25 @@ import { ArrowUpRight } from 'lucide-react'
 import type { DisplayImage } from '../../lib/site-images'
 import type { Ref } from 'react'
 import type entries from '../../data/nom-stickers.json'
+import type { SiteLocale } from '../../lib/i18n'
+import { getStickersCopy } from '../../lib/i18n'
 
 type Entry = (typeof entries)[number] & { image: DisplayImage }
 
-export default function StickerCard({ entry, index, selected, onSelect, ref }: {
-  entry: Entry; index: number; selected: boolean; onSelect: () => void; ref?: Ref<HTMLElement>
+export default function StickerCard({ entry, index, selected, onSelect, ref, locale = 'zh-CN' }: {
+  entry: Entry; index: number; selected: boolean; onSelect: () => void; ref?: Ref<HTMLElement>; locale?: SiteLocale
 }) {
   const present = useIsPresent()
   const reducedMotion = useReducedMotion()
+  const copy = getStickersCopy(locale).gallery
+
   return <m.article ref={ref} layout="position" className="nom-card" data-selected={selected}
     inert={!present} aria-hidden={!present}
     initial={{ opacity: 0, scale: reducedMotion ? 1 : 0.96 }} animate={{ opacity: 1, scale: 1 }}
     exit={{ opacity: 0, scale: reducedMotion ? 1 : 0.96 }}
     transition={{ duration: reducedMotion ? 0 : 0.18, layout: { type: 'spring', stiffness: 320, damping: 32 } }}>
     <button className="nom-card__choose" type="button" aria-pressed={selected}
-      aria-label={`预览：${entry.title}`} onClick={onSelect}>
+      aria-label={copy.previewAria(entry.title)} onClick={onSelect}>
       <span className="nom-card__art nom-canvas"><img src={entry.image.src} srcSet={entry.image.srcSet}
         sizes="(max-width: 600px) 40vw, (max-width: 1000px) 25vw, 220px"
         width={entry.image.width} height={entry.image.height} alt="" loading="lazy" decoding="async" /></span>
@@ -26,7 +30,7 @@ export default function StickerCard({ entry, index, selected, onSelect, ref }: {
     </button>
     <div className="nom-card__footer">
       <span>{entry.usage[0]}</span>
-      <a href={`/images/nom/stickers/${entry.file}`} download={`nom-${entry.file.replace('/', '-')}`} aria-label={`下载${entry.title}原图`}>
+      <a href={`/images/nom/stickers/${entry.file}`} download={`nom-${entry.file.replace('/', '-')}`} aria-label={copy.downloadAria(entry.title)}>
         PNG <ArrowUpRight size={14} aria-hidden="true" />
       </a>
     </div>

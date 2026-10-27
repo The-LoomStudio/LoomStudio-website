@@ -1,0 +1,33 @@
+.brand-welcome { width: min(1200px, 100%); margin-inline: auto; padding: 18px 24px 60px; overflow: clip; }
+.brand-welcome__desk { position: relative; height: clamp(300px, 32vw, 420px); isolation: isolate; }
+.brand-welcome__card-position { position: absolute; width: clamp(140px, 17vw, 210px); top: 50%; left: 50%; translate: -50% -50%; }
+.brand-welcome__card-position--1 { left: 15%; top: 63%; rotate: -17deg; scale: .86; z-index: 1; }
+.brand-welcome__card-position--2 { left: 32%; top: 42%; rotate: 10deg; z-index: 2; }
+.brand-welcome__card-position--3 { left: 69%; top: 42%; rotate: -12deg; z-index: 3; }
+.brand-welcome__card-position--4 { left: 86%; top: 63%; rotate: 19deg; scale: .86; z-index: 4; }
+.brand-welcome__card-position:focus-within, .brand-welcome__card-position:hover { z-index: 6; }
+.brand-welcome__card { border-radius: 14px; box-shadow: 0 18px 36px rgb(8 12 16 / .3); }
+.brand-welcome__card .zoom-image__trigger { aspect-ratio: 188 / 262; border-radius: 14px; overflow: hidden; }
+.brand-welcome__card .zoom-image__trigger img { height: 100%; object-fit: cover; }
+.brand-welcome__logo-position { position: absolute; z-index: 5; width: min(510px, 52%); left: 50%; top: 42%; translate: -50% -50%; pointer-events: none; }
+.brand-welcome__logo { display: block; width: 100%; height: auto; transform-origin: 50% 80%; filter: drop-shadow(0 13px 14px rgb(8 12 16 / .26)); }
+.brand-welcome__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px 28px; margin-top: 32px; }
+.brand-welcome__actions .button { gap: 10px; }
+.brand-welcome button:focus-visible, .brand-welcome a:focus-visible { outline: 2px solid var(--loom-site-accent-strong); outline-offset: 5px; }
+@media (max-width: 640px) {
+  .brand-welcome { padding: 12px 20px 40px; }
+  .brand-welcome__desk { height: 290px; margin-inline: -20px; }
+  .brand-welcome__card-position { width: clamp(105px, 29vw, 150px); }
+  .brand-welcome__card-position--1 { left: 16%; top: 64%; }
+  .brand-welcome__card-position--2 { left: 33%; top: 36%; }
+  .brand-welcome__card-position--3 { left: 68%; top: 36%; }
+  .brand-welcome__card-position--4 { left: 84%; top: 64%; }
+  .brand-welcome__logo-position { width: 70%; top: 44%; }
+  .brand-welcome__actions { gap: 12px 22px; margin-top: 26px; }
+}
+.brand-welcome__slogan { margin: 24px 0 0; text-align: center; color: var(--loom-site-text-muted); font: 500 17px var(--loom-site-note-heading); }
+
+.brand-ascii { position: relative; }
+.brand-ascii > canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; border-radius: inherit; }
+.brand-ascii .zoom-image__trigger, .brand-ascii > .brand-welcome__logo { opacity: var(--brand-image-opacity, 1); }
+.brand-welcome__card .brand-ascii { border-radius: 14px; }

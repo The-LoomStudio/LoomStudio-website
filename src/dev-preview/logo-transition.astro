@@ -1,0 +1,11 @@
+---
+import '../styles/global.css'
+import LogoTransitionStudy from '../components/logo-transition/LogoTransitionStudy'
+import { siteImage } from '../lib/site-images'
+const image = await siteImage('/images/nom/banners/nom-banner-011.png', [640, 1280, 1920])
+---
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex" /><title>Loom · Logo 转场实验</title></head>
+  <body><LogoTransitionStudy image={image} client:load /></body>
+</html>

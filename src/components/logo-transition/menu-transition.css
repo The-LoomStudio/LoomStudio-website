@@ -1,0 +1,6 @@
+.menu-logo-transition { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; overflow: hidden; background: var(--loom-site-bg); color: var(--loom-site-text); }
+.menu-logo-transition[data-revealing] { background: transparent; }
+.menu-logo-transition::backdrop { background: transparent; }
+.menu-logo-transition > div, .menu-logo-transition .logo-transition { width: 100%; height: 100%; }
+.menu-logo-transition .logo-transition { aspect-ratio: auto; border: 0; border-radius: 0; }
+html:has(.menu-logo-transition[open]) { overflow: hidden; }

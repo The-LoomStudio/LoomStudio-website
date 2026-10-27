@@ -3,79 +3,82 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import NomSticker from '../components/NomSticker.astro';
-import ProductPreview from '../components/ProductPreview.astro';
-import ArchitecturePreview from '../components/architecture-map/ArchitecturePreview.astro';
-import CardMarquee, { cards } from '../components/card-showcase/CardMarquee';
-import CardStack, { stackCards } from '../components/card-showcase/CardStack';
-import HeroBanner, { slides, bottomSlides } from '../components/HeroBanner';
+import CharacterJourney from '../components/card-showcase/CharacterJourney.tsx';
+import { cards } from '../components/card-showcase/CardMasonry.tsx';
+import BrandWelcome, { brandCards } from '../components/brand-welcome/BrandWelcome';
+import NomGuide, { nomExpressions, type NomExpression } from '../components/nom-guide/NomGuide';
+import { getHomeGuide } from '../components/nom-guide/home-guide';
+import HeroBanner, { slides } from '../components/HeroBanner';
 import StoryParallaxWall from '../components/StoryParallaxWall.astro';
+import PromptComposition from '../components/prompt-composition/PromptComposition';
 import { siteImage } from '../lib/site-images';
 import { ArrowUpRight } from '@lucide/astro';
 
-const cardImages = Object.fromEntries(await Promise.all(cards.map(async ({ src }) => [src, await siteImage(src, [188, 376])])));
-const stackImages = Object.fromEntries(stackCards.map(({ src }) => [src, cardImages[src]]));
-const bannerImages = Object.fromEntries(await Promise.all([...slides, ...bottomSlides].map(async ({ src }) => [
+const cardImages = Object.fromEntries(await Promise.all(cards.map(async ({ src }) => [src, await siteImage(src, [240, 480, 800])])));
+const welcomeCards = brandCards.map(card => ({ ...card, image: cardImages[card.src] }));
+const guideExpressions = Object.fromEntries(await Promise.all(nomExpressions.map(async expression => [
+  expression, await siteImage(`/images/nom/stickers/bust/${expression}.png`, [80, 136, 272], 90),
+]))) as Record<NomExpression, Awaited<ReturnType<typeof siteImage>>>;
+const bannerImages = Object.fromEntries(await Promise.all(slides.map(async ({ src }) => [
   src, { ...await siteImage(src, [640, 960, 1440, 1920]), fullSrc: (await siteImage(src, [2560], 90)).src },
 ])));
 const topImages = Object.fromEntries(slides.map(({ src }) => [src, bannerImages[src]]));
-const bottomImages = Object.fromEntries(bottomSlides.map(({ src }) => [src, bannerImages[src]]));
 const layers = {
   background: await siteImage('/images/nom/layers/nom-layer-004.png', [768, 1280, 1920]),
   foreground: await siteImage('/images/nom/layers/nom-layer-002.png', [780, 1280, 1560], 90),
 };
 const brand = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
+const promptIllustration = await siteImage('/images/nom/illustrations/nom-illustration-001.png', [480, 960], 90);
 
-import { getLocaleFromPath, getHomeFeatures, getLocalizedPath } from '../lib/i18n';
+import { getLocaleFromPath, getHomeFeatures, getHomeCopy, getLocalizedPath, type SiteLocale } from '../lib/i18n';
 
-const currentLocale = getLocaleFromPath(Astro.url.pathname);
+interface Props {
+  locale?: SiteLocale;
+}
+
+const { locale: propLocale } = Astro.props;
+const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
 const features = getHomeFeatures(currentLocale);
+const homeCopy = getHomeCopy(currentLocale);
+const guide = getHomeGuide(currentLocale);
+
+const descriptions: Record<SiteLocale, string> = {
+  'zh-CN': 'Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台，将角色、世界设定、故事分支和 Agent 工具放在一起。',
+  'en': 'Loom Studio is a local AI roleplay and interactive storytelling workbench bringing characters, lorebooks, branching narratives, and Agent tools together.',
+  'ja': 'Loom Studio は、キャラクター、世界設定、ストーリー分岐、Agent ツールを統合したローカル実行型 AI インタラクティブノベル制作スタジオです。',
+  'ko': 'Loom Studio는 캐릭터, 세계관 설정, 이야기 분기 및 Agent 도구를 한곳에 모은 로컬 실행형 AI 롤플레잉 및 인터랙티브 서사 작업대입니다.',
+};
 ---
 
-<BaseLayout title="Loom Studio" description="Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台，将角色、世界设定、故事分支和 Agent 工具放在一起。" locale={currentLocale}>
+<BaseLayout title="Loom Studio" description={descriptions[currentLocale]} locale={currentLocale}>
   <SiteHeader locale={currentLocale} />
 
   <main>
     <section class="hero" id="top">
-      <nav class="hero__sections" aria-label="发布页章节">
-        <span>SECTIONS</span>
-        <a href="#story" data-chapter-link="story">01 叙事</a>
-        <a href="#system" data-chapter-link="system">02 系统</a>
-        <a href="#architecture" data-chapter-link="architecture">03 架构</a>
-      </nav>
       <HeroBanner client:load images={topImages} layers={layers} />
-      <a class="hero__scroll" href="#story"><span>往下看看</span><i></i></a>
     </section>
 
     <div class="home-content">
-    <section class="brand-banner" aria-label="Loom Studio 品牌 Banner">
-      <CardStack client:visible images={stackImages} />
-      <div class="brand-banner__sticker" data-motion-drift>
-        <img data-static-image style="opacity: 0" src={brand.src} srcset={brand.srcSet} width={brand.width} height={brand.height}
-          sizes="(max-width: 800px) 80vw, 640px" alt="Loom Studio" loading="lazy" decoding="async" />
-      </div>
-      <div class="brand-banner__copy" data-motion-reveal><p>编织世界，交织故事。</p><a class="brand-banner__download" data-motion-feedback href="/download">下载与启动 <ArrowUpRight size={18} aria-hidden="true" /></a></div>
-    </section>
+    <BrandWelcome client:visible={{ rootMargin: '200px' }} id="brand-intro" cards={welcomeCards} logo={brand}
+      copy={guide.brand} downloadHref={getLocalizedPath('/download', currentLocale)} />
+    <noscript><style is:inline>.brand-ascii { --brand-image-opacity: 1 !important; }.brand-ascii > canvas { display: none; }</style></noscript>
 
-    <section class="card-banner card-banner--top" aria-labelledby="card-banner-title">
+    <section id="characters" class="card-banner card-banner--top" aria-labelledby="card-banner-title">
       <div class="container card-banner__heading" data-motion-reveal>
         <div class="card-banner__copy">
-          <p class="eyebrow">A gallery of possibilities</p>
-          <h2 id="card-banner-title">故事从谁开始？</h2>
-          <div class="card-banner__nom"><NomSticker src="/images/nom/stickers/fullbody/welcome.png" message="唔……都想认识一下。选谁好呢？" /></div>
+          <p class="eyebrow">{homeCopy.cardBanner.eyebrow}</p>
+          <h2 id="card-banner-title">{homeCopy.cardBanner.title}</h2>
         </div>
       </div>
-      <CardMarquee client:visible images={cardImages} />
+      <CharacterJourney client:visible={{ rootMargin: '400px' }} images={cardImages} />
     </section>
 
-    <section class="manifesto" id="story" data-motion-chapter>
+    <section class="manifesto" id="story">
       <div class="container manifesto__grid">
         <div class="manifesto__sticky" data-chapter="01 / NARRATIVE">
-          <p class="eyebrow">A home for your stories</p>
-          <h2 data-motion-reveal>正文归正文<br />幕后也有地方放</h2>
-          <p>
-            读故事时看正文，调整设定时打开工作区。<br />
-            Agent 的工作记录、工具结果和提示词构建也各有位置，需要时再展开。
-          </p>
+          <p class="eyebrow">{homeCopy.manifesto.eyebrow}</p>
+          <h2 data-motion-reveal set:html={homeCopy.manifesto.title} />
+          {homeCopy.manifesto.paragraphs.map((p) => <p>{p}</p>)}
         </div>
         <div class="manifesto__features" data-motion-group>
           {features.map((feature) => (
@@ -90,53 +93,34 @@ const features = getHomeFeatures(currentLocale);
       </div>
     </section>
 
-    <section class="product" id="system" data-motion-chapter>
+    <PromptComposition client:visible portrait={promptIllustration.src} />
+    <noscript><style is:inline>.prompt-composition__picture img, .prompt-composition figcaption { opacity: 1 !important; }</style></noscript>
+
+    <section class="product" id="system">
       <div class="container">
         <div class="section-heading" data-motion-reveal data-chapter="02 / SYSTEM">
           <div>
-            <p class="eyebrow">Inside the studio</p>
-            <h2>故事写到哪儿<br />工作台就开在哪儿</h2>
+            <p class="eyebrow">{homeCopy.product.eyebrow}</p>
+            <h2 set:html={homeCopy.product.title} />
           </div>
-          <p>
-            角色、设定和对话放在同一个工作台里，不用来回翻找。<br />
-            下面是一段交互演示，可以读读故事，也可以展开工作区看看。
-          </p>
-        </div>
-        <div class="product__stage">
-          <ProductPreview />
+          {homeCopy.product.paragraphs.map((p) => <p>{p}</p>)}
         </div>
         <div class="product__legend" data-motion-reveal>
-          <div><span>01</span><b>故事时间线</b><p>阅读剧情，查看故事分支</p></div>
-          <div><span>02</span><b>Agent 工作区</b><p>查看对话、工具调用与运行记录</p></div>
-          <div><span>03</span><b>提示词构建</b><p>检查本轮上下文用了哪些设定</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="architecture" id="architecture" data-motion-chapter>
-      <div class="container architecture__inner" data-chapter="03 / ARCHITECTURE">
-        <p class="eyebrow">A little look backstage</p>
-        <h2 data-motion-reveal>工作台里面<br />是怎么运转的</h2>
-        <ArchitecturePreview />
-        <p class="architecture__note" data-motion-reveal>
-          故事正文、Agent 会话和提示词构建由不同模块负责。<br />
-          架构地图把它们连起来，方便沿着一次操作查找对应的代码。
-        </p>
-        <div class="architecture__guide" data-motion-reveal>
-          <NomSticker src="/images/nom/stickers/bust/tip.png" size="small" message="啊，里面还有这么多……我先从认识的地方看起。" />
-          <a class="architecture__map" data-motion-feedback href="/docs/architecture">开发者架构地图 <ArrowUpRight size={18} aria-hidden="true" /></a>
+          {homeCopy.product.legend.map((item) => (
+            <div><span>{item.index}</span><b>{item.title}</b><p>{item.desc}</p></div>
+          ))}
         </div>
       </div>
     </section>
 
     <StoryParallaxWall />
-    <section class="home-nom" aria-labelledby="home-nom-title">
+    <section id="nom-stickers" class="home-nom" aria-labelledby="home-nom-title">
       <div class="container home-nom__inner">
         <div>
-          <p class="eyebrow">A LITTLE COMPANY / NOM STICKERS</p>
-          <h2 id="home-nom-title">故事之外，<br />也想陪你聊聊天。</h2>
-          <p>认真、开心、困困，偶尔还会气鼓鼓。<br />33 张透明贴纸，把 Nom 的小表情带进日常。</p>
-          <a href={getLocalizedPath('/stickers', currentLocale)} data-motion-feedback>去挑一张表情 <ArrowUpRight size={18} aria-hidden="true" /></a>
+          <p class="eyebrow">{homeCopy.stickersBanner.eyebrow}</p>
+          <h2 id="home-nom-title" set:html={homeCopy.stickersBanner.title} />
+          {homeCopy.stickersBanner.paragraphs.map((p) => <p>{p}</p>)}
+          <a href={getLocalizedPath('/stickers', currentLocale)} data-motion-feedback>{homeCopy.stickersBanner.button} <ArrowUpRight size={18} aria-hidden="true" /></a>
         </div>
         <div class="home-nom__stickers" data-motion-drift aria-hidden="true">
           <NomSticker src="/images/nom/stickers/bust/giggle.png" size="large" />
@@ -145,25 +129,16 @@ const features = getHomeFeatures(currentLocale);
         </div>
       </div>
     </section>
-    <div id="footer-banner-start" aria-hidden="true"></div>
     </div>
 
-    <section class="adventure">
-      <HeroBanner client:load variant="bottom" images={bottomImages} />
-    </section>
+
   </main>
 
   <SiteFooter easterEgg locale={currentLocale} />
+  <NomGuide client:idle sections={guide.sections} expressions={guideExpressions} reactions={guide.reactions} copy={guide.controls} />
 
 
   <script>
-    for (const image of document.querySelectorAll<HTMLImageElement>('[data-static-image]')) {
-      const update = () => { image.style.opacity = image.complete && image.naturalWidth ? '1' : '0'; };
-      image.addEventListener('load', update);
-      image.addEventListener('error', update);
-      update();
-    }
-
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const parallaxItems = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'));
     let frame = 0;
@@ -295,13 +270,12 @@ const features = getHomeFeatures(currentLocale);
   .home-content {
     position: relative;
     z-index: 2;
-    margin-bottom: 100svh;
     background: var(--loom-site-bg);
-    box-shadow: 0 -24px 54px rgb(8 12 16 / .24);
   }
-  .home-content::before {
+  .hero::after {
     position: absolute;
-    top: -240px;
+    z-index: 2;
+    bottom: 0;
     right: 0;
     left: 0;
     height: 240px;
@@ -331,23 +305,6 @@ const features = getHomeFeatures(currentLocale);
     );
     pointer-events: none;
   }
-  .hero__sections {
-    position: absolute;
-    z-index: 2;
-    top: calc(var(--loom-site-header-height) + 24px);
-    left: 50%;
-    width: min(calc(100% - 40px), var(--loom-site-max-width));
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    color: var(--loom-site-text-subtle);
-    font: 10px var(--loom-site-font-mono);
-    letter-spacing: 0.14em;
-    transform: translateX(-50%);
-  }
-  .hero__sections span { opacity: 0.62; letter-spacing: 0.2em; }
-  .hero__sections a { transition: color 160ms ease; }
-  .hero__sections a:hover { color: var(--loom-site-text); }
   .hero__content {
     position: absolute;
     top: 50svh;
@@ -439,91 +396,6 @@ const features = getHomeFeatures(currentLocale);
     transform: scale(1.02);
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.18));
   }
-  .hero__scroll {
-    position: absolute;
-    z-index: 1;
-    bottom: 28px;
-    left: 50%;
-    display: grid;
-    justify-items: center;
-    gap: 10px;
-    color: var(--loom-site-text-subtle);
-    font: 8px var(--loom-site-font-mono);
-    letter-spacing: 0.16em;
-    transform: translateX(-50%);
-  }
-  .hero__scroll i { width: 1px; height: 38px; background: var(--loom-site-text-subtle); }
-  .brand-banner {
-    position: relative;
-    display: grid;
-    min-height: clamp(520px, 42vw, 600px);
-    place-items: center;
-    gap: 18px;
-    padding: 42px 20px 48px;
-    overflow: clip;
-    background: var(--loom-site-bg);
-  }
-  .brand-banner :global(.card-showcase--stack) {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    pointer-events: none;
-  }
-  .brand-banner :global(.card-showcase__card) { pointer-events: auto; }
-  .banner-footer { position: absolute; z-index: 4; inset: auto 0 0; }
-  .adventure :global(.hero-banner__controls) { bottom: 12%; }
-  @media (max-width: 760px) {
-    .brand-banner { min-height: 660px; }
-    .brand-banner :global(.card-showcase__stack) {
-      width: 100%;
-      transform: none;
-    }
-    .brand-banner :global(.card-showcase--stack .card-showcase__card) {
-      width: clamp(150px, 42vw, 205px);
-      --card-scale: .88 !important;
-      --card-hover-scale: .96 !important;
-    }
-    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(1)) {
-      --card-x: clamp(-130px, -31vw, -92px) !important;
-      --card-y: 125px !important;
-    }
-    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(2)) {
-      --card-x: clamp(-96px, -23vw, -70px) !important;
-      --card-y: -100px !important;
-    }
-    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(3)) {
-      --card-x: clamp(70px, 23vw, 96px) !important;
-      --card-y: -100px !important;
-    }
-    .brand-banner :global(.card-showcase--stack .card-showcase__card:nth-child(4)) {
-      --card-x: clamp(92px, 31vw, 130px) !important;
-      --card-y: 125px !important;
-    }
-    .adventure :global(.hero-banner__controls) { bottom: 16%; }
-  }
-  .brand-banner__sticker {
-    position: relative;
-    z-index: 20;
-    width: min(440px, 60vw);
-    filter: drop-shadow(0 14px 22px rgb(8 12 16 / .24));
-  }
-  .brand-banner__sticker img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .brand-banner__copy {
-    position: relative;
-    z-index: 20;
-    margin: 0;
-    color: var(--loom-site-text-muted);
-    font: 14px/1.8 var(--loom-site-font-display);
-    text-align: center;
-  }
-  .brand-banner__copy p { margin: 0; }
-  .brand-banner__download { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; margin-top: 22px; padding: 0 24px; border: 1px solid var(--loom-site-border-strong); border-radius: 999px; background: var(--loom-site-surface); color: var(--loom-site-text); font-size: 14px; }
-  .brand-banner__download:hover { background: var(--loom-site-surface-raised); }
-  .brand-banner__download:focus-visible { outline: 2px solid var(--loom-site-accent); outline-offset: 4px; }
   .manifesto {
     position: relative;
     min-height: auto;
@@ -533,7 +405,7 @@ const features = getHomeFeatures(currentLocale);
   }
   .card-banner {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     padding: 110px 0 92px;
     background: var(--loom-site-bg);
   }
@@ -546,9 +418,6 @@ const features = getHomeFeatures(currentLocale);
     text-align: center;
   }
   .card-banner__copy { position: relative; }
-  .card-banner__nom { display: flex; justify-content: center; margin-top: 24px; pointer-events: none; }
-  .card-banner__nom :global(.nom-sticker--speaking) { width: min(100%, 400px); }
-  .card-banner__nom :global(.nom-sticker__bubble) { flex: 1; }
   .card-banner__heading h2 {
     margin: 0;
     font: 540 clamp(38px, 5vw, 64px)/1.18 var(--loom-site-font-display);
@@ -563,8 +432,7 @@ const features = getHomeFeatures(currentLocale);
     padding: 32px;
     background: transparent;
   }
-  .section-heading,
-  .adventure__panel { position: relative; }
+  .section-heading { position: relative; }
   [data-chapter]::after {
     content: attr(data-chapter);
     position: absolute;
@@ -575,7 +443,7 @@ const features = getHomeFeatures(currentLocale);
     letter-spacing: 0.2em;
     writing-mode: vertical-rl;
   }
-  .manifesto h2, .section-heading h2, .architecture h2, .adventure h2 {
+  .manifesto h2, .section-heading h2 {
     margin: 0;
     font: 540 clamp(42px, 5.6vw, 70px)/1.16 var(--loom-site-font-display);
     letter-spacing: -0.025em;
@@ -662,46 +530,6 @@ const features = getHomeFeatures(currentLocale);
     font-size: 12px;
     line-height: 1.65;
   }
-  .architecture {
-    position: relative;
-    min-height: 850px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    place-items: center;
-    overflow: hidden;
-    background: var(--loom-site-bg);
-  }
-  .architecture::before {
-    display: none;
-  }
-  .architecture__inner {
-    position: relative;
-    min-width: 0;
-    z-index: 1;
-    border-radius: 30px;
-    padding: 56px 40px;
-    background: transparent;
-    text-align: center;
-  }
-  .architecture h2 { max-width: 850px; margin-inline: auto; }
-  .architecture__guide { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 22px; }
-  .architecture__map {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 0;
-    border-bottom: 1px solid currentColor;
-    color: var(--loom-site-accent);
-    font-size: 14px;
-  }
-  .architecture__map:hover { color: var(--loom-site-text); }
-  .architecture__note {
-    max-width: 680px;
-    margin: 44px auto 0;
-    color: var(--loom-site-text-muted);
-    font-size: 14px;
-    line-height: 1.8;
-  }
   .card-stack-banner {
     position: relative;
     min-height: 760px;
@@ -744,16 +572,6 @@ const features = getHomeFeatures(currentLocale);
   .card-stack-banner__stage .card-showcase__card {
     pointer-events: auto;
   }
-  .adventure {
-    position: fixed;
-    z-index: 0;
-    inset: 0;
-    height: 100svh;
-    overflow: hidden;
-    background: var(--loom-site-bg);
-    pointer-events: none;
-  }
-  .adventure :global(.hero-banner) { pointer-events: auto; }
   @media (max-width: 900px) {
     .manifesto { min-height: auto; }
     .manifesto__grid, .section-heading { grid-template-columns: 1fr; gap: 54px; }
@@ -764,22 +582,17 @@ const features = getHomeFeatures(currentLocale);
   }
   @media (max-width: 680px) {
     .hero { height: clamp(440px, 100vw, 600px); min-height: 0; }
-    .home-content::before { top: -80px; height: 80px; }
-    .hero__scroll { display: none; }
+    .hero::after { height: 80px; }
     .hero__banner img { width: 54vw; max-width: 240px; }
     .hero__heading-row { left: calc(50% + min(27vw, 120px) + 10px); }
-    .hero__sections { width: calc(100% - 28px); gap: 12px; font-size: 8px; letter-spacing: 0.08em; }
-    .hero__sections span { display: none; }
     .hero__copy { max-width: none; padding: 0; }
     .hero__chapter-tag { display: none; }
     .manifesto, .product { padding-block: 110px; }
     .card-banner { padding-block: 80px; }
     .card-banner__heading { margin-bottom: 30px; }
-    .manifesto h2, .section-heading h2, .architecture h2 { font-size: 42px; }
+    .manifesto h2, .section-heading h2 { font-size: 42px; }
     .manifesto__features article { min-height: auto; }
     .product__legend > div { padding: 24px 12px; }
-    .architecture { padding: 110px 0; }
-    .architecture__inner { padding: 32px 0; }
     .card-stack-banner,
     .card-stack-banner__stage { min-height: 620px; }
     [data-chapter]::after { display: none; }

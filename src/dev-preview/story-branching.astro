@@ -1,0 +1,22 @@
+---
+import '../styles/global.css'
+import StoryBranching from '../components/story-branching/StoryBranching'
+const bannerSource = '/images/nom/banners/nom-banner-012.png'
+const bannerA = '/images/nom/banners/nom-banner-005.png'
+const bannerB = '/images/nom/banners/nom-banner-008.png'
+---
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Loom · 故事分支预览</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <StoryBranching bannerSource={bannerSource} bannerA={bannerA} bannerB={bannerB} client:load />
+  </body>
+</html>

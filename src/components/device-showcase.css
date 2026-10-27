@@ -1,116 +1,13 @@
 @import 'devices.css/dist/devices.css' layer(devices);
-
-/* Keep the library's device reset outside the live application. */
 @layer devices {
-  .device-screen :where(*, *::before, *::after) {
-    display: revert-layer;
-  }
+  .device-screen :where(*, *::before, *::after) { display: revert-layer; }
 }
-
-.device-showcase {
-  display: grid;
-  justify-items: center;
-  gap: 32px;
-  padding: 12px 8px 24px;
-}
-
-.device-tabs {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 8px;
-  background: var(--loom-site-bg-soft);
-}
-
-.device-tabs button {
-  position: relative;
-  isolation: isolate;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 92px;
-  min-height: 40px;
-  padding: 8px 14px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  color: var(--loom-site-text-muted);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.device-tabs button[aria-selected="true"] {
-  color: var(--loom-site-text);
-}
-.device-tab-highlight { position: absolute; z-index: -1; inset: 0; border-radius: 5px; background: var(--loom-site-surface); pointer-events: none; }
-
+.device-showcase { display: grid; justify-items: center; }
 .device-preview { min-width: 0; width: 100%; }
-
-.device-slot {
-  position: relative;
-  width: 100%;
-}
-
-
-.device-slot > .device {
-  position: absolute;
-  top: 0;
-  left: 0;
-  zoom: var(--device-scale, 1);
-}
-
-.device-showcase .device-screen {
-  overflow: hidden;
-  background: var(--loom-site-bg);
-}
-
-.device-app-viewport {
-  width: var(--app-width, 100%);
-  height: var(--app-height, 100%);
-  transform: scale(var(--app-scale, 1));
-  transform-origin: top left;
-}
-
-.device-showcase .story-flow {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  border: 0;
-  border-radius: 0;
-  background: var(--loom-site-bg);
-  backdrop-filter: none;
-}
-
-.device-showcase .story-native-header { flex: 0 0 40px; }
-
-.device-showcase .story-flow__body {
-  flex: 1;
-  height: auto;
-  min-height: 0;
-}
-
-.device-showcase .story-flow__text,
-.device-showcase .story-flow__agent-content {
-  overscroll-behavior: contain;
-}
-
-.device-showcase .device-frame::after,
-.device-showcase .device-frame::before,
-.device-showcase .device > [aria-hidden="true"] {
-  pointer-events: none;
-}
-
+.device-slot { position: relative; width: 100%; }
+.device-slot > .device { position: absolute; top: 0; left: 0; zoom: var(--device-scale, 1); }
+.device-showcase .device-screen { overflow: hidden; }
+.device-app-viewport { width: var(--app-width, 100%); height: var(--app-height, 100%); transform: scale(var(--app-scale, 1)); transform-origin: top left; }
+.device-showcase .device-frame::after, .device-showcase .device-frame::before, .device-showcase .device > [aria-hidden="true"] { pointer-events: none; }
 .device-preview--laptop .device-screen { padding-top: 14px; }
-
 .device-preview--phone .device-screen { padding: 54px 0 28px; }
-.device-preview--phone .story-flow__text { padding: 20px 18px; }
-.device-preview--phone .story-flow__message p { font-size: 17px; }
-.device-preview--phone .story-flow__input { padding-inline: 12px; }
-.device-preview--phone .story-flow__agent {
-  inset: 0;
-  width: 100%;
-  min-width: 0;
-  border-radius: 0;
-}
