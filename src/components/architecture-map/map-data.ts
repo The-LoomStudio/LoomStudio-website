@@ -28,7 +28,6 @@ export type Journey = {
 export const snapshot = {
   date: '2026-10-27',
   baseline: '6440e4e61ef9ef282a4cc1aaedab71935d41c737',
-  note: '只核对图中涉及的主要模块入口与当前主仓工作区合同，不构成全仓源码审计；工作区未提交改动不在此固定链接中，后续相关变更需复核。',
 };
 
 export const regions: { id: RegionId; title: string; subtitle: string; x: number; y: number; width: number; height: number }[] = [

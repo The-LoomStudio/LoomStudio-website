@@ -26,9 +26,9 @@ const rawRoutes: RouteTemplate[] = [
     image: 'banners/nom-banner-015.png',
     detail: 'illustrations/nom-illustration-004.png',
     i18n: {
-      'zh-CN': { label: '发布', short: '首页', caption: '编织世界，交织故事。从一位角色开始，留下属于你的世界线。' },
-      'en': { label: 'Release', short: 'Home', caption: 'Weave worlds, interweave stories. Start from a single character, leaving your own timeline behind.' },
-      'ja': { label: 'リリース', short: 'ホーム', caption: '世界を紡ぎ、物語を交差させる。一人のキャラクターから、あなただけの世界線を。' },
+      'zh-CN': { label: '发布', short: '首页', caption: '编织世界，交织故事。从一位角色开始，展开独特的世界线。' },
+      'en': { label: 'Release', short: 'Home', caption: 'Weave worlds, interweave stories. A single character opens a new timeline.' },
+      'ja': { label: 'リリース', short: 'ホーム', caption: '世界を紡ぎ、物語を交差させる。一人のキャラクターから、新たな世界線へ。' },
       'ko': { label: '릴리스', short: '홈', caption: '세계를 엮고, 이야기를 교차하다. 한 명의 캐릭터에서 시작해 나만의 세계선을 남겨보세요.' },
     },
   },
@@ -50,10 +50,10 @@ const rawRoutes: RouteTemplate[] = [
     image: 'banners/nom-banner-017.png',
     detail: 'banners/nom-banner-007.png',
     i18n: {
-      'zh-CN': { label: '生态市场', short: '市场', caption: '角色、设定与创作的工具。为你的世界，寻找新的灵感。' },
-      'en': { label: 'Marketplace', short: 'Market', caption: 'Characters, lore, and creation tools. Discover fresh inspiration for your world.' },
-      'ja': { label: 'マーケット', short: '市場', caption: 'キャラクター、設定、創作のツール。あなたの世界に新しいひらめきを。' },
-      'ko': { label: '마켓플레이스', short: '마켓', caption: '캐릭터, 설정 및 창작 도구. 당신의 세계를 위한 새로운 영감을 찾아보세요.' },
+      'zh-CN': { label: '生态市场', short: '市场', caption: '角色、设定与创作的工具。让故事拥有更多可能。' },
+      'en': { label: 'Marketplace', short: 'Market', caption: 'Characters, lore, and creation tools. New possibilities for every world.' },
+      'ja': { label: 'マーケット', short: '市場', caption: 'キャラクター、設定、創作のツール。物語の世界に新しいひらめきを。' },
+      'ko': { label: '마켓플레이스', short: '마켓', caption: '캐릭터, 설정 및 창작 도구. 이야기 세계에 새로운 영감을 더합니다.' },
     },
   },
   {
@@ -63,9 +63,9 @@ const rawRoutes: RouteTemplate[] = [
     detail: 'banners/nom-banner-016.png',
     i18n: {
       'zh-CN': { label: '客户端下载', short: '下载', caption: '把故事带回自己的工作台。下一段旅程，从这里开始。' },
-      'en': { label: 'Download', short: 'Download', caption: 'Bring the stories to your own workstation. Your next journey begins right here.' },
+      'en': { label: 'Download', short: 'Download', caption: 'A local workbench for stories. Installation and startup instructions.' },
       'ja': { label: 'クライアントダウンロード', short: 'ダウンロード', caption: '物語を手元のスタジオへ持ち帰る。次の旅はここから始まります。' },
-      'ko': { label: '클라이언트 다운로드', short: '다운로드', caption: '이야기를 당신만의 작업대로 가져오세요. 다음 여정은 여기서 시작됩니다.' },
+      'ko': { label: '클라이언트 다운로드', short: '다운로드', caption: '이야기를 위한 로컬 작업대. 설치와 실행 안내.' },
     },
   },
   {
@@ -75,7 +75,7 @@ const rawRoutes: RouteTemplate[] = [
     detail: 'banners/nom-banner-014.png',
     i18n: {
       'zh-CN': { label: '公开文档', short: '文档', caption: '翻开工作台的使用手册。从第一步，到故事的深处。' },
-      'en': { label: 'Documentation', short: 'Docs', caption: 'Open the workbench guide. From your first steps into the depths of your story.' },
+      'en': { label: 'Documentation', short: 'Docs', caption: 'Open the workbench guide. From initial setup to the details of storytelling.' },
       'ja': { label: '公式ドキュメント', short: 'ドキュメント', caption: 'スタジオのマニュアルを開く。最初の一歩から、物語の深淵へ。' },
       'ko': { label: '공식 문서', short: '문서', caption: '작업대 사용 설명서를 펼쳐보세요. 첫걸음부터 이야기의 깊은 곳까지.' },
     },
@@ -111,7 +111,7 @@ const rawRoutes: RouteTemplate[] = [
     detail: 'stickers/bust/wink.png',
     i18n: {
       'zh-CN': { label: 'Nom 表情包', short: '表情包', caption: '有时认真，有时困困。挑一张 Nom，把一点陪伴带进日常。' },
-      'en': { label: 'Nom Stickers', short: 'Stickers', caption: 'Thoughtful, sleepy, or a little proud. Bring a little Nom into your day.' },
+      'en': { label: 'Nom Stickers', short: 'Stickers', caption: 'Thoughtful, sleepy, or a little proud. A little Nom for everyday moments.' },
       'ja': { label: 'Nom スタンプ', short: 'スタンプ', caption: '考えたり、うとうとしたり。Nom の表情を日常に連れていこう。' },
       'ko': { label: 'Nom 스티커', short: '스티커', caption: '진지하게, 때로는 졸리게. Nom의 작은 표정을 일상으로 가져가세요.' },
     },

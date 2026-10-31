@@ -7,10 +7,10 @@ import type { SiteLocale } from '../lib/i18n';
 interface Props {
   title: string;
   description: string;
-  eyebrow: string;
+  eyebrow?: string;
   headline: string;
   intro: string;
-  marker: string;
+  marker?: string;
   locale?: SiteLocale;
 }
 
@@ -22,10 +22,10 @@ const { title, description, eyebrow, headline, intro, marker, locale } = Astro.p
   <main class="portal-page">
     <section class="portal-hero">
       <div class="container portal-hero__inner" data-motion-group>
-        <p class="eyebrow" data-motion-reveal>{eyebrow}</p>
+        {eyebrow && <p class="eyebrow" data-motion-reveal>{eyebrow}</p>}
         <div class="portal-hero__grid">
           <div data-motion-reveal>
-            <small>{marker}</small>
+            {marker && <small>{marker}</small>}
             <h1>{headline}</h1>
           </div>
           <p data-motion-reveal>{intro}</p>

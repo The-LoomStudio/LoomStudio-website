@@ -9,8 +9,8 @@ import { getStickersCopy } from '../../lib/i18n'
 
 type Entry = (typeof entries)[number] & { image: DisplayImage }
 
-export default function StickerCard({ entry, index, selected, onSelect, ref, locale = 'zh-CN' }: {
-  entry: Entry; index: number; selected: boolean; onSelect: () => void; ref?: Ref<HTMLElement>; locale?: SiteLocale
+export default function StickerCard({ entry, selected, onSelect, ref, locale = 'zh-CN' }: {
+  entry: Entry; selected: boolean; onSelect: () => void; ref?: Ref<HTMLElement>; locale?: SiteLocale
 }) {
   const present = useIsPresent()
   const reducedMotion = useReducedMotion()
@@ -26,7 +26,7 @@ export default function StickerCard({ entry, index, selected, onSelect, ref, loc
       <span className="nom-card__art nom-canvas"><img src={entry.image.src} srcSet={entry.image.srcSet}
         sizes="(max-width: 600px) 40vw, (max-width: 1000px) 25vw, 220px"
         width={entry.image.width} height={entry.image.height} alt="" loading="lazy" decoding="async" /></span>
-      <span className="nom-card__title"><small>{String(index + 1).padStart(2, '0')}</small>{entry.title}</span>
+      <span className="nom-card__title">{entry.title}</span>
     </button>
     <div className="nom-card__footer">
       <span>{entry.usage[0]}</span>

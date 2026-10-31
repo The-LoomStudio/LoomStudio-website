@@ -3,19 +3,19 @@ import { MapPin, Sun, Sunset, Moon, Clock3, CornerDownRight, Earth } from '@luci
 const moments = [
   {
     id: 'shop', label: '下班买东西', minutes: 1040, Icon: Sun,
-    heading: ['顺路买点东西，', '再慢慢走回家。'],
+    heading: ['顺路买点东西', '再慢慢走回家'],
     story: '便利店的门叮咚一声。你从冰柜里拿了一盒牛奶，又在收银台旁挑了两串关东煮。窗外还有阳光，今天可以不用急着赶路。',
     scene: '下班后，顺路买点东西', place: '街角便利店', weather: '晴', hint: '阳光穿过街边的梧桐树',
   },
   {
     id: 'homeward', label: '回家路上', minutes: 1120, Icon: Sunset,
-    heading: ['街灯亮了，', '晚饭也快好了。'],
+    heading: ['街灯亮了', '晚饭也快好了'],
     story: '你拎着牛奶走到小区门口，手机亮了一下：“到哪了？饭快好了。”保安正和遛狗的邻居聊天。刷卡进门，再走几分钟就到家。',
     scene: '穿过小区门口，准备回家', place: '小区门口', weather: '晴 · 日落', hint: '傍晚的风有一点凉',
   },
   {
     id: 'home', label: '晚饭之后', minutes: 1250, Icon: Moon,
-    heading: ['碗已经洗好了，', '今晚就慢一点。'],
+    heading: ['碗已经洗好了', '今晚就慢一点'],
     story: '你把洗好的碗放回柜子，端着一杯温水坐到沙发上。窗外只剩路灯和零星亮着的窗，厨房里还留着一点饭菜的香气。',
     scene: '吃过晚饭，在家歇一会儿', place: '家', weather: '晴 · 入夜', hint: '窗外的天空已经暗下来',
   },
@@ -74,7 +74,7 @@ const formatTime = (minutes: number) => `${String(Math.floor(minutes / 60)).padS
     </div>
   </div>
   </div>
-  <p class="world-demo__caption">虚构的日常场景 · 根据现有场景与地点能力制作的网页示意，不是运行中的工作台。</p>
+  <p class="world-demo__caption">示例世界。</p>
 </fieldset>
 
 <script>

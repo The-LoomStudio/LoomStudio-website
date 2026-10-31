@@ -6,7 +6,7 @@ const { locale } = Astro.props;
 const label = { 'zh-CN': '正在准备画面', en: 'Preparing the page', ja: 'ページを準備しています', ko: '페이지 준비 중' }[locale];
 ---
 <div class="page-arrival" aria-label={label} aria-busy="true" data-page-arrival>
-  <PageArrivalScene client:load />
+  <PageArrivalScene locale={locale} client:load />
 </div>
 <style is:global>
   .page-arrival { display: none; position: fixed; inset: 0; z-index: 10000; background: var(--loom-site-bg); }

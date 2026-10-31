@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { animate } from 'motion'
+import type { SiteLocale } from '../../lib/i18n'
 import TextLogoTransition from '../text-logo-transition/TextLogoTransition'
 
 /** The overlay reveals the real document underneath, never a duplicate Banner. */
-export default function PageArrivalScene() {
+export default function PageArrivalScene({ locale }: { locale: SiteLocale }) {
   const [progress, setProgress] = useState(0)
   const [waiting, setWaiting] = useState(false)
   const [leaving, setLeaving] = useState(false)
@@ -65,7 +66,12 @@ export default function PageArrivalScene() {
       await Promise.all([ready, animation])
       if (signal.aborted) return
       setWaiting(false)
-      animation = animate(0.18, 0.67, {
+      animation = animate(0.18, 0.20, {
+        duration: reducedMotion ? 0 : 1.6, ease: 'linear', onUpdate: setProgress,
+      })
+      await animation
+      if (signal.aborted) return
+      animation = animate(0.20, 0.67, {
         duration: reducedMotion ? 0 : 1.2, ease: 'linear', onUpdate: setProgress,
       })
       await animation
@@ -88,6 +94,6 @@ export default function PageArrivalScene() {
   }, [])
 
   return <div className="page-arrival__scene" data-waiting={waiting || undefined} data-leaving={leaving || undefined}>
-    <TextLogoTransition progress={progress} reducedMotion={reduced} waiting={waiting}>{null}</TextLogoTransition>
+    <TextLogoTransition locale={locale} progress={progress} reducedMotion={reduced} waiting={waiting}>{null}</TextLogoTransition>
   </div>
 }

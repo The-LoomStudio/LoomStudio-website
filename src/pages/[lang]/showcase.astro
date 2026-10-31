@@ -16,7 +16,6 @@ const currentLocale = lang as SiteLocale;
 const meta = pageMeta.showcase[currentLocale] ?? pageMeta.showcase['en'];
 
 interface WorldCard {
-  chapter: string;
   title: string;
   copy: string;
   meta: string;
@@ -24,46 +23,37 @@ interface WorldCard {
 
 const worldsData: Record<string, WorldCard[]> = {
   'en': [
-    { chapter: 'WORLD / 01', title: 'The Lost Route', copy: 'A grand voyage setting sail from the edge of sea mist. Demonstrates how timelines and character relationships unfold.', meta: 'Epic Adventure · Sample Work' },
-    { chapter: 'WORLD / 02', title: 'Silver Court Protocol', copy: 'A narrative experiment where technological order entwines with personal conviction.', meta: 'Sci-Fi Fantasy · Sample Work' },
-    { chapter: 'WORLD / 03', title: 'After the Tide', copy: 'Beginning with an irreversible choice, showing how branch narrative flows naturally.', meta: 'Timeline Narrative · Sample Work' },
+    { title: 'The Lost Route', copy: 'Set sail from the edge of sea mist and follow a lost route to the next island.', meta: 'Epic Adventure · Sample Work' },
+    { title: 'Silver Court Protocol', copy: 'Where technological order meets personal choice, every agreement carries a price.', meta: 'Sci-Fi Fantasy · Sample Work' },
+    { title: 'After the Tide', copy: 'After one irreversible choice, a familiar shore leads to a different life.', meta: 'Timeline Narrative · Sample Work' },
   ],
   'ja': [
-    { chapter: 'WORLD / 01', title: '失われた航路', copy: '海霧の果てから始まる長大な航海。世界線、章の進行、登場人物の関係性がどのように紡がれるかを示すサンプル。', meta: '長編冒険譚 · サンプル作品' },
-    { chapter: 'WORLD / 02', title: '銀庭プロトコル', copy: '技術的な秩序と個人の選択が複雑に絡み合う物語実験。', meta: 'サイエンスファンタジー · サンプル作品' },
-    { chapter: 'WORLD / 03', title: '潮汐の果てに', copy: '取り返しのつかない一度の選択から始まる、自然な分岐叙述のデモンストレーション。', meta: '世界線叙事 · サンプル作品' },
+    { title: '失われた航路', copy: '海霧の果てから船を出し、失われた航路をたどって次の島を目指す。', meta: '長編冒険譚 · サンプル作品' },
+    { title: '銀庭プロトコル', copy: '技術の秩序と個人の選択が交わるとき、すべての協定に新たな代償が生まれる。', meta: 'サイエンスファンタジー · サンプル作品' },
+    { title: '潮汐の果てに', copy: '取り返しのつかない選択の後、見慣れた海岸が別の暮らしへとつながっていく。', meta: '世界線叙事 · サンプル作品' },
   ],
   'ko': [
-    { chapter: 'WORLD / 01', title: '잃어버린 항로', copy: '바다 안개의 경계에서 시작되는 장대한 항해. 세계선과 인물 관계가 어떻게 펼쳐지는지 보여주는 예시입니다.', meta: '장편 모험 · 샘플 작품' },
-    { chapter: 'WORLD / 02', title: '은정 프로토콜', copy: '기술적 질서와 인물의 선택이 얽혀 있는 서사 실험.', meta: 'SF 판타지 · 샘플 작품' },
-    { chapter: 'WORLD / 03', title: '조석의 뒤편', copy: '되돌릴 수 없는 한 번의 선택에서 출발하여 자연스러운 분기 서사를 보여줍니다.', meta: '세계선 서사 · 샘플 작품' },
+    { title: '잃어버린 항로', copy: '바다 안개의 경계에서 출항해 잃어버린 항로를 따라 다음 섬을 찾아갑니다.', meta: '장편 모험 · 샘플 작품' },
+    { title: '은정 프로토콜', copy: '기술의 질서와 개인의 선택이 만나는 곳에서 모든 협약에는 새로운 대가가 따릅니다.', meta: 'SF 판타지 · 샘플 작품' },
+    { title: '조석의 뒤편', copy: '되돌릴 수 없는 선택 이후 익숙한 해안이 또 다른 삶으로 이어집니다.', meta: '세계선 서사 · 샘플 작품' },
   ],
 };
 
 const worlds = worldsData[currentLocale] ?? worldsData['en'];
-const featuredTitle = currentLocale === 'ja' ? '物語は単なるセッションではなく\n足跡を残す旅路である' : currentLocale === 'ko' ? '이야기는 단순한 대화가 아닌\n경로를 남기는 여정입니다' : 'A story is not a single session,\nbut a journey that carves a path';
+const featuredTitle = currentLocale === 'ja' ? '物語は単なるセッションではなく\n足跡を残す旅路である' : currentLocale === 'ko' ? '이야기는 단순한 대화가 아닌\n경로를 남기는 여정입니다' : 'A story is not a single session\nbut a journey that carves a path';
 const galleryTitle = currentLocale === 'ja' ? 'コンセプト作品ウォール' : currentLocale === 'ko' ? '콘셉트 작품 월' : 'Concept Showcase Wall';
 ---
 
 <PortalLayout
   title={meta.title}
-  description={meta.description}
-  eyebrow={meta.eyebrow}
-  marker={meta.marker}
-  headline={meta.headline}
-  intro={meta.intro}
+  description={currentLocale === 'ja' ? 'Loom Studio の物語サンプルと創作世界を探索しましょう。' : currentLocale === 'ko' ? 'Loom Studio의 이야기 예시와 창작 세계를 살펴보세요.' : 'Explore story samples and creative worlds in Loom Studio.'}
+  headline={currentLocale === 'ja' ? '一通の手紙から始まる旅' : currentLocale === 'ko' ? '한 통의 편지에서 시작되는 여정' : 'A journey begins with a letter'}
+  intro={currentLocale === 'ja' ? '海霧の航路から未来の街まで。物語のサンプルから、次の旅のひらめきを見つけましょう。' : currentLocale === 'ko' ? '바다 안개의 항로에서 미래 도시까지 이야기 예시 속에서 다음 여정의 영감을 찾아보세요.' : 'From misty sea routes to future cities, these story samples explore different settings and journeys.'}
   locale={currentLocale}
 >
   <section class="portal-section portal-section--soft">
     <div class="container showcase-feature">
-      <div class="showcase-feature__visual" aria-hidden="true">
-        <span>WORLDLINE</span>
-        <b>00</b>
-        <i></i>
-      </div>
       <div class="showcase-feature__copy" data-motion-reveal>
-        <span class="portal-tag">FEATURED CONCEPT</span>
-        <p class="eyebrow">A journey beyond the transcript</p>
         <h2>{featuredTitle}</h2>
         <div class="showcase-feature__facts">
           <span><BookOpen size={15} stroke-width={1.6} /> Chapters</span>
@@ -77,12 +67,11 @@ const galleryTitle = currentLocale === 'ja' ? 'コンセプト作品ウォール
   <section class="portal-section">
     <div class="container">
       <div class="portal-section__heading" data-motion-reveal>
-        <div><small>GALLERY / WORLDS</small><h2>{galleryTitle}</h2></div>
+        <div><h2>{galleryTitle}</h2></div>
       </div>
       <div class="showcase-grid" data-motion-group>
         {worlds.map((world) => (
           <article class="showcase-card" data-motion-reveal data-motion-feedback>
-            <span>{world.chapter}</span>
             <h3>{world.title}</h3>
             <p>{world.copy}</p>
             <small>{world.meta}</small>

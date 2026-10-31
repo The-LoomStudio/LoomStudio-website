@@ -1,14 +1,16 @@
 ---
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Sparkles, Download, Images, Blocks, BookOpen, Network, Newspaper, Smile } from 'lucide-react';
+import { Star, List, Download, Images, Blocks, BookOpen, Network, Newspaper, Smile } from 'lucide-react';
 import sharp from 'sharp';
 
-interface Props { path: string }
-const { path } = Astro.props;
+interface Props { path: string; variant?: 'page' | 'menu' }
+const { path, variant = 'page' } = Astro.props;
 const section = path.split('/').filter(Boolean)[0] ?? '';
 const icons = { download: Download, showcase: Images, marketplace: Blocks, docs: BookOpen, news: Newspaper, stickers: Smile };
-const Icon = path.startsWith('/docs/architecture') ? Network : icons[section as keyof typeof icons] ?? Sparkles;
+const Icon = variant === 'menu' ? List
+  : path.startsWith('/docs/architecture') ? Network
+  : icons[section as keyof typeof icons] ?? Star;
 // Sample the existing icon into actual Unicode braille (2 × 4 dots per cell).
 // This runs during Astro rendering; the browser receives only decorative text.
 const columns = 52;

@@ -18,7 +18,7 @@ const { lang } = Astro.params;
 const currentLocale = lang as SiteLocale;
 const meta = pageMeta.download[currentLocale] ?? pageMeta.download['en'];
 
-const tipText = currentLocale === 'ja' ? '初回起動には少し時間がかかります。ターミナルを開いたままお待ちください。' : currentLocale === 'ko' ? '첫 실행에는 시간이 조금 걸립니다. 터미널 창을 닫지 마세요.' : 'Initial startup takes a few moments. Keep your terminal open.';
+const tipText = currentLocale === 'ja' ? '初回起動には少し時間がかかります。ターミナルを開いたままお待ちください。' : currentLocale === 'ko' ? '첫 실행에는 시간이 조금 걸립니다. 터미널 창을 닫지 마세요.' : 'Initial startup takes a few moments. Keep the terminal open.';
 
 const stepsData: Record<SiteLocale, {
   heading: string;
@@ -30,8 +30,8 @@ const stepsData: Record<SiteLocale, {
     more: 'More details',
     steps: [
       { index: '01 / Workbench', title: '127.0.0.1:18010', desc: '', link: 'http://127.0.0.1:18010' },
-      { index: '02 / Models', title: 'API & Credentials', desc: 'Configure model providers, keys, and assign them to your presets.' },
-      { index: '03 / Re-launch', title: 'npm start', desc: 'Run npm start in the LoomStudio folder anytime you play.' },
+      { index: '02 / Models', title: 'API & Credentials', desc: 'Configure model providers, keys, and assign them to presets.' },
+      { index: '03 / Re-launch', title: 'npm start', desc: 'Subsequent launches use npm start in the LoomStudio folder.' },
     ],
   },
   'ja': {
@@ -57,7 +57,7 @@ const stepsData: Record<SiteLocale, {
     more: '查看详情',
     steps: [
       { index: '01 / 工作台', title: '127.0.0.1:18010', desc: '', link: 'http://127.0.0.1:18010' },
-      { index: '02 / 模型配置', title: 'API 与凭据', desc: '配置模型 Provider 与密钥，并将其分配给你的预设。' },
+      { index: '02 / 模型配置', title: 'API 与凭据', desc: '配置模型 Provider 与密钥，并将其分配给预设。' },
       { index: '03 / 再次启动', title: 'npm start', desc: '下次游玩时，在 LoomStudio 目录运行 npm start。' },
     ],
   },
@@ -69,8 +69,6 @@ const stepInfo = stepsData[currentLocale] ?? stepsData['en'];
 <PortalLayout
   title={meta.title}
   description={meta.description}
-  eyebrow={meta.eyebrow}
-  marker={meta.marker}
   headline={meta.headline}
   intro={meta.intro}
   locale={currentLocale}
@@ -94,7 +92,7 @@ const stepInfo = stepsData[currentLocale] ?? stepsData['en'];
   </section>
   <section class="portal-section">
     <div class="container">
-      <div class="portal-section__heading"><div><small>START / PLAY</small><h2>{stepInfo.heading}</h2></div></div>
+      <div class="portal-section__heading"><div><h2>{stepInfo.heading}</h2></div></div>
       <div class="download-steps" data-motion-group>
         {stepInfo.steps.map((s) => (
           <article data-motion-reveal>

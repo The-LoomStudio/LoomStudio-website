@@ -10,10 +10,7 @@
 .text-logo-study__steps span { font-size: 12px; line-height: 1.7; }
 @media(max-width: 640px) { .text-logo-study__steps { grid-template-columns: 1fr 1fr; } }
 
-.text-logo__thinking { position: absolute; display: flex; align-items: center; gap: 10px; color: var(--loom-site-silver); pointer-events: none; }
-.text-logo__thinking b { width: 2px; height: 100%; background: currentColor; animation: text-logo-caret 1s steps(2, jump-none) infinite; }
-.text-logo__thinking i { width: 14px; height: 14px; box-sizing: border-box; border: 1.5px solid color-mix(in srgb, currentColor 25%, transparent); border-top-color: currentColor; border-radius: 50%; animation: text-logo-thinking 1s linear infinite; }
-.text-logo__thinking--reduced { left: 50%; top: calc(50% + 100px); transform: translateX(-50%); }
+.text-logo__caret { display: inline-block; width: 2px; height: 1em; margin-left: .15em; vertical-align: -.1em; background: var(--loom-site-silver); animation: text-logo-caret 1s steps(2, jump-none) infinite; }
+.text-logo__status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @keyframes text-logo-caret { to { opacity: 0; } }
-@keyframes text-logo-thinking { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .text-logo__thinking b, .text-logo__thinking i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .text-logo__caret { animation: none; } }

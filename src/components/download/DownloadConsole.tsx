@@ -69,7 +69,6 @@ export default function DownloadConsole({ locale = 'zh-CN' }: { locale?: SiteLoc
       <header className="install-console__header">
         <span className="install-console__dots" aria-hidden="true"><i /><i /><i /></span>
         <span><Terminal size={15} aria-hidden="true" />{['PowerShell', 'zsh', 'bash'][platform]}<span className="install-console__project"> / LoomStudio</span></span>
-        <span className="install-console__source">LOCAL SETUP</span>
       </header>
       <div ref={tabs} className="install-modes" role="tablist" aria-label={text.modeLabel} onKeyDown={navigate}>
         {text.modes.map((label, index) => <button key={index} type="button" role="tab" id={`${layoutId}-tab-${index}`}
@@ -77,7 +76,7 @@ export default function DownloadConsole({ locale = 'zh-CN' }: { locale?: SiteLoc
           onClick={() => selectMode(index)}>
           {mode === index && <m.span layoutId="mode" className="install-mode-highlight" aria-hidden="true"
             transition={{ type: 'spring', stiffness: 360, damping: 32 }} />}
-          <small>0{index + 1}</small>{label}
+          {label}
         </button>)}
       </div>
       <div className="install-platforms" role="group" aria-label={text.platform}>

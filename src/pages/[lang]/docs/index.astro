@@ -17,44 +17,43 @@ const meta = pageMeta.docs[currentLocale] ?? pageMeta.docs['en'];
 
 interface CardItem {
   href: string;
-  tag: string;
   title: string;
   copy: string;
 }
 
 const cardsData: Record<string, CardItem[]> = {
   'en': [
-    { href: '/docs/architecture', tag: 'ARCHITECTURE', title: 'Architecture Map', copy: 'Trace file import, narrative timeline, model and tools connection to local data.' },
-    { href: '/docs/getting-started', tag: 'START', title: 'Quick Start', copy: 'Understand boundaries between website and desktop app, build your first mental map.' },
-    { href: '/docs/concepts/narrative-timeline', tag: 'STORY', title: 'Narrative Timeline', copy: 'Story nodes and branches preserve prose; a Timeline root Session receives input while ordinary replies remain in work history.' },
-    { href: '/docs/concepts/agent-sessions', tag: 'WORK', title: 'Agent Session', copy: 'Distinguish ordinary work Sessions from the Timeline root Session, and see how their Transcripts enter context.' },
-    { href: '/docs/concepts/prompt-build', tag: 'CONTEXT', title: 'Prompt Build', copy: 'Runtime combines sources and orders them by Activation and DFS, with optional processing and build observations.' },
-    { href: '/docs/concepts/composition-skeleton', tag: 'SKELETON', title: 'Setting Layer & Skeleton', copy: 'Separating storage topology and assembly projection for clean context.' },
-    { href: '/docs/concepts/extension-system', tag: 'EXTENSION', title: 'Extension System', copy: 'Package, Module, and Instance lifecycles; Host APIs scope contributions, while server modules remain trusted code.' },
-    { href: '/docs/concepts/trace-and-audit', tag: 'EXPLAIN', title: 'Explainability & Trace', copy: 'Inspect build projections, Provider Observations, run records, and data changes, each with its own scope.' },
-    { href: '/docs/concepts/local-first', tag: 'LOCAL', title: 'Local Data Boundary', copy: 'Workspace data stays on the machine; context is sent to the external Provider configured for a model call.' },
+    { href: '/docs/architecture', title: 'Architecture Map', copy: 'Trace file import, narrative timeline, model and tools connection to local data.' },
+    { href: '/docs/getting-started', title: 'Quick Start', copy: 'Install and start Loom Studio, connect a model, and begin a first story.' },
+    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: 'Story nodes and branches preserve prose; a Timeline root Session receives input while ordinary replies remain in work history.' },
+    { href: '/docs/concepts/agent-sessions', title: 'Agent Session', copy: 'Distinguish ordinary work Sessions from the Timeline root Session, and see how their Transcripts enter context.' },
+    { href: '/docs/concepts/prompt-build', title: 'Prompt Build', copy: 'Runtime combines sources and orders them by Activation and DFS, with optional processing and build observations.' },
+    { href: '/docs/concepts/composition-skeleton', title: 'Setting Layer & Skeleton', copy: 'Separating storage topology and assembly projection for clean context.' },
+    { href: '/docs/concepts/extension-system', title: 'Extension System', copy: 'Package, Module, and Instance lifecycles; Host APIs scope contributions, while server modules remain trusted code.' },
+    { href: '/docs/concepts/trace-and-audit', title: 'Explainability & Trace', copy: 'Inspect build projections, Provider Observations, run records, and data changes, each with its own scope.' },
+    { href: '/docs/concepts/local-first', title: 'Local Data Boundary', copy: 'Workspace data stays on the machine; context is sent to the external Provider configured for a model call.' },
   ],
   'ja': [
-    { href: '/docs/architecture', tag: 'ARCHITECTURE', title: 'アーキテクチャマップ', copy: 'ファイル取り込み、物語生成、モデルやツールがローカルデータと接続する境界を俯瞰。' },
-    { href: '/docs/getting-started', tag: 'START', title: 'クイックスタート', copy: 'Web サイトとデスクトップアプリの境界を把握し、Loom Studio の全体像を掴む。' },
-    { href: '/docs/concepts/narrative-timeline', tag: 'STORY', title: 'Narrative Timeline', copy: '本文ノードと分岐が物語を保持し、Timeline のルート Session が入力を受け取ります。通常の返信は作業記録に残ります。' },
-    { href: '/docs/concepts/agent-sessions', tag: 'WORK', title: 'Agent Session', copy: '通常の作業 Session と Timeline ルート Session、それぞれの Transcript と文脈の扱いを説明します。' },
-    { href: '/docs/concepts/prompt-build', tag: 'CONTEXT', title: 'Prompt Build', copy: 'Runtime が Source を組み合わせ、Activation と DFS で編成します。加工と構築記録の範囲も説明します。' },
-    { href: '/docs/concepts/composition-skeleton', tag: 'SKELETON', title: '設定層とアセンブリ骨格', copy: 'ストレージ構成と投影の分離により、世界観設定と実行時文脈を秩序正しく保つ。' },
-    { href: '/docs/concepts/extension-system', tag: 'EXTENSION', title: '拡張エコシステム', copy: 'Package、Module、Instance のライフサイクルを整理。Host API の権限範囲と、信頼された同一プロセスの Server Module を説明します。' },
-    { href: '/docs/concepts/trace-and-audit', tag: 'EXPLAIN', title: '説明可能性と Trace', copy: '構築投影、Provider Observation、実行記録、データ変更を、それぞれの範囲で確認します。' },
-    { href: '/docs/concepts/local-first', tag: 'LOCAL', title: 'ローカルファーストの境界', copy: '作業データは端末に保存されます。モデル呼び出しでは設定した外部 Provider に文脈を送信します。' },
+    { href: '/docs/architecture', title: 'アーキテクチャマップ', copy: 'ファイル取り込み、物語生成、モデルやツールがローカルデータと接続する境界を俯瞰。' },
+    { href: '/docs/getting-started', title: 'クイックスタート', copy: 'Loom Studio を起動し、モデルを設定して最初の物語を始めます。' },
+    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: '本文ノードと分岐が物語を保持し、Timeline のルート Session が入力を受け取ります。通常の返信は作業記録に残ります。' },
+    { href: '/docs/concepts/agent-sessions', title: 'Agent Session', copy: '通常の作業 Session と Timeline ルート Session、それぞれの Transcript と文脈の扱いを説明します。' },
+    { href: '/docs/concepts/prompt-build', title: 'Prompt Build', copy: 'Runtime が Source を組み合わせ、Activation と DFS で編成します。加工と構築記録の範囲も説明します。' },
+    { href: '/docs/concepts/composition-skeleton', title: '設定層とアセンブリ骨格', copy: 'ストレージ構成と投影の分離により、世界観設定と実行時文脈を秩序正しく保つ。' },
+    { href: '/docs/concepts/extension-system', title: '拡張エコシステム', copy: 'Package、Module、Instance のライフサイクルを整理。Host API の権限範囲と、信頼された同一プロセスの Server Module を説明します。' },
+    { href: '/docs/concepts/trace-and-audit', title: '説明可能性と Trace', copy: '構築投影、Provider Observation、実行記録、データ変更を、それぞれの範囲で確認します。' },
+    { href: '/docs/concepts/local-first', title: 'ローカルファーストの境界', copy: '作業データは端末に保存されます。モデル呼び出しでは設定した外部 Provider に文脈を送信します。' },
   ],
   'ko': [
-    { href: '/docs/architecture', tag: 'ARCHITECTURE', title: '아키텍처 맵', copy: '파일 가져오기, 서사 생성, 모델 및 도구가 로컬 데이터와 연결되는 경계를 살펴봅니다.' },
-    { href: '/docs/getting-started', tag: 'START', title: '빠른 시작', copy: '웹사이트와 데스크톱 앱의 경계를 이해하고 Loom Studio의 첫 번째 개념도를 형성합니다.' },
-    { href: '/docs/concepts/narrative-timeline', tag: 'STORY', title: 'Narrative Timeline', copy: '본문 노드와 분기가 이야기를 보존하고, Timeline 루트 Session이 입력을 받습니다. 일반 응답은 작업 기록에 남습니다.' },
-    { href: '/docs/concepts/agent-sessions', tag: 'WORK', title: 'Agent Session', copy: '일반 작업 Session과 Timeline 루트 Session, 각 Transcript와 컨텍스트의 관계를 설명합니다.' },
-    { href: '/docs/concepts/prompt-build', tag: 'CONTEXT', title: 'Prompt Build', copy: 'Runtime이 Source를 조합하고 Activation과 DFS로 정렬합니다. 선택적 처리와 빌드 관찰도 설명합니다.' },
-    { href: '/docs/concepts/composition-skeleton', tag: 'SKELETON', title: '설정 계층 및 조립 골격', copy: '저장 토폴로지와 조립 투영의 분리로 세계 설정과 런타임 문맥을 질서 있게 유지.' },
-    { href: '/docs/concepts/extension-system', tag: 'EXTENSION', title: '확장 시스템', copy: 'Package, Module, Instance 수명 주기를 설명합니다. Host API가 기여 범위를 정하며 서버 모듈은 신뢰된 코드입니다.' },
-    { href: '/docs/concepts/trace-and-audit', tag: 'EXPLAIN', title: '설명 가능성과 Trace', copy: '빌드 투영, Provider Observation, 실행 기록, 데이터 변경을 각 기록 범위에 따라 확인합니다.' },
-    { href: '/docs/concepts/local-first', tag: 'LOCAL', title: '로컬 데이터 경계', copy: '작업 데이터는 기기에 저장됩니다. 모델 호출 시 설정된 외부 Provider로 컨텍스트를 보냅니다.' },
+    { href: '/docs/architecture', title: '아키텍처 맵', copy: '파일 가져오기, 서사 생성, 모델 및 도구가 로컬 데이터와 연결되는 경계를 살펴봅니다.' },
+    { href: '/docs/getting-started', title: '빠른 시작', copy: 'Loom Studio를 실행하고 모델을 연결해 첫 이야기를 시작하세요.' },
+    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: '본문 노드와 분기가 이야기를 보존하고, Timeline 루트 Session이 입력을 받습니다. 일반 응답은 작업 기록에 남습니다.' },
+    { href: '/docs/concepts/agent-sessions', title: 'Agent Session', copy: '일반 작업 Session과 Timeline 루트 Session, 각 Transcript와 컨텍스트의 관계를 설명합니다.' },
+    { href: '/docs/concepts/prompt-build', title: 'Prompt Build', copy: 'Runtime이 Source를 조합하고 Activation과 DFS로 정렬합니다. 선택적 처리와 빌드 관찰도 설명합니다.' },
+    { href: '/docs/concepts/composition-skeleton', title: '설정 계층 및 조립 골격', copy: '저장 토폴로지와 조립 투영의 분리로 세계 설정과 런타임 문맥을 질서 있게 유지.' },
+    { href: '/docs/concepts/extension-system', title: '확장 시스템', copy: 'Package, Module, Instance 수명 주기를 설명합니다. Host API가 기여 범위를 정하며 서버 모듈은 신뢰된 코드입니다.' },
+    { href: '/docs/concepts/trace-and-audit', title: '설명 가능성과 Trace', copy: '빌드 투영, Provider Observation, 실행 기록, 데이터 변경을 각 기록 범위에 따라 확인합니다.' },
+    { href: '/docs/concepts/local-first', title: '로컬 데이터 경계', copy: '작업 데이터는 기기에 저장됩니다. 모델 호출 시 설정된 외부 Provider로 컨텍스트를 보냅니다.' },
   ],
 };
 
@@ -66,19 +65,14 @@ const cards = (cardsData[currentLocale] ?? cardsData['en']).map((c: CardItem) =>
 interface SectionText {
   introHeading: string;
   introDesc: string;
-  callout: string;
   diagramHeading: string;
   diagram: string;
-  statusHeading: string;
-  tableHeaders: string[];
-  tableRows: string[][];
 }
 
 const sectionTextsData: Record<string, SectionText> = {
   'en': {
     introHeading: 'Starting with Story',
     introDesc: 'Loom Studio is a desktop creation environment crafted for deep, long-form roleplay and interactive fiction. Stories grow continuously, agents reason backstage, and prompt assembly can be inspected through the observations available for a run.',
-    callout: 'This website repository maintains public documentation independently; internal product specifications are not synced here. Diagrams and product demos are illustrative and do not connect to a live workspace or Provider.',
     diagramHeading: 'Minimal Mental Map',
     diagram: `Narrative Timeline
   Story nodes and branches; input is committed first
@@ -90,19 +84,10 @@ Prompt Build
   Combine sources → optional text processing → Activation / DFS
         ├─ messages + Native tools → external Provider
         └─ build / provider / run observations and data changes`,
-    statusHeading: 'Current Roadmap & Status',
-    tableHeaders: ['Area', 'Status', 'Boundary'],
-    tableRows: [
-      ['Product Portal', 'Foundation Built', 'Static presentation, no direct workspace bind'],
-      ['Public Documentation', 'Concepts, architecture map & search index', 'Maintained by this website repository; internal docs are not auto-synced'],
-      ['Downloads & Changelog', 'Source launch instructions published', 'Prebuilt installers are still hosted on GitHub Releases'],
-      ['Edge Deployment', 'Deferred', 'Local testing prioritized before cloud rollout'],
-    ],
   },
   'ja': {
     introHeading: '物語から始まる',
     introDesc: 'Loom Studio は、長編ロールプレイと奥深いインタラクティブ叙事のために設計されたデスクトップ創作環境です。物語は継続的に紡がれ、エージェントは舞台裏で推論し、プロンプト構築は各 Run で利用できる観察記録から確認できます。',
-    callout: '公開ドキュメントはウェブサイトのリポジトリで独立して管理し、製品の内部仕様とは同期しません。図と製品デモは説明用で、実際のワークスペースや Provider には接続しません。',
     diagramHeading: '最小限の概念マップ',
     diagram: `Narrative Timeline
   本文ノードと分岐を保持。入力を先にコミット
@@ -114,19 +99,10 @@ Prompt Build
   Source 統合 → 任意のテキスト加工 → Activation / DFS
         ├─ messages + Native tools → 外部 Provider
         └─ build / provider / run 観察とデータ変更`,
-    statusHeading: '現在の構築状況',
-    tableHeaders: ['領域', '現在の状態', '境界・制約'],
-    tableRows: [
-      ['製品ポータル', '初版基盤完成', '静的プレゼンテーション、実作業領域には直接非接続'],
-      ['公開ドキュメント', '概念、アーキテクチャ図、検索索引', 'サイトのリポジトリで管理。内部文書とは自動同期しない'],
-      ['ダウンロード & 更新履歴', 'ソース起動手順を公開済み', 'ビルド済みインストーラーは GitHub Releases で配布'],
-      ['エッジ配信設定', '保留', 'ローカルでの動作確認完了後に順次整備'],
-    ],
   },
   'ko': {
     introHeading: '이야기에서 시작하다',
     introDesc: 'Loom Studio는 깊이 있는 장편 롤플레잉 및 인터랙티브 서사를 위해 제작된 데스크톱 창작 도구입니다. 이야기는 이어지고 에이전트는 무대 뒤에서 추론하며, 프롬프트 구성은 각 Run에 남은 관찰 기록으로 확인할 수 있습니다.',
-    callout: '공개 문서는 웹사이트 저장소에서 별도로 관리하며 제품 내부 문서와 동기화하지 않습니다. 그림과 제품 데모는 설명용이며 실제 작업 공간이나 Provider에 연결되지 않습니다.',
     diagramHeading: '최소 개념도',
     diagram: `Narrative Timeline
   본문 노드와 분기를 보존하고 입력을 먼저 커밋
@@ -138,14 +114,6 @@ Prompt Build
   Source 조합 → 선택적 텍스트 처리 → Activation / DFS
         ├─ messages + Native tools → 외부 Provider
         └─ build / provider / run 관찰 및 데이터 변경`,
-    statusHeading: '현재 구축 상태',
-    tableHeaders: ['영역', '현재 상태', '경계'],
-    tableRows: [
-      ['제품 포털', '기반 구축 완료', '정적 표시 위주, 실제 작업 영역과 직접 미연결'],
-      ['공개 문서', '개념, 아키텍처 맵, 검색 색인', '웹사이트 저장소가 관리하며 내부 문서와 자동 동기화하지 않음'],
-      ['다운로드 & 변경로그', '소스 실행 안내 공개', '사전 빌드 설치 파일은 GitHub Releases에서 배포'],
-      ['엣지 배포 구성', '보류', '로컬 검증 완료 후 단계적 진행'],
-    ],
   },
 };
 
@@ -154,7 +122,6 @@ const sectionTexts = sectionTextsData[currentLocale] ?? sectionTextsData['en'];
 const overviewHeadings = [
   { depth: 2, slug: 'intro', text: sectionTexts.introHeading },
   { depth: 2, slug: 'concept-map', text: sectionTexts.diagramHeading },
-  { depth: 2, slug: 'status', text: sectionTexts.statusHeading },
 ];
 ---
 
@@ -166,13 +133,11 @@ const overviewHeadings = [
   <section class="docs-intro" data-motion-reveal>
     <h2 id="intro">{sectionTexts.introHeading}</h2>
     <p>{sectionTexts.introDesc}</p>
-    <blockquote data-callout="boundary">{sectionTexts.callout}</blockquote>
   </section>
 
   <section class="docs-card-grid" data-motion-group>
     {cards.map((card) => (
       <a href={card.href} data-motion-reveal data-motion-feedback>
-        <span>{card.tag}</span>
         <h3>{card.title}</h3>
         <p>{card.copy}</p>
         <ArrowRight class="card-arrow" size={17} stroke-width={1.8} />
@@ -183,21 +148,6 @@ const overviewHeadings = [
   <h2 id="concept-map">{sectionTexts.diagramHeading}</h2>
   <pre><code>{sectionTexts.diagram}</code></pre>
 
-  <h2 id="status">{sectionTexts.statusHeading}</h2>
-  <table>
-    <thead>
-      <tr>
-        {sectionTexts.tableHeaders.map((header) => (<th>{header}</th>))}
-      </tr>
-    </thead>
-    <tbody>
-      {sectionTexts.tableRows.map((row) => (
-        <tr>
-          {row.map((cell) => (<td>{cell}</td>))}
-        </tr>
-      ))}
-    </tbody>
-  </table>
 </DocsLayout>
 
 <style>
@@ -220,13 +170,8 @@ const overviewHeadings = [
   .docs-card-grid a:hover {
     background: var(--loom-site-surface-raised);
   }
-  .docs-card-grid span {
-    color: var(--loom-site-accent);
-    font: 9px var(--loom-site-font-mono);
-    letter-spacing: 0.14em;
-  }
   .docs-card-grid h3 {
-    margin: 28px 0 10px;
+    margin: 0 0 10px;
     color: var(--loom-site-text);
     font: 580 20px var(--loom-site-font-display);
   }

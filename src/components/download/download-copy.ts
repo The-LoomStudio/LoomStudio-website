@@ -9,10 +9,10 @@ export const operations = [
 export const downloadCopy = {
   'zh-CN': {
     modes: ['首次安装', '日常启动', '更新源码'], platform: '选择系统', modeLabel: '选择操作',
-    title: '把工作台，带回本地。', copy: '复制全部命令', copying: '正在复制', copied: '已复制', failed: '重试复制',
-    ready: '复制后，在你自己的终端粘贴运行。', success: '命令已复制。切回终端，粘贴后按回车运行。',
+    title: '在本地启动工作台', copy: '复制全部命令', copying: '正在复制', copied: '已复制', failed: '重试复制',
+    ready: '复制后，在本地终端粘贴运行。', success: '命令已复制。切回终端，粘贴后按回车运行。',
     error: '无法访问剪贴板，请选中下方命令手动复制。', select: '点选步骤，看看这一步做什么。',
-    contexts: ['从你准备存放程序的目录开始。', '先进入已有的 LoomStudio 目录，再执行启动命令。', '先停止服务并备份数据，再在 LoomStudio 目录更新。'],
+    contexts: ['从准备存放程序的目录开始。', '先进入已有的 LoomStudio 目录，再执行启动命令。', '先停止服务并备份数据，再在 LoomStudio 目录更新。'],
     names: [['获取源码', '进入目录', '启动工作台'], ['启动工作台'], ['拉取源码', '安装依赖', '重新构建', '启动工作台']],
     help: [
       ['下载源码到一个新的 LoomStudio 文件夹。需要提前安装 Git。', '让终端进入刚刚克隆的程序目录。后续命令都在这里执行。', '首次运行会安装依赖，并在缺少构建时构建应用。保持终端开启，按它显示的地址打开工作台。'],
@@ -23,23 +23,23 @@ export const downloadCopy = {
     footer: '源码启动 · 需要 Git 与 Node.js 24.22.0+', hint: '安装包准备中。当前提供源码启动方式。',
   },
   en: {
-    modes: ['First install', 'Start again', 'Update source'], platform: 'Choose your system', modeLabel: 'Choose an operation',
-    title: 'A workbench of your own.', copy: 'Copy all commands', copying: 'Copying', copied: 'Copied', failed: 'Try copying again',
-    ready: 'Paste these commands into your own terminal to run them.', success: 'Commands copied. Paste into your terminal and press Enter.',
+    modes: ['First install', 'Start again', 'Update source'], platform: 'Choose a system', modeLabel: 'Choose an operation',
+    title: 'A local workbench', copy: 'Copy all commands', copying: 'Copying', copied: 'Copied', failed: 'Try copying again',
+    ready: 'Paste these commands into a local terminal to run them.', success: 'Commands copied. Paste into the terminal and press Enter.',
     error: 'Clipboard unavailable. Select the commands below and copy them manually.', select: 'Select a step to see what it does.',
-    contexts: ['Start in the folder where you want to keep the app.', 'Open your existing LoomStudio folder before running this command.', 'Stop the server and back up your data, then update from the LoomStudio folder.'],
+    contexts: ['Start in the intended installation folder.', 'Open the existing LoomStudio folder before running this command.', 'Stop the server and back up the data, then update from the LoomStudio folder.'],
     names: [['Get the source', 'Open the folder', 'Start Loom'], ['Start Loom'], ['Pull changes', 'Install dependencies', 'Rebuild', 'Start Loom']],
     help: [
       ['Clone the source into a new LoomStudio folder. Install Git first.', 'Enter the cloned project folder. Run the remaining commands there.', 'The first start installs dependencies and builds missing output. Keep the terminal open and visit the address it displays.'],
       ['No need to clone again. Keep the terminal open while playing; press Ctrl+C to stop the server.'],
-      ['Fast-forward updates only. Resolve local changes or conflicts first; do not overwrite your files.', 'Install dependencies matching the lockfile with the pinned pnpm version.', 'Rebuild after source changes. npm start does not check whether existing output is outdated.', 'Start the rebuilt app. The terminal displays the URL and actual data directory.'],
+      ['Fast-forward updates only. Resolve local changes or conflicts first; do not overwrite local files.', 'Install dependencies matching the lockfile with the pinned pnpm version.', 'Rebuild after source changes. npm start does not check whether existing output is outdated.', 'Start the rebuilt app. The terminal displays the URL and actual data directory.'],
     ],
-    tips: ['Use Windows Terminal or PowerShell. Make sure git, node and npm are available.', 'Open Terminal. npm start is the universal entry; start.command permissions depend on your Mac.', 'Use a terminal. npm start is the universal entry; the Linux launcher still awaits manual testing.'],
+    tips: ['Use Windows Terminal or PowerShell. Make sure git, node and npm are available.', 'Open Terminal. npm start is the universal entry; start.command permissions depend on the Mac settings.', 'Use a terminal. npm start is the universal entry; the Linux launcher still awaits manual testing.'],
     footer: 'From source · Git & Node.js 24.22.0+', hint: 'Installers are still in preparation. Use the source commands for now.',
   },
   ja: {
     modes: ['初回インストール', 'もう一度起動', 'ソースを更新'], platform: 'システムを選択', modeLabel: '操作を選択',
-    title: 'あなたの手元に、スタジオを。', copy: 'すべてコピー', copying: 'コピー中', copied: 'コピー済み', failed: '再試行',
+    title: 'ローカルでスタジオを起動', copy: 'すべてコピー', copying: 'コピー中', copied: 'コピー済み', failed: '再試行',
     ready: '自分のターミナルに貼り付けて実行してください。', success: 'コピーしました。ターミナルに貼り付け、Enter キーで実行してください。',
     error: 'クリップボードを利用できません。下のコマンドを選択して手動でコピーしてください。', select: 'ステップを選ぶと説明が表示されます。',
     contexts: ['アプリを保存するフォルダから始めます。', '既存の LoomStudio フォルダで実行してください。', 'サービスを停止しデータをバックアップしてから、LoomStudio フォルダで更新します。'],
@@ -54,7 +54,7 @@ export const downloadCopy = {
   },
   ko: {
     modes: ['처음 설치', '다시 실행', '소스 업데이트'], platform: '운영체제 선택', modeLabel: '작업 선택',
-    title: '내 컴퓨터에 작은 작업실을.', copy: '전체 명령어 복사', copying: '복사 중', copied: '복사 완료', failed: '다시 복사',
+    title: '로컬 작업실 실행', copy: '전체 명령어 복사', copying: '복사 중', copied: '복사 완료', failed: '다시 복사',
     ready: '자신의 터미널에 붙여넣어 실행하세요.', success: '복사했습니다. 터미널에 붙여넣고 Enter를 누르세요.',
     error: '클립보드를 사용할 수 없습니다. 아래 명령어를 선택해 직접 복사하세요.', select: '단계를 선택하면 설명을 볼 수 있습니다.',
     contexts: ['프로그램을 보관할 폴더에서 시작하세요.', '기존 LoomStudio 폴더에서 실행하세요.', '서비스를 중지하고 데이터를 백업한 뒤 LoomStudio 폴더에서 업데이트하세요.'],

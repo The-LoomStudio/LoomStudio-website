@@ -28,12 +28,10 @@ const stickers = await Promise.all(entries.map(async entry => ({
   <main class="nom-page">
     <header class="nom-page__hero" data-motion-group>
       <div data-motion-reveal>
-        <p class="eyebrow">{copy.hero.eyebrow}</p>
         <h1 set:html={copy.hero.title} />
         <p class="nom-page__intro" set:html={copy.hero.intro} />
       </div>
       <aside class="nom-pack" data-motion-reveal aria-label={copy.pack.downloadButton}>
-        <span class="nom-pack__edition">{copy.pack.edition}</span>
         <p><b>{entries.length}</b><span set:html={copy.pack.countSuffix} /></p>
         <a class="button button--primary" data-motion-feedback href="/downloads/nom-stickers-512.zip" download><Download size={18} aria-hidden="true" /> {copy.pack.downloadButton}</a>
         <small set:html={copy.pack.details(packSize)} />
@@ -52,7 +50,6 @@ const stickers = await Promise.all(entries.map(async entry => ({
   h1 { margin: 22px 0; font: 550 clamp(40px, 5.6vw, 72px)/1.18 var(--loom-site-font-display); letter-spacing: -.04em; }
   .nom-page__intro { margin: 0; color: var(--loom-site-text-muted); font-size: 15px; line-height: 1.95; }
   .nom-pack { position: relative; padding: 30px; border-radius: 8px 26px 26px 26px; background: var(--loom-site-note-paper); color: var(--loom-site-note-ink); transform: rotate(2deg); box-shadow: 0 12px 35px rgb(10 20 30 / .08); }
-  .nom-pack__edition { color: var(--loom-site-note-muted); font: 10px var(--loom-site-font-mono); letter-spacing: .1em; }
   .nom-pack > p { display: flex; gap: 20px; align-items: center; margin: 22px 0; }
   .nom-pack b { font: 550 76px/1 var(--loom-site-font-display); letter-spacing: -.06em; }
   .nom-pack p span { font-size: 14px; line-height: 1.7; }

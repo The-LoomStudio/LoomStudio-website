@@ -1,4 +1,4 @@
-import { brailleCells, type BrailleCell } from '../../lib/braille-cells'
+import { brailleCells } from '../../lib/braille-cells'
 import { useEffect, useRef, useState } from 'react'
 import ZoomImage from '../illustration/ZoomImage'
 import type { DisplayImage } from '../../lib/site-images'
@@ -15,7 +15,7 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
   const [imageReady, setImageReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [focused, setFocused] = useState(false)
-  const [pixels, setPixels] = useState<BrailleCell[] | null>(null)
+  const [pixels, setPixels] = useState<HTMLCanvasElement[] | null>(null)
   const rows = Math.max(12, Math.round(44 * image.height / image.width))
   const choice = text ?? ['如果换一个选择，故事会往哪里走？', '沿着另一条可能，展开接下来的一幕。', '同一个起点，也可以走向不同的远方。'][order % 3]
   const copy = `${choice}
@@ -56,12 +56,27 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
     if (thumbnail?.complete && thumbnail.naturalWidth) setImageReady(true)
     const sample = new Image()
     sample.onload = () => {
-      const buffer = document.createElement('canvas')
-      buffer.width = 44 * 2
-      buffer.height = rows * 4
-      const context = buffer.getContext('2d')!
-      context.drawImage(sample, 0, 0, 44 * 2, rows * 4)
-      setPixels(brailleCells(context.getImageData(0, 0, 44 * 2, rows * 4).data, 44, rows))
+      setPixels([16, 32, 48].map(cols => {
+        const sampleRows = Math.max(1, Math.round(cols * image.height / image.width))
+        const buffer = document.createElement('canvas')
+        buffer.width = cols * 2
+        buffer.height = sampleRows * 4
+        const context = buffer.getContext('2d')!
+        context.drawImage(sample, 0, 0, buffer.width, buffer.height)
+        const cells = brailleCells(context.getImageData(0, 0, buffer.width, buffer.height).data, cols, sampleRows)
+        const bitmap = document.createElement('canvas')
+        bitmap.width = 440
+        bitmap.height = rows * 10
+        const ink = bitmap.getContext('2d')!
+        const cellWidth = 440 / cols
+        const cellHeight = bitmap.height / sampleRows
+        ink.font = `${cellHeight}px "Apple Braille", "Segoe UI Symbol", monospace`
+        cells.forEach((cell, index) => {
+          ink.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${cell.alpha})`
+          ink.fillText(cell.char, index % cols * cellWidth, Math.floor(index / cols) * cellHeight + cellHeight * .9)
+        })
+        return bitmap
+      }))
     }
     sample.onerror = () => setFailed(true)
     sample.src = image.src
@@ -72,30 +87,36 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
     const context = canvas.current!.getContext('2d')
     if (!context || !pixels) return
     context.clearRect(0, 0, 440, rows * 10)
-    context.font = '10px "Apple Braille", "Segoe UI Symbol", monospace'
-    const wave = clamp((shown - .64) / .22) * 1.4
-    const fade = 1 - clamp((shown - .88) / .12)
-    for (let row = 0; row < rows; row++) for (let col = 0; col < 44; col++) {
-      const alpha = clamp((wave - Math.hypot(col / 44 - .15, row / rows - .2)) * 10) * fade
-      if (!alpha) continue
-      const cell = pixels[row * 44 + col]
-      context.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${alpha * cell.alpha})`
-      context.fillText(cell.char, col * 10, row * 10 + 9)
+    if (shown <= .64 || shown >= 1) return
+    const level = shown < .83 ? 0 : shown < .89 ? 1 : 2
+    context.save()
+    context.globalAlpha = 1 - clamp((shown - .95) / .05)
+    context.drawImage(pixels[level], 0, 0)
+    if (shown < .78) {
+      const originX = 440 * .15
+      const originY = rows * 10 * .2
+      const radius = Math.hypot(440 - originX, rows * 10 - originY) + 24
+      const edge = Math.max(1, clamp((shown - .64) / .14) * radius)
+      const mask = context.createRadialGradient(originX, originY, Math.max(0, edge - 24), originX, originY, edge)
+      mask.addColorStop(0, '#fff')
+      mask.addColorStop(1, 'transparent')
+      context.globalCompositeOperation = 'destination-in'
+      context.fillStyle = mask
+      context.fillRect(0, 0, 440, rows * 10)
     }
+    context.restore()
   }, [shown, pixels, rows])
 
-  return <div ref={root} className="branch-reveal" style={{ '--branch-image': clamp((shown - .88) / .12) } as React.CSSProperties}
+  return <div ref={root} className="branch-reveal" style={{ '--branch-image': clamp((shown - .95) / .05) } as React.CSSProperties}
     onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}>
     <div className="branch-reveal__surface">
     <ZoomImage image={image} fullSrc={fullSrc} sizes={sizes} alt={alt} onLoad={() => setImageReady(true)} onError={() => setFailed(true)} />
     <div className="branch-reveal__text" aria-hidden="true" style={{ opacity: 1 - clamp((shown - .56) / .08) }}>
-      <span>⑂ {String(order + 1).padStart(2, '0')} / 分支推演 · 示意{pending && !failed ? ' · 准备画面' : ''}</span>
       <p>{copy.slice(0, Math.max(1, Math.floor(copy.length * clamp(shown / .20))))}</p>
     </div>
     <canvas ref={canvas} width={440} height={rows * 10} aria-hidden="true" />
     </div>
     {text && <div className="branch-reveal__caption" data-parallax={order % 2 ? '0.025' : '-0.025'} style={{ opacity: clamp((shown - .82) / .18) }}>
-      <span>⑂ {String(order + 1).padStart(2, '0')} / 另一种选择</span>
       <p>{text}</p>
     </div>}
   </div>

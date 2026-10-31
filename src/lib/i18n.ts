@@ -237,8 +237,8 @@ export function getHomeCopy(locale: SiteLocale) {
     'zh-CN': {
       sectionsLabel: 'SECTIONS',
       sections: [
-        { href: '#story', id: 'story', label: '01 叙事' },
-        { href: '#system', id: 'system', label: '02 系统' },
+        { href: '#prompt-builder', id: 'prompt-builder', label: '01 叙事' },
+        { href: '#story-workspace', id: 'story-workspace', label: '02 系统' },
         { href: '#architecture', id: 'architecture', label: '03 架构' },
       ],
       scroll: '往下看看',
@@ -280,8 +280,7 @@ export function getHomeCopy(locale: SiteLocale) {
         button: '开发者架构地图',
       },
       stickersBanner: {
-        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
-        title: '故事之外，<br />也想陪你聊聊天。',
+        title: '故事之外<br />日常也有小小陪伴',
         paragraphs: [
           '认真、开心、困困，偶尔还会气鼓鼓。',
           '33 张透明贴纸，把 Nom 的小表情带进日常。',
@@ -292,8 +291,8 @@ export function getHomeCopy(locale: SiteLocale) {
     'en': {
       sectionsLabel: 'SECTIONS',
       sections: [
-        { href: '#story', id: 'story', label: '01 Story' },
-        { href: '#system', id: 'system', label: '02 System' },
+        { href: '#prompt-builder', id: 'prompt-builder', label: '01 Story' },
+        { href: '#story-workspace', id: 'story-workspace', label: '02 System' },
         { href: '#architecture', id: 'architecture', label: '03 Architecture' },
       ],
       scroll: 'Scroll down',
@@ -335,11 +334,10 @@ export function getHomeCopy(locale: SiteLocale) {
         button: 'Architecture Map',
       },
       stickersBanner: {
-        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
-        title: 'Beyond stories,<br />here to keep you company.',
+        title: 'Beyond stories<br />a little everyday company',
         paragraphs: [
           'Earnest, joyful, sleepy, or occasionally pouting.',
-          '33 transparent stickers to bring Nom into your daily chats.',
+          '33 transparent Nom stickers for everyday chats.',
         ],
         button: 'Pick a sticker',
       },
@@ -347,8 +345,8 @@ export function getHomeCopy(locale: SiteLocale) {
     'ja': {
       sectionsLabel: 'SECTIONS',
       sections: [
-        { href: '#story', id: 'story', label: '01 叙事' },
-        { href: '#system', id: 'system', label: '02 システム' },
+        { href: '#prompt-builder', id: 'prompt-builder', label: '01 叙事' },
+        { href: '#story-workspace', id: 'story-workspace', label: '02 システム' },
         { href: '#architecture', id: 'architecture', label: '03 設計' },
       ],
       scroll: 'もっと見る',
@@ -390,8 +388,7 @@ export function getHomeCopy(locale: SiteLocale) {
         button: 'アーキテクチャマップ',
       },
       stickersBanner: {
-        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
-        title: '物語の外でも、<br />お話し相手になりたいな。',
+        title: '物語の外でも<br />お話し相手になりたいな',
         paragraphs: [
           '真面目、嬉しい、眠い、ときどきぷんぷん。',
           '透過スタンプ 33 枚。Nom の小さな表情を毎日の会話に。',
@@ -402,8 +399,8 @@ export function getHomeCopy(locale: SiteLocale) {
     'ko': {
       sectionsLabel: 'SECTIONS',
       sections: [
-        { href: '#story', id: 'story', label: '01 서사' },
-        { href: '#system', id: 'system', label: '02 시스템' },
+        { href: '#prompt-builder', id: 'prompt-builder', label: '01 서사' },
+        { href: '#story-workspace', id: 'story-workspace', label: '02 시스템' },
         { href: '#architecture', id: 'architecture', label: '03 아키텍처' },
       ],
       scroll: '아래로 스크롤',
@@ -445,8 +442,7 @@ export function getHomeCopy(locale: SiteLocale) {
         button: '개발자 아키텍처 맵',
       },
       stickersBanner: {
-        eyebrow: 'A LITTLE COMPANY / NOM STICKERS',
-        title: '이야기 너머에서도,<br />당신과 이야기 나누고 싶어요.',
+        title: '이야기 너머<br />일상 속 작은 동행',
         paragraphs: [
           '진지하고, 즐겁고, 졸리고, 때로는 토라지기도 하는.',
           '33장의 투명 스티커로 Nom의 표정을 일상 속에 담아보세요.',
@@ -462,12 +458,10 @@ export function getStickersCopy(locale: SiteLocale) {
   const data = {
     'zh-CN': {
       hero: {
-        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
-        title: '把一点陪伴，<br />带进日常。',
+        title: '把一点陪伴<br />带进日常',
         intro: '有时认真，有时困困，偶尔还会偷偷得意。<br />这里是 Nom 的小小表情室，挑一张，替今天说句话。',
       },
       pack: {
-        edition: 'NOM STICKERS / VOL. 01',
         countSuffix: '种心情<br />一起带走',
         downloadButton: '下载整套表情包',
         details: (packSize: string) => `透明 PNG · 512px · ZIP ${packSize} MiB<br />8 张全身 + 25 张表情与动作`,
@@ -497,8 +491,7 @@ export function getStickersCopy(locale: SiteLocale) {
         downloadOriginal: '下载这张原图',
         bubbleLabel: '替她说一句',
         bubbleNote: '只在这里试台词，下载的图片不含文字。',
-        collectionEyebrow: 'PICK YOUR MOOD',
-        collectionTitle: '今天，是哪一种心情？',
+        collectionTitle: '今天是哪一种心情',
         collectionCount: (visible: number, total: number) => `${visible} / ${total} 张`,
         previewAria: (title: string) => `预览：${title}`,
         downloadAria: (title: string) => `下载${title}原图`,
@@ -506,12 +499,10 @@ export function getStickersCopy(locale: SiteLocale) {
     },
     'en': {
       hero: {
-        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
-        title: 'Bring a little company<br />into your everyday.',
+        title: 'A little company<br />in everyday moments',
         intro: "Earnest, sleepy, or quietly proud.<br />This is Nom's little sticker room. Pick one to speak for today.",
       },
       pack: {
-        edition: 'NOM STICKERS / VOL. 01',
         countSuffix: 'moods to<br />take along',
         downloadButton: 'Download Sticker Pack',
         details: (packSize: string) => `Transparent PNG · 512px · ZIP ${packSize} MiB<br />8 full-body + 25 expressions & gestures`,
@@ -541,8 +532,7 @@ export function getStickersCopy(locale: SiteLocale) {
         downloadOriginal: 'Download original image',
         bubbleLabel: 'Write a line for her',
         bubbleNote: 'Text is for preview only; downloaded stickers are transparent.',
-        collectionEyebrow: 'PICK YOUR MOOD',
-        collectionTitle: "What's your mood today?",
+        collectionTitle: 'A mood for every moment',
         collectionCount: (visible: number, total: number) => `${visible} / ${total} stickers`,
         previewAria: (title: string) => `Preview: ${title}`,
         downloadAria: (title: string) => `Download original ${title}`,
@@ -550,12 +540,10 @@ export function getStickersCopy(locale: SiteLocale) {
     },
     'ja': {
       hero: {
-        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
-        title: '小さな寄り添いを、<br />いつもの毎日に。',
+        title: '小さな寄り添いを<br />いつもの毎日に',
         intro: '真面目だったり、うとうとしたり、時にはこっそり誇らしげ。<br />ここは Nom の小さなスタンプ部屋。今日の気持ちにぴったりの一枚を。',
       },
       pack: {
-        edition: 'NOM STICKERS / VOL. 01',
         countSuffix: '種類の表情を<br />まとめて',
         downloadButton: 'スタンプセットをダウンロード',
         details: (packSize: string) => `透過 PNG · 512px · ZIP ${packSize} MiB<br />全身 8 枚 + 表情・仕草 25 枚`,
@@ -585,8 +573,7 @@ export function getStickersCopy(locale: SiteLocale) {
         downloadOriginal: 'この画像をダウンロード',
         bubbleLabel: 'セリフを入れてみる',
         bubbleNote: 'ここでのプレビュー用です。ダウンロードする画像に文字は入りません。',
-        collectionEyebrow: 'PICK YOUR MOOD',
-        collectionTitle: '今日は、どんな気分？',
+        collectionTitle: '今日はどんな気分',
         collectionCount: (visible: number, total: number) => `${visible} / ${total} 枚`,
         previewAria: (title: string) => `プレビュー：${title}`,
         downloadAria: (title: string) => `${title}の原寸をダウンロード`,
@@ -594,12 +581,10 @@ export function getStickersCopy(locale: SiteLocale) {
     },
     'ko': {
       hero: {
-        eyebrow: 'NOM / A MOOD FOR EVERY MOMENT',
-        title: '작은 다정함을,<br />일상 속으로.',
+        title: '작은 다정함을<br />일상 속으로',
         intro: '진지하다가도, 졸려 하다가, 가끔은 슬그머니 뿌듯해지는.<br />여기는 Nom의 작은 스티커 방입니다. 오늘의 마음에 맞는 하나를 골라보세요.',
       },
       pack: {
-        edition: 'NOM STICKERS / VOL. 01',
         countSuffix: '가지 기분을<br />함께',
         downloadButton: '스티커 팩 전체 다운로드',
         details: (packSize: string) => `투명 PNG · 512px · ZIP ${packSize} MiB<br />전신 8장 + 표정 및 동작 25장`,
@@ -629,8 +614,7 @@ export function getStickersCopy(locale: SiteLocale) {
         downloadOriginal: '이 원본 다운로드',
         bubbleLabel: '대사를 넣어보세요',
         bubbleNote: '미리보기 전용입니다. 다운로드하는 이미지에는 텍스트가 포함되지 않습니다.',
-        collectionEyebrow: 'PICK YOUR MOOD',
-        collectionTitle: '오늘은 어떤 기분인가요?',
+        collectionTitle: '오늘은 어떤 기분인가요',
         collectionCount: (visible: number, total: number) => `${visible} / ${total} 장`,
         previewAria: (title: string) => `미리보기: ${title}`,
         downloadAria: (title: string) => `${title} 원본 다운로드`,
@@ -655,7 +639,7 @@ export const pageMeta = {
       description: 'Clone Loom Studio via Git, install dependencies with npm start, build and launch the local workstation.',
       eyebrow: 'Get Loom Studio',
       marker: 'PAGE / 03 · GET STARTED',
-      headline: 'Keep the workbench on your own machine',
+      headline: 'A workbench running locally',
       intro: 'Loom Studio can now be launched from source. Prebuilt binaries are coming soon; prepare Git and Node.js, and get started in three commands.',
     },
     'ja': {
@@ -671,7 +655,7 @@ export const pageMeta = {
       description: 'Git으로 Loom Studio를 클론하고, npm start로 의존성을 설치 및 빌드하여 로컬 작업대를 실행합니다.',
       eyebrow: 'Get Loom Studio',
       marker: 'PAGE / 03 · GET STARTED',
-      headline: '작업대를 당신만의 로컬 환경에',
+      headline: '로컬 환경에서 실행하는 작업대',
       intro: '지금 소스 코드에서 Loom Studio를 실행할 수 있습니다. 설치 패키지는 준비 중이며, Git과 Node.js만 있으면 세 줄의 명령어로 시작할 수 있습니다.',
     },
   },
@@ -681,23 +665,23 @@ export const pageMeta = {
       description: '探索 Loom Studio 官方与社区角色卡、世界设定与故事示例。',
       eyebrow: 'Community & Official Showcase',
       marker: 'PAGE / 01 · SHOWCASE',
-      headline: '一封来信，一座陌生的城',
-      intro: '每一次选择，都有新的故事。在这里翻开角色卡与设定集，挑选属于你的下一段旅途。',
+      headline: '一封来信一座陌生的城',
+      intro: '每一次选择，都有新的故事。角色卡与设定集承载不同世界，也展开新的旅途。',
     },
     'en': {
       title: 'Work Showcase',
       description: 'Explore official and community character cards, worldbooks, and story samples.',
       eyebrow: 'Community & Official Showcase',
       marker: 'PAGE / 01 · SHOWCASE',
-      headline: 'A letter from afar, an unfamiliar town',
-      intro: 'With every choice comes a new story. Flip through character cards and world lore, choosing your next adventure.',
+      headline: 'A letter from afar an unfamiliar town',
+      intro: 'With every choice comes a new story. Character cards and world lore open paths to new adventures.',
     },
     'ja': {
       title: '作品ギャラリー',
       description: '公式およびコミュニティ制作のキャラクターカード、世界設定、ストーリーのサンプルを探索。',
       eyebrow: 'Community & Official Showcase',
       marker: 'PAGE / 01 · SHOWCASE',
-      headline: '一通の手紙、見知らぬ街',
+      headline: '一通の手紙見知らぬ街',
       intro: '選ぶたびに、新しい物語が始まる。キャラクターカードと世界設定を開き、次の旅路を見つけましょう。',
     },
     'ko': {
@@ -705,7 +689,7 @@ export const pageMeta = {
       description: '공식 및 커뮤니티 캐릭터 카드, 세계관 설정 및 스토리 샘플을 둘러보세요.',
       eyebrow: 'Community & Official Showcase',
       marker: 'PAGE / 01 · SHOWCASE',
-      headline: '한 통의 편지, 낯선 도시',
+      headline: '한 통의 편지 낯선 도시',
       intro: '매 선택마다 새로운 이야기가 시작됩니다. 캐릭터 카드와 세계관 설정을 살펴보고 다음 여정을 선택하세요.',
     },
   },
@@ -715,23 +699,23 @@ export const pageMeta = {
       description: '官方与社区扩展插件、预设模型与创作工具集市。',
       eyebrow: 'Extensions & Presets Market',
       marker: 'PAGE / 02 · MARKETPLACE',
-      headline: '为你的世界，寻找新的灵感',
-      intro: '扩展脚本、正则流水线与 Agent 工具箱。让工作台的能力随你的创作一同进化。',
+      headline: '为故事世界带来新的灵感',
+      intro: '扩展脚本、正则流水线与 Agent 工具箱。工作台的能力随创作需求一同扩展。',
     },
     'en': {
       title: 'Ecosystem Marketplace',
       description: 'Official and community extension plugins, preset models, and creative toolkits.',
       eyebrow: 'Extensions & Presets Market',
       marker: 'PAGE / 02 · MARKETPLACE',
-      headline: 'Discover fresh inspiration for your world',
-      intro: 'Extension scripts, regex pipelines, and Agent toolsets. Evolve your studio alongside your creativity.',
+      headline: 'New inspiration for story worlds',
+      intro: 'Extension scripts, regex pipelines, and Agent toolsets. The studio grows with each creative project.',
     },
     'ja': {
       title: 'マーケット',
       description: '公式・コミュニティ拡張プラグイン、プリセットモデル、クリエイティブツールのマーケットプレイス。',
       eyebrow: 'Extensions & Presets Market',
       marker: 'PAGE / 02 · MARKETPLACE',
-      headline: 'あなたの世界に、新しいひらめきを',
+      headline: '物語の世界に新しいひらめきを',
       intro: '拡張スクリプト、正規表現パイプライン、Agent ツールキット。創作に合わせてスタジオの機能を拡張しましょう。',
     },
     'ko': {
@@ -739,7 +723,7 @@ export const pageMeta = {
       description: '공식 및 커뮤니티 확장 플러그인, 프리셋 모델 및 창작 도구 모음.',
       eyebrow: 'Extensions & Presets Market',
       marker: 'PAGE / 02 · MARKETPLACE',
-      headline: '당신의 세계를 위한 새로운 영감',
+      headline: '이야기 세계를 위한 새로운 영감',
       intro: '확장 스크립트, 정규식 파이프라인, Agent 툴킷. 창작과 함께 진화하는 작업대를 만나보세요.',
     },
   },
@@ -749,7 +733,7 @@ export const pageMeta = {
       description: 'Loom Studio 版本更新日志、技术手记与开发动态。',
       eyebrow: 'Studio Devlogs & Updates',
       marker: 'PAGE / 05 · NEWS',
-      headline: '来公告板前，看看最近的故事',
+      headline: '来公告板前看看最近的故事',
       intro: '新消息、小修补，还有创作途中的一点灵感。了解工作台的最新进展与设计考量。',
     },
     'en': {
@@ -757,7 +741,7 @@ export const pageMeta = {
       description: 'Loom Studio release changelogs, engineering devlogs, and design thoughts.',
       eyebrow: 'Studio Devlogs & Updates',
       marker: 'PAGE / 05 · NEWS',
-      headline: 'Step up to the board, check recent stories',
+      headline: 'Step up to the board check recent stories',
       intro: 'Updates, refinements, and creative sparks. Stay informed about the latest progress and workbench design thinking.',
     },
     'ja': {
@@ -765,7 +749,7 @@ export const pageMeta = {
       description: 'Loom Studio のアップデート履歴、開発手記、設計ノート。',
       eyebrow: 'Studio Devlogs & Updates',
       marker: 'PAGE / 05 · NEWS',
-      headline: '掲示板の前で、最近の物語を覗く',
+      headline: '掲示板の前で最近の物語を覗く',
       intro: '最新情報、小さな修正、創作の合間のひらめき。スタジオの進捗と設計の裏側をお届けします。',
     },
     'ko': {
@@ -792,7 +776,7 @@ export const pageMeta = {
       eyebrow: 'Documentation & Guide',
       marker: 'PAGE / 04 · DOCS',
       headline: 'Open the workbench guide',
-      intro: 'From your first steps into the depths of your stories. Learn about character resources, prompt construction, Session work history, and local data boundaries.',
+      intro: 'From initial setup to the details of storytelling. Learn about character resources, prompt construction, Session work history, and local data boundaries.',
     },
     'ja': {
       title: '公式ドキュメント',
@@ -817,15 +801,15 @@ export const pageMeta = {
       description: '把 Nom 带到日常聊天里。33 张透明贴纸，浏览表情、试搭气泡，免费下载整套 512px PNG 或单张原图。',
       eyebrow: 'Nom Sticker Pack',
       marker: 'PAGE / 06 · STICKERS',
-      headline: '把一点陪伴，带进日常',
+      headline: '把一点陪伴带进日常',
       intro: '33 张透明贴纸，浏览表情、试搭气泡，免费下载整套 512px PNG 或单张原图。',
     },
     'en': {
       title: 'Nom Stickers',
-      description: 'Bring Nom into your everyday chats. 33 transparent stickers with preview bubbles. Free 512px PNG pack and original single downloads.',
+      description: 'Nom stickers for everyday chats. 33 transparent stickers with preview bubbles. Free 512px PNG pack and original single downloads.',
       eyebrow: 'Nom Sticker Pack',
       marker: 'PAGE / 06 · STICKERS',
-      headline: 'Bring a little company into your day',
+      headline: 'A little company in everyday moments',
       intro: '33 transparent stickers with preview bubbles. Free 512px PNG pack and original single downloads.',
     },
     'ja': {
@@ -833,7 +817,7 @@ export const pageMeta = {
       description: 'Nom を日常の会話に。透過スタンプ 33 枚。セリフを試して、512px PNG パックや原寸画像を無料ダウンロード。',
       eyebrow: 'Nom Sticker Pack',
       marker: 'PAGE / 06 · STICKERS',
-      headline: '小さな寄り添いを、いつもの毎日に',
+      headline: '小さな寄り添いをいつもの毎日に',
       intro: '透過スタンプ 33 枚。セリフを試して、512px PNG パックや原寸画像を無料ダウンロード。',
     },
     'ko': {
@@ -841,7 +825,7 @@ export const pageMeta = {
       description: 'Nom을 일상 대화로 초대하세요. 33장의 투명 스티커와 말풍선 미리보기. 512px PNG 팩 및 개별 원본 무료 다운로드.',
       eyebrow: 'Nom Sticker Pack',
       marker: 'PAGE / 06 · STICKERS',
-      headline: '작은 다정함을, 일상 속으로',
+      headline: '작은 다정함을 일상 속으로',
       intro: '33장의 투명 스티커와 말풍선 미리보기. 512px PNG 팩 및 개별 원본 무료 다운로드.',
     },
   },

@@ -10,6 +10,7 @@ import NomGuide, { nomExpressions, type NomExpression } from '../components/nom-
 import { getHomeGuide } from '../components/nom-guide/home-guide';
 import HeroBanner, { slides } from '../components/HeroBanner';
 import StoryParallaxWall from '../components/StoryParallaxWall.astro';
+import StoryWorkspace from '../components/story-workspace/StoryWorkspace';
 import PromptComposition from '../components/prompt-composition/PromptComposition';
 import { siteImage } from '../lib/site-images';
 import { ArrowUpRight } from '@lucide/astro';
@@ -30,7 +31,7 @@ const layers = {
 const brand = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
 const promptIllustration = await siteImage('/images/nom/illustrations/nom-illustration-001.png', [480, 960], 90);
 
-import { getLocaleFromPath, getHomeFeatures, getHomeCopy, getLocalizedPath, type SiteLocale } from '../lib/i18n';
+import { getLocaleFromPath, getHomeCopy, getLocalizedPath, type SiteLocale } from '../lib/i18n';
 
 interface Props {
   locale?: SiteLocale;
@@ -38,7 +39,6 @@ interface Props {
 
 const { locale: propLocale } = Astro.props;
 const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
-const features = getHomeFeatures(currentLocale);
 const homeCopy = getHomeCopy(currentLocale);
 const guide = getHomeGuide(currentLocale);
 
@@ -73,51 +73,15 @@ const descriptions: Record<SiteLocale, string> = {
       <CharacterJourney client:visible={{ rootMargin: '400px' }} images={cardImages} />
     </section>
 
-    <section class="manifesto" id="story">
-      <div class="container manifesto__grid">
-        <div class="manifesto__sticky" data-chapter="01 / NARRATIVE">
-          <p class="eyebrow">{homeCopy.manifesto.eyebrow}</p>
-          <h2 data-motion-reveal set:html={homeCopy.manifesto.title} />
-          {homeCopy.manifesto.paragraphs.map((p) => <p>{p}</p>)}
-        </div>
-        <div class="manifesto__features" data-motion-group>
-          {features.map((feature) => (
-            <article data-motion-reveal>
-              <div class="manifesto__feature-art"><NomSticker src={feature.sticker} /></div>
-              <span>{feature.index}</span>
-              <h3>{feature.title}</h3>
-              {feature.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-
     <PromptComposition client:visible portrait={promptIllustration.src} />
     <noscript><style is:inline>.prompt-composition__picture img, .prompt-composition figcaption { opacity: 1 !important; }</style></noscript>
 
-    <section class="product" id="system">
-      <div class="container">
-        <div class="section-heading" data-motion-reveal data-chapter="02 / SYSTEM">
-          <div>
-            <p class="eyebrow">{homeCopy.product.eyebrow}</p>
-            <h2 set:html={homeCopy.product.title} />
-          </div>
-          {homeCopy.product.paragraphs.map((p) => <p>{p}</p>)}
-        </div>
-        <div class="product__legend" data-motion-reveal>
-          {homeCopy.product.legend.map((item) => (
-            <div><span>{item.index}</span><b>{item.title}</b><p>{item.desc}</p></div>
-          ))}
-        </div>
-      </div>
-    </section>
+    <StoryWorkspace client:visible expressions={guideExpressions} />
 
     <StoryParallaxWall />
     <section id="nom-stickers" class="home-nom" aria-labelledby="home-nom-title">
       <div class="container home-nom__inner">
         <div>
-          <p class="eyebrow">{homeCopy.stickersBanner.eyebrow}</p>
           <h2 id="home-nom-title" set:html={homeCopy.stickersBanner.title} />
           {homeCopy.stickersBanner.paragraphs.map((p) => <p>{p}</p>)}
           <a href={getLocalizedPath('/stickers', currentLocale)} data-motion-feedback>{homeCopy.stickersBanner.button} <ArrowUpRight size={18} aria-hidden="true" /></a>
@@ -396,13 +360,6 @@ const descriptions: Record<SiteLocale, string> = {
     transform: scale(1.02);
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.18));
   }
-  .manifesto {
-    position: relative;
-    min-height: auto;
-    overflow: clip;
-    padding: 160px 0;
-    background: var(--loom-site-bg);
-  }
   .card-banner {
     position: relative;
     overflow: clip;
@@ -423,112 +380,6 @@ const descriptions: Record<SiteLocale, string> = {
     font: 540 clamp(38px, 5vw, 64px)/1.18 var(--loom-site-font-display);
     letter-spacing: -0.025em;
     text-wrap: balance;
-  }
-  .manifesto__grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr; gap: 72px; text-align: center; }
-  .manifesto__sticky {
-    position: relative;
-    height: fit-content;
-    border-radius: 24px;
-    padding: 32px;
-    background: transparent;
-  }
-  .section-heading { position: relative; }
-  [data-chapter]::after {
-    content: attr(data-chapter);
-    position: absolute;
-    top: 24px;
-    right: 20px;
-    color: var(--loom-site-text-subtle);
-    font: 8px var(--loom-site-font-mono);
-    letter-spacing: 0.2em;
-    writing-mode: vertical-rl;
-  }
-  .manifesto h2, .section-heading h2 {
-    margin: 0;
-    font: 540 clamp(42px, 5.6vw, 70px)/1.16 var(--loom-site-font-display);
-    letter-spacing: -0.025em;
-    text-wrap: balance;
-  }
-  .manifesto__sticky > p:last-child {
-    max-width: 500px;
-    margin: 28px auto 0;
-    color: var(--loom-site-text-muted);
-    font-size: 16px;
-    line-height: 1.9;
-  }
-  .manifesto__features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .manifesto__features article {
-    min-height: 0;
-    border-radius: 24px;
-    padding: 32px;
-    background: transparent;
-  }
-  .manifesto__features span { color: var(--loom-site-accent); font: 10px var(--loom-site-font-mono); letter-spacing: 0.14em; }
-  .manifesto__feature-art { display: flex; justify-content: center; margin-bottom: 20px; }
-  .manifesto__features h3 { margin: 18px 0; font: 560 30px/1.32 var(--loom-site-font-display); letter-spacing: 0.01em; }
-  .manifesto__features p {
-    max-width: 470px;
-    margin: 0;
-    color: var(--loom-site-text-muted);
-    font-size: 15px;
-    line-height: 1.85;
-  }
-  .manifesto__features h3 + p { min-height: 3.7em; }
-  .manifesto__features p + p { margin-top: 12px; }
-  .product { position: relative; z-index: 2; padding: 150px 0 170px; background: transparent; }
-  .product::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(180deg, var(--loom-site-bg) 0%, transparent 18%, transparent 82%, var(--loom-site-bg) 100%);
-  }
-  .product > .container { position: relative; z-index: 1; }
-  .section-heading {
-    display: grid;
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-    gap: 28px;
-    margin-bottom: 78px;
-    border-radius: 24px;
-    padding: 32px;
-    background: transparent;
-  }
-  .section-heading > p {
-    max-width: 640px;
-    margin: 0 0 8px;
-    color: var(--loom-site-text-muted);
-    font-size: 15px;
-    line-height: 1.9;
-  }
-  .product__stage {
-    transform: translate3d(0, var(--parallax-y, 0), 0);
-    will-change: transform;
-  }
-  .product__legend {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 46px;
-    background: transparent;
-  }
-  .product__legend > div {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 10px 14px;
-    border-radius: 16px;
-    padding: 30px;
-    background: transparent;
-  }
-  .product__legend span { color: var(--loom-site-accent); font: 10px var(--loom-site-font-mono); }
-  .product__legend b { font-size: 13px; }
-  .product__legend p {
-    grid-column: 2;
-    margin: 0;
-    color: var(--loom-site-text-subtle);
-    font-size: 12px;
-    line-height: 1.65;
   }
   .card-stack-banner {
     position: relative;
@@ -572,14 +423,6 @@ const descriptions: Record<SiteLocale, string> = {
   .card-stack-banner__stage .card-showcase__card {
     pointer-events: auto;
   }
-  @media (max-width: 900px) {
-    .manifesto { min-height: auto; }
-    .manifesto__grid, .section-heading { grid-template-columns: 1fr; gap: 54px; }
-    .manifesto__sticky { position: static; }
-    .manifesto__features { grid-template-columns: 1fr; justify-items: center; gap: 40px; }
-    .manifesto__features h3 + p { min-height: 0; }
-    .product__legend { grid-template-columns: 1fr; }
-  }
   @media (max-width: 680px) {
     .hero { height: clamp(440px, 100vw, 600px); min-height: 0; }
     .hero::after { height: 80px; }
@@ -587,12 +430,8 @@ const descriptions: Record<SiteLocale, string> = {
     .hero__heading-row { left: calc(50% + min(27vw, 120px) + 10px); }
     .hero__copy { max-width: none; padding: 0; }
     .hero__chapter-tag { display: none; }
-    .manifesto, .product { padding-block: 110px; }
     .card-banner { padding-block: 80px; }
     .card-banner__heading { margin-bottom: 30px; }
-    .manifesto h2, .section-heading h2 { font-size: 42px; }
-    .manifesto__features article { min-height: auto; }
-    .product__legend > div { padding: 24px 12px; }
     .card-stack-banner,
     .card-stack-banner__stage { min-height: 620px; }
     [data-chapter]::after { display: none; }

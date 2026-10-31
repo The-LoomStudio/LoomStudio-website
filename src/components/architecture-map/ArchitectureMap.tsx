@@ -464,9 +464,9 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
               <button className="am-back" onClick={() => setSelectedConcept(undefined)}><ArrowLeft size={14} />返回{journey ? '路径' : '总览'}</button>
               <h2>{selectedConcept}</h2><p className="am-lead">{concept.summary}</p>
               <section><p>{concept.detail}</p></section>
-              <section className="am-model"><h3>结构示例 · 字段节选</h3><pre><code>{JSON.stringify(concept.example, null, 2)}</code></pre><p>示例身份与正文是虚构的，不是正在运行的数据。</p></section>
+              <section className="am-model"><h3>结构示例 · 字段节选</h3><pre><code>{JSON.stringify(concept.example, null, 2)}</code></pre></section>
               <section><h3>字段含义</h3><dl className="am-model-fields">{concept.fields.map(field => <div key={field.name}><dt>{field.name}</dt><dd>{field.meaning}</dd></div>)}</dl></section>
-              <section className="am-source"><h3>源码依据</h3><code>{concept.source.path}:{concept.source.line}</code><a href={sourceUrl(concept.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a><p>{snapshot.note}</p></section>
+              <section className="am-source"><h3>源码依据</h3><code>{concept.source.path}:{concept.source.line}</code><a href={sourceUrl(concept.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a></section>
             </> : selected ? <>
               <button className="am-back" onClick={() => setSelectedId(undefined)}><ArrowLeft size={14} />{journey ? '返回路径' : '返回总览'}</button>
               <p className={`am-category am-region-${selected.region}`}>{selected.kind}</p>
@@ -498,7 +498,7 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
                 <h3>源码依据</h3>
                 <code>{selected.source.path}:{selected.source.line}</code>
                 <a href={sourceUrl(selected.source)} target="_blank" rel="noreferrer">查看固定提交 <ArrowUpRight size={14} /></a>
-                <p>{snapshot.note}</p>
+
               </section>
             </> : selectedRegion ? <>
               <button className="am-back" onClick={() => setSelectedId(undefined)}><ArrowLeft size={14} />返回总览</button>
@@ -532,7 +532,7 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
               )}</div></section>
             </> : <>
               <div className="am-nom-intro"><img src={nom.src} srcSet={nom.srcSet} sizes="110px" width={nom.width} height={nom.height} alt="" draggable={false} /><span>Nom 的创作小地图</span></div>
-              <h2>从界面到数据，<br />Loom 如何运转</h2>
+              <h2>从界面到数据<br />Loom 如何运转</h2>
               <p className="am-lead">本地优先的创作系统。故事、智能体工作和上下文装配，各自有明确的权威边界。</p>
               <section><h3>怎么读这张地图</h3><p>先从全局模块了解职责，再选择一个模块探索直接关联或上下游。点击“看路径”可逐步追踪关系；操作流程则解释真实业务的条件与边界。搜索支持术语、职责、边界和源码路径。</p></section>
               <section className="am-facts">
@@ -545,7 +545,7 @@ function MapCanvas({ nom, nomGuide, cardCover, view, setView }: MapProps & { vie
                 <button key={value.id} onClick={() => chooseJourney(value.id)}><span><strong>{value.title}</strong><small>{value.summary}</small></span><ChevronRight size={16} /></button>,
               )}</div></section>
               <section><h3>数据概念</h3><div className="am-concept-list">{Object.keys(concepts).map(term => <button key={term} onClick={() => explain(term)}>{term}<ChevronRight size={14} /></button>)}</div></section>
-              <section className="am-boundary"><h3>尚未覆盖</h3><p>未完成 Run 的重启恢复、Client Renderer 细节及摘要内部流程不在本图中。注册、付款、Convex、Modal 与 R2 不是本图描述的架构。</p></section>
+              <section className="am-boundary"><h3>尚未覆盖</h3><p>未完成 Run 的重启恢复、Client Renderer 细节及摘要内部流程不在本图中。</p></section>
             </>}
           </div>
           <footer className="am-snapshot"><span>核对于 {snapshot.date}</span><span>{snapshot.baseline.slice(0, 7)} · 只读文档</span></footer>

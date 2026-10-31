@@ -81,7 +81,7 @@ export default function NomStickerGallery({ entries: rawEntries, locale = 'zh-CN
 
       <section className="nom-collection" aria-labelledby="nom-collection-title">
         <div className="nom-collection__heading">
-          <div><p className="eyebrow">{copy.collectionEyebrow}</p><h2 id="nom-collection-title">{copy.collectionTitle}</h2></div>
+          <div><h2 id="nom-collection-title">{copy.collectionTitle}</h2></div>
           <span role="status">{copy.collectionCount(visible.length, entries.length)}</span>
         </div>
         <div className="nom-controls nom-filters" role="group" aria-label={copy.filterAria}>
@@ -93,8 +93,8 @@ export default function NomStickerGallery({ entries: rawEntries, locale = 'zh-CN
         </div>
         <div className="nom-grid">
           <AnimatePresence initial={false} mode="popLayout">
-            {entries.map((entry, index) => (group === 'all' || entry.group === group) &&
-              <StickerCard key={entry.id} entry={entry} index={index} selected={selected.id === entry.id} onSelect={() => select(entry)} locale={locale} />)}
+            {entries.map((entry) => (group === 'all' || entry.group === group) &&
+              <StickerCard key={entry.id} entry={entry} selected={selected.id === entry.id} onSelect={() => select(entry)} locale={locale} />)}
           </AnimatePresence>
         </div>
       </section>

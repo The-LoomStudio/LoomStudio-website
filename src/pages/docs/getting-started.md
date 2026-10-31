@@ -1,49 +1,45 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: 快速开始
-description: 建立 Loom Studio 的第一张概念地图，理解桌面应用与公开文档的边界
+description: 启动 Loom Studio 配置模型并开始第一段故事
 ---
 
-## Loom Studio 是什么
+## 安装与启动
 
-Loom Studio 是面向长篇角色扮演与深度互动叙事的桌面创作工具。它重点服务于有世界观支撑、有严谨人物设定、可自由分支的故事体验，而不是单纯将对话气泡排列成流水账
+先安装 **Git** 和 **Node.js 24.22.0 或更高版本**，确认终端中可以使用 `git`、`node` 和 `npm`。
 
-公开文档围绕三个核心支柱展开：
-
-1. **Narrative Timeline**：承载经过确认提交的剧情正文与世界线
-2. **Agent Session**：普通工作 Session 与 Timeline 根 Session 保存消息、推演、工具、观察和工作历史
-3. **Prompt Build**：组合本轮来源并编排模型上下文；可见构建观察取决于实际记录，不承诺完整审计链
-
-## 先理解一条核心边界
-
-<blockquote data-callout="boundary">
-剧情正文与推演记录分属 Narrative 与 Session。Timeline 根 Session 与 Timeline 共用 ID 以承接输入，但普通模型回复仍只进入工作记录；正文更新通过明确提交完成。
-</blockquote>
-
-这条边界让“故事里真正发生了什么”和“AI 为此在幕后做过什么”保持可区分。具体历史如何进入本轮上下文取决于 Preset 的历史策略。
-
-## 当前公开网站的职责
-
-当前发布的站点是完全独立的静态展示空间：
-
-- 沉浸式动态天色产品发布页
-- 独立公开文档体系与阅读器
-- 银灰质感的视觉设计系统
-- 本地静态编译构建产物
-
-公开网站不连接本地工作区、不调用任何模型接口，亦不存储任何私人数据
-
-## 本地启动网站
+在终端依次运行：
 
 ~~~bash
-corepack pnpm install
-corepack pnpm dev
+git clone https://github.com/The-LoomStudio/LoomStudio.git
+cd LoomStudio
+npm start
 ~~~
 
-浏览器访问 http://localhost:4321/ 查看发布页，访问 http://localhost:4321/docs 进入公开文档
+首次启动会下载依赖并构建缺失的应用产物，需要联网。启动后，打开终端显示的地址，默认是 [http://127.0.0.1:18010](http://127.0.0.1:18010)。使用时保持终端运行，结束后按 `Ctrl+C` 停止服务。
 
-## 推荐阅读路径
+各系统的安装与更新命令见 [下载与启动](/download)。
 
-- 关注故事正文与世界线如何组织：阅读 [Narrative Timeline](/docs/concepts/narrative-timeline)
-- 关注 Agent 幕后推演与工具工作流：阅读 [Agent Session](/docs/concepts/agent-sessions)
-- 关注提示词如何组装与动态激活：直接阅读 [Prompt Build](/docs/concepts/prompt-build) 与 [设定层与装配骨架](/docs/concepts/composition-skeleton)
+## 开始第一段故事
+
+1. 在设置中添加模型 Provider、API 地址与密钥，选择可用模型。
+2. 为使用的 Agent 预设配置模型，导入或创建角色及故事设定。
+3. 进入角色的故事工作台，输入第一句话。
+
+模型 Provider 会接收本轮请求组装的上下文。可通过 [Prompt Build](/docs/concepts/prompt-build) 了解预设、设定和历史如何参与构建。
+
+## 下次打开
+
+在 `LoomStudio` 目录再次运行：
+
+~~~bash
+npm start
+~~~
+
+升级前先停止服务，备份启动日志中显示的数据目录，再按 [下载页的更新步骤](/download) 操作。
+
+## 继续了解
+
+- [Narrative Timeline](/docs/concepts/narrative-timeline)：阅读剧情与管理故事分支
+- [Agent Session](/docs/concepts/agent-sessions)：查看助手的对话与工作记录
+- [设定层与装配骨架](/docs/concepts/composition-skeleton)：组织角色设定与预设

@@ -7,11 +7,9 @@
 .install-console__dots i { width: 7px; height: 7px; border-radius: 50%; background: #f07878; }
 .install-console__dots i:nth-child(2) { background: #e6bd68; }
 .install-console__dots i:nth-child(3) { background: #7cc7a1; }
-.install-console__source { margin-left: auto; color: var(--loom-site-text-subtle); font: 8px var(--loom-site-font-mono); letter-spacing: .12em; }
 .install-modes { display: flex; gap: 4px; padding: 12px 14px 0; }
 .install-modes button { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; flex: 1; gap: 8px; min-height: 36px; padding: 7px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--loom-site-text-muted); font-size: 12px; }
 .install-modes button[aria-selected=true] { color: var(--loom-site-text); }
-.install-modes small { font: 9px var(--loom-site-font-mono); opacity: .65; }
 .install-mode-highlight { position: absolute; z-index: -1; inset: 0; border: 1px solid var(--loom-site-border); border-radius: 10px; background: var(--loom-site-surface); }
 .install-platforms { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 20px 0; }
 .install-platforms button { padding: 6px 12px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--loom-site-text-subtle); font-size: 11px; }
@@ -60,4 +58,4 @@
 .install-availability { margin: 16px 8px 0; color: var(--loom-site-text-subtle); font-size: 11px; line-height: 1.8; text-align: center; }
 .install-noscript { margin-top: 24px; color: var(--loom-site-text-muted); font-size: 12px; line-height: 1.8; }
 .install-noscript pre { overflow-x: auto; font-size: 11px; }
-@media (max-width: 600px) { .install-console__header { padding-inline: 18px; gap: 12px; } .install-console__source { display: none; } .install-modes { padding-inline: 12px; } .install-modes button { font-size: 11px; padding-inline: 7px; gap: 5px; } .install-modes small { display: none; } .install-console__body { padding-inline: 16px; } .install-platforms { padding-inline: 18px; } .install-copy-row { align-items: stretch; } .install-copy { flex: 1 1 auto; } }
+@media (max-width: 600px) { .install-console__header { padding-inline: 18px; gap: 12px; } .install-modes { padding-inline: 12px; } .install-modes button { font-size: 11px; padding-inline: 7px; gap: 5px; } .install-console__body { padding-inline: 16px; } .install-platforms { padding-inline: 18px; } .install-copy-row { align-items: stretch; } .install-copy { flex: 1 1 auto; } }

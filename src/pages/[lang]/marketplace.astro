@@ -31,14 +31,14 @@ interface ExtensionItem {
 const extensionsData: Record<string, ExtensionItem[]> = {
   'en': [
     {
-      kind: 'bridge' as const, name: 'ST Data Bridge', label: 'Bring your characters along',
-      headline: 'Familiar characters, the next step of your story.',
+      kind: 'bridge' as const, name: 'ST Data Bridge', label: 'Familiar characters on a new journey',
+      headline: 'Familiar characters in a new story',
       copy: 'Import SillyTavern character cards, lorebooks, presets, and chats into Loom Studio.',
       tags: ['Card Migration', 'Lorebooks & Presets', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
     },
     {
       kind: 'world' as const, name: 'The World', label: 'Pack a whole little world',
-      headline: 'Every story has its own sky and weather.',
+      headline: 'Every story has its own sky and weather',
       copy: 'Track time, weather, locations, and scenes, letting AI participate in world maintenance.',
       tags: ['World State', 'Locations & Scenes', 'Weather & Mood'], href: '/marketplace/the-world',
     },
@@ -46,13 +46,13 @@ const extensionsData: Record<string, ExtensionItem[]> = {
   'ja': [
     {
       kind: 'bridge' as const, name: 'ST Data Bridge', label: 'キャラクターと共に、次の旅へ',
-      headline: 'おなじみのキャラクターと、物語の次のステージへ。',
+      headline: 'おなじみのキャラクターと物語の次のステージへ',
       copy: 'SillyTavern のキャラクターカード、世界設定、プリセット、チャットログを Loom Studio へ引き継ぎます。',
       tags: ['カード移行', '世界設定とプリセット', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
     },
     {
       kind: 'world' as const, name: 'The World', label: '小さな世界を丸ごと収める',
-      headline: '物語ごとに、それぞれ固有の空模様がある。',
+      headline: '物語ごとにそれぞれ固有の空模様がある',
       copy: '時間、天気、場所、シーンを記録し、AI が世界観の維持に参加します。',
       tags: ['世界の状態', '場所とシーン', '天候と空気感'], href: '/marketplace/the-world',
     },
@@ -60,13 +60,13 @@ const extensionsData: Record<string, ExtensionItem[]> = {
   'ko': [
     {
       kind: 'bridge' as const, name: 'ST Data Bridge', label: '캐릭터와 함께 새로운 여정으로',
-      headline: '익숙한 캐릭터, 이야기의 다음 정거장.',
+      headline: '익숙한 캐릭터 이야기의 다음 정거장',
       copy: 'SillyTavern의 캐릭터 카드, 로어북, 프리셋 및 대화 기록을 Loom Studio로 가져옵니다.',
       tags: ['카드 마이그레이션', '로어북 및 프리셋', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
     },
     {
       kind: 'world' as const, name: 'The World', label: '작은 세계 전체를 담다',
-      headline: '모든 이야기에는 그 이야기만의 하늘이 있습니다.',
+      headline: '모든 이야기에는 그 이야기만의 하늘이 있습니다',
       copy: '시간, 날씨, 장소, 장면을 기록하여 AI가 세계관 유지에 함께 참여합니다.',
       tags: ['세계관 상태', '장소 및 장면', '날씨 분위기'], href: '/marketplace/the-world',
     },
@@ -74,8 +74,8 @@ const extensionsData: Record<string, ExtensionItem[]> = {
 };
 
 const extensions = extensionsData[currentLocale] ?? extensionsData['en'];
-const subHeading = currentLocale === 'ja' ? 'おなじみの仲間を連れてくる、あるいは物語に世界そのものを添える。' : currentLocale === 'ko' ? '익숙한 캐릭터를 데려오거나, 이야기에 세계 전체를 더해보세요.' : 'Bring familiar characters along, or add a whole world to your story.';
-const stickerText = currentLocale === 'ja' ? 'スタジオに新しいひらめきを' : currentLocale === 'ko' ? '작업대를 위한 새로운 영감' : 'Inspiration for your workbench';
+const subHeading = currentLocale === 'ja' ? 'おなじみの仲間を連れてくる、あるいは物語に世界そのものを添える。' : currentLocale === 'ko' ? '익숙한 캐릭터를 데려오거나, 이야기에 세계 전체를 더해보세요.' : 'Familiar characters and whole worlds become part of the story.';
+const stickerText = currentLocale === 'ja' ? 'スタジオに新しいひらめきを' : currentLocale === 'ko' ? '작업대를 위한 새로운 영감' : 'Inspiration for the workbench';
 const officialTag = currentLocale === 'ja' ? 'Loom Studio 公式拡張' : currentLocale === 'ko' ? 'Loom Studio 공식 확장' : 'Official Extension';
 ---
 
