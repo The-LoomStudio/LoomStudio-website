@@ -5,7 +5,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 import NomSticker from '../components/NomSticker.astro';
 import CharacterJourney from '../components/card-showcase/CharacterJourney.tsx';
 import { cards } from '../components/card-showcase/CardMasonry.tsx';
-import BrandWelcome, { brandCards } from '../components/brand-welcome/BrandWelcome';
+import BrandWelcome from '../components/brand-welcome/BrandWelcome';
 import NomGuide, { nomExpressions, type NomExpression } from '../components/nom-guide/NomGuide';
 import { getHomeGuide } from '../components/nom-guide/home-guide';
 import HeroBanner, { slides } from '../components/HeroBanner';
@@ -16,7 +16,6 @@ import { siteImage } from '../lib/site-images';
 import { ArrowUpRight } from '@lucide/astro';
 
 const cardImages = Object.fromEntries(await Promise.all(cards.map(async ({ src }) => [src, await siteImage(src, [240, 480, 800])])));
-const welcomeCards = brandCards.map(card => ({ ...card, image: cardImages[card.src] }));
 const guideExpressions = Object.fromEntries(await Promise.all(nomExpressions.map(async expression => [
   expression, await siteImage(`/images/nom/stickers/bust/${expression}.png`, [80, 136, 272], 90),
 ]))) as Record<NomExpression, Awaited<ReturnType<typeof siteImage>>>;
@@ -63,7 +62,7 @@ const descriptions: Record<SiteLocale, string> = {
     </section>
 
     <div class="home-content">
-    <BrandWelcome locale={currentLocale} client:visible={{ rootMargin: '200px' }} id="brand-intro" cards={welcomeCards} logo={brand}
+    <BrandWelcome client:visible={{ rootMargin: '200px' }} id="brand-intro" logo={brand}
       copy={guide.brand} downloadHref={getLocalizedPath('/download', currentLocale)} />
     <noscript><style is:inline>.brand-ascii { --brand-image-opacity: 1 !important; }.brand-ascii > canvas { display: none; }</style></noscript>
 

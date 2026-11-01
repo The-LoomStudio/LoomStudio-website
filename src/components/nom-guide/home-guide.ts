@@ -3,7 +3,7 @@ import type { BrandWelcomeCopy } from '../brand-welcome/BrandWelcome'
 import type { NomGuideCopy, NomGuideSection, NomSpeech } from './NomGuide'
 
 type LocaleCopy = {
-  brand: Pick<BrandWelcomeCopy, 'label'>
+  brand: Pick<BrandWelcomeCopy, 'label' | 'slogans'>
   controls: NomGuideCopy
   greeting: Pick<NomSpeech, 'title' | 'text'>
   wall: Pick<NomSpeech, 'title' | 'text'>
@@ -12,7 +12,7 @@ type LocaleCopy = {
 }
 const copy: Record<SiteLocale, LocaleCopy> = {
   'zh-CN': {
-    brand: { label: 'Loom Studio 品牌入场' },
+    brand: { label: 'Loom Studio 品牌入场', slogans: ['编织世界，交织故事。', '本地优先的 AI 角色扮演工作台。', '从一个角色，走进一个世界。', '故事的下一步，由你决定。'] },
     controls: { label: '诺姆的导览', expand: '展开诺姆的导览', minimize: '缩小诺姆的导览', close: '关闭诺姆的导览', greet: '和诺姆打个招呼', minimized: '诺姆在这里' },
     greeting: { title: '啊，你来啦。', text: '我是诺姆，Loom Studio 的看板娘。欢迎来到这间装着角色和故事的小小工作室。往下看看，我陪你。' },
     workspace: { title: '故事之外，还有准备。', text: '点开工作文件，看看这一条伏笔怎样被写下、接续，再回到故事里。' },
@@ -23,7 +23,7 @@ const copy: Record<SiteLocale, LocaleCopy> = {
     ],
   },
   en: {
-    brand: { label: 'Welcome to Loom Studio' },
+    brand: { label: 'Welcome to Loom Studio', slogans: ['Weave worlds, interweave stories.', 'A local-first workspace for AI roleplay.', 'Start with a character. Step into a world.', 'You decide where the story goes next.'] },
     controls: { label: 'Nom’s guide', expand: 'Expand Nom’s guide', minimize: 'Minimize Nom’s guide', close: 'Close Nom’s guide', greet: 'Say hello to Nom', minimized: 'Nom is here' },
     greeting: { title: 'Oh, you’re here.', text: 'I’m Nom, Loom Studio’s mascot. Welcome to this little studio full of characters and stories. Take a look around—I’ll come along.' },
     workspace: { title: 'Preparing for the next chapter.', text: 'Open the story files and follow a clue from its first note to its return in the story.' },
@@ -34,7 +34,7 @@ const copy: Record<SiteLocale, LocaleCopy> = {
     ],
   },
   ja: {
-    brand: { label: 'Loom Studio へようこそ' },
+    brand: { label: 'Loom Studio へようこそ', slogans: ['世界を紡ぎ、物語を交差させる。', 'ローカルファーストの AI ロールプレイ工房。', 'ひとりのキャラクターから、ひとつの世界へ。', '物語の次の一歩は、あなたが決める。'] },
     controls: { label: 'ノムの案内', expand: 'ノムの案内を開く', minimize: 'ノムの案内を小さくする', close: 'ノムの案内を閉じる', greet: 'ノムに挨拶する', minimized: 'ノムはここにいるよ' },
     greeting: { title: 'あ、来てくれたんだ。', text: '私はノム、Loom Studio の看板娘。キャラクターと物語が集まる小さなスタジオへようこそ。一緒に見て回ろう。' },
     workspace: { title: '次の章への準備。', text: '作業ファイルを開いて、伏線が記録され、引き継がれ、物語に戻るまでを見てみよう。' },
@@ -45,7 +45,7 @@ const copy: Record<SiteLocale, LocaleCopy> = {
     ],
   },
   ko: {
-    brand: { label: 'Loom Studio에 오신 것을 환영해요' },
+    brand: { label: 'Loom Studio에 오신 것을 환영해요', slogans: ['세계를 엮고, 이야기를 교차하다.', '로컬 우선 AI 롤플레잉 작업 공간.', '하나의 캐릭터에서, 하나의 세계로.', '이야기의 다음 순간은 당신이 결정해요.'] },
     controls: { label: '놈의 안내', expand: '놈의 안내 펼치기', minimize: '놈의 안내 줄이기', close: '놈의 안내 닫기', greet: '놈에게 인사하기', minimized: '놈은 여기 있어요' },
     greeting: { title: '아, 오셨네요.', text: '저는 Loom Studio의 마스코트 놈이에요. 캐릭터와 이야기가 모이는 작은 작업실에 오신 걸 환영해요. 함께 둘러봐요.' },
     workspace: { title: '다음 장을 위한 준비.', text: '작업 파일을 열고 복선이 기록되고 이어져 다시 이야기로 돌아오는 과정을 살펴보세요.' },

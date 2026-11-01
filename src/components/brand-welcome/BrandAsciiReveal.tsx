@@ -1,12 +1,12 @@
 import { brailleCells } from '../../lib/braille-cells'
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
-type Props = { src: string; ratio: number; entered: boolean; reduced: boolean; delay: number; logo?: boolean; children: ReactNode }
+type Props = { src: string; ratio: number; entered: boolean; reduced: boolean; delay: number; logo?: boolean; children: ReactNode; onComplete?: () => void }
 const clamp = (value: number) => Math.max(0, Math.min(1, value))
 const smooth = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t) }
 
 /** Cache glyphs once; animate only a local diffusion mask and the final image opacity. */
-export default function BrandAsciiReveal({ src, ratio, entered, reduced, delay, logo = false, children }: Props) {
+export default function BrandAsciiReveal({ src, ratio, entered, reduced, delay, logo = false, children, onComplete }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
   const [artwork, setArtwork] = useState<HTMLCanvasElement | null>(null)
@@ -53,6 +53,7 @@ export default function BrandAsciiReveal({ src, ratio, entered, reduced, delay, 
       host.style.setProperty('--brand-image-opacity', '1')
       host.inert = false
       context.clearRect(0, 0, width, height)
+      onComplete?.()
     }
     if (reduced || failed) { finish(); return }
     if (!entered || !artwork) return
@@ -94,7 +95,7 @@ export default function BrandAsciiReveal({ src, ratio, entered, reduced, delay, 
     resume()
     document.addEventListener('visibilitychange', resume)
     return () => { cancelAnimationFrame(frame); document.removeEventListener('visibilitychange', resume) }
-  }, [entered, artwork, reduced, failed, delay, height])
+  }, [entered, artwork, reduced, failed, delay, height, onComplete])
 
   return <div ref={root} className="brand-ascii" inert={!reduced && !failed} style={{ '--brand-image-opacity': reduced || failed ? 1 : 0 } as CSSProperties}>
     {children}
