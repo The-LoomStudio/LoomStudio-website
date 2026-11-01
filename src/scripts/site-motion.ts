@@ -18,14 +18,19 @@ function setup() {
 
   if (!reducedMotion.matches) {
     const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-motion-reveal]'))
-    elements.forEach(element => cleanups.push(inView(element, () => {
-      const group = element.closest('[data-motion-group]')
-      const siblings = group ? Array.from(group.querySelectorAll('[data-motion-reveal]')) : []
-      const index = Math.max(0, siblings.indexOf(element))
-      reveals.set(element, animate(element, { opacity: [0, 1], translate: ['0 28px', '0 0'] }, {
-        duration: 0.7, delay: Math.min(index, 4) * 0.07, ease: [0.16, 1, 0.3, 1],
-      }))
-    }, { margin: '0px 0px -36px 0px' })))
+    elements.forEach(element => {
+      const bounds = element.getBoundingClientRect()
+      // Already-painted content must not replay an entrance when this module arrives.
+      if (bounds.top < window.innerHeight && bounds.bottom > 0) return
+      cleanups.push(inView(element, () => {
+        const group = element.closest('[data-motion-group]')
+        const siblings = group ? Array.from(group.querySelectorAll('[data-motion-reveal]')) : []
+        const index = Math.max(0, siblings.indexOf(element))
+        reveals.set(element, animate(element, { opacity: [0, 1], translate: ['0px 28px', '0px 0px'] }, {
+          duration: 0.7, delay: Math.min(index, 4) * 0.07, ease: [0.16, 1, 0.3, 1],
+        }))
+      }, { margin: '0px 0px -36px 0px' }))
+    })
 
     document.querySelectorAll<HTMLElement>('[data-motion-feedback]').forEach(element => {
       let hovered = false

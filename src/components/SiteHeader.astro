@@ -14,6 +14,7 @@ interface Props {
 const { locale: propLocale } = Astro.props;
 const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
 const routes = getRoutes(currentLocale);
+const logo = await siteImage('/brand/loom-logo.png', [28, 42, 56, 84], 90);
 const rawPath = stripLocalePrefix(Astro.url.pathname);
 
 const activeRoute = rawPath === '/docs/architecture'
@@ -78,7 +79,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
   <PageMotif path={rawPath} variant="menu" />
   <div class="route-menu__header">
     <a class="route-menu__brand" href={getLocalizedPath('/', currentLocale)} data-menu-link>
-      <img src="/brand/loom-logo.png" alt="" width="28" height="28" />
+      <img src={logo.src} srcset={logo.srcSet} sizes="28px" alt="" width="28" height="28" />
       <span>Loom Studio</span>
     </a>
     <span class="route-menu__edition" aria-hidden="true">{t(currentLocale, 'nav.indexEdition')}</span>

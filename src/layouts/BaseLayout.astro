@@ -5,7 +5,7 @@ import PageArrival from '../components/PageArrival.astro';
 import PageMotif from '../components/PageMotif.astro';
 import { getImage } from 'astro:assets';
 import socialBanner from '../../public/images/nom/banners/og-banner.png';
-import { type SiteLocale, getLocaleFromPath, localeHtmlLang, stripLocalePrefix, t } from '../lib/i18n';
+import { type SiteLocale, getLocaleFromPath, getLocalizedPath, localeHtmlLang, stripLocalePrefix, t } from '../lib/i18n';
 
 interface Props {
   title: string;
@@ -22,6 +22,9 @@ const {
 } = Astro.props;
 const currentLocale = propLocale ?? getLocaleFromPath(Astro.url.pathname);
 const unlocalizedPath = stripLocalePrefix(Astro.url.pathname);
+const localePaths = Object.fromEntries(['en', 'ja', 'ko'].map(locale => [
+  locale, getLocalizedPath(Astro.url.pathname, locale as SiteLocale),
+]));
 const defaultImage = image ? undefined : await getImage({ src: socialBanner, width: 1200, format: 'jpg', quality: 88 });
 const imageUrl = new URL(image ?? defaultImage!.src, Astro.site ?? import.meta.env.CF_PAGES_URL ?? Astro.url).href;
 const pageTitle = title === 'Loom Studio'
@@ -39,7 +42,7 @@ const pageTitle = title === 'Loom Studio'
       @view-transition { navigation: auto; }
     </style>
     <meta name="theme-color" content={Astro.url.pathname === '/' ? '#252b31' : '#82919b'} data-theme-color />
-    <script is:inline>
+    <script is:inline define:vars={{ localePaths }}>
       try {
         const pendingTransition = sessionStorage.getItem('loom-site-route-transition');
         if (pendingTransition) {
@@ -83,8 +86,10 @@ const pageTitle = title === 'Loom Studio'
           if (!detectedLocale) detectedLocale = 'en'; // default fallback for other international users
 
           if (detectedLocale !== 'zh-CN') {
-            const targetPath = '/' + detectedLocale + (pathname === '/' ? '' : pathname);
-            window.location.replace(targetPath);
+            const targetPath = localePaths[detectedLocale];
+            if (targetPath !== (pathname.replace(/\/+$/, '') || '/')) {
+              window.location.replace(targetPath + window.location.search + window.location.hash);
+            }
           }
         }
       } catch {}

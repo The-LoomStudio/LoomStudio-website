@@ -5,6 +5,7 @@ import TextLogoTransition from '../text-logo-transition/TextLogoTransition'
 
 /** The overlay reveals the real document underneath, never a duplicate Banner. */
 export default function PageArrivalScene({ locale }: { locale: SiteLocale }) {
+  const [active, setActive] = useState(false)
   const [progress, setProgress] = useState(0)
   const [waiting, setWaiting] = useState(false)
   const [leaving, setLeaving] = useState(false)
@@ -16,22 +17,23 @@ export default function PageArrivalScene({ locale }: { locale: SiteLocale }) {
     const overlay = document.querySelector<HTMLElement>('[data-page-arrival]')!
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
     setReduced(reducedMotion)
+    setActive(true)
     const controller = new AbortController()
     const { signal } = controller
-    const siblings = [...document.body.children].filter((node): node is HTMLElement => node instanceof HTMLElement && node !== overlay)
-    const previousInert = siblings.map(node => node.inert)
-    siblings.forEach(node => { node.inert = true })
     let animation: ReturnType<typeof animate> | undefined
 
-    function restore() {
+    function stop() {
       if (signal.aborted) return
       animation?.stop()
       controller.abort()
-      siblings.forEach((node, index) => { node.inert = previousInert[index] })
-      overlay.setAttribute('aria-busy', 'false')
-      delete root.dataset.arrival
+      overlay.removeEventListener('loom:arrival-finish', stop)
+      setActive(false)
     }
-    window.addEventListener('pagehide', restore, { once: true })
+    function restore() {
+      overlay.dispatchEvent(new Event('loom:arrival-finish'))
+      stop()
+    }
+    overlay.addEventListener('loom:arrival-finish', stop)
 
     async function reveal() {
       // Off-screen eager images (including the footer Banner) must not gate first paint.
@@ -88,10 +90,12 @@ export default function PageArrivalScene({ locale }: { locale: SiteLocale }) {
     }
     void reveal()
     return () => {
-      window.removeEventListener('pagehide', restore)
+      overlay.removeEventListener('loom:arrival-finish', stop)
       restore()
     }
   }, [])
+
+  if (!active) return null
 
   return <div className="page-arrival__scene" data-waiting={waiting || undefined} data-leaving={leaving || undefined}>
     <TextLogoTransition locale={locale} progress={progress} reducedMotion={reduced} waiting={waiting}>{null}</TextLogoTransition>

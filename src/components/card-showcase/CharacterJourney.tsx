@@ -1,3 +1,4 @@
+import type { DiaryImages } from '../story-demo/SummerPostcard'
 import type { SiteLocale } from '../../lib/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
@@ -9,7 +10,7 @@ import WeatherBackdrop, { type Weather } from '../story-demo/WeatherBackdrop'
 
 const range = (value: number, start: number, end: number) => Math.max(0, Math.min(1, (value - start) / (end - start)))
 
-export default function CharacterJourney({ images, locale = 'zh-CN' }: { images: Record<string, DisplayImage>; locale?: SiteLocale }) {
+export default function CharacterJourney({ images, diaryImages, locale = 'zh-CN' }: { images: Record<string, DisplayImage>; diaryImages: DiaryImages; locale?: SiteLocale }) {
   const root = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const stage = useRef<HTMLDivElement>(null)
@@ -73,7 +74,7 @@ export default function CharacterJourney({ images, locale = 'zh-CN' }: { images:
       <div className="character-journey__scene" aria-hidden={!landed} inert={!landed} data-landed={landed}
         style={{ opacity: reducedMotion ? 1 : range(progress, .025, .14) }}>
         <WeatherBackdrop weather={weather} />
-        <DeviceShowcase locale={locale} progress={demoProgress} avatar={avatar} weather={weather} onWeatherChange={setWeather} />
+        <DeviceShowcase diaryImages={diaryImages} locale={locale} progress={demoProgress} avatar={avatar} weather={weather} onWeatherChange={setWeather} />
       </div>
       <img ref={traveller} className="character-journey__traveller" src={avatar.src} alt="" aria-hidden="true"
         style={{ visibility: !reducedMotion && progress > 0 && progress < .14 ? 'visible' : 'hidden' }} />

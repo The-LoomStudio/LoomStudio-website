@@ -18,6 +18,7 @@ const sources = import.meta.glob<ImageMetadata>([
   '/public/images/nom/stickers/{fullbody,bust}/*.png',
   '/public/images/nom/layers/nom-layer-{002,004,composite-002-004}.png',
   '/public/brand/banner.png',
+  '/public/brand/loom-logo.png',
   '/public/brand/the-world-icon.png',
 ], { eager: true, import: 'default' })
 

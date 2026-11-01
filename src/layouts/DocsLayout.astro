@@ -164,6 +164,9 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     let activeArticle: HTMLElement | undefined;
     let loadingNextDocument = false;
     let readingFrame = 0;
+    let navigationGeneration = 0;
+    let navigating = false;
+    const pendingArticles = new Map<string, Promise<HTMLElement>>();
 
     const documentKey = (href: string) => href
       .replace(/^\/docs\/?/, '')
@@ -317,33 +320,59 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
       return article;
     };
 
+    const findLoadedArticle = (href: string) => Array.from(reader?.querySelectorAll<HTMLElement>('.docs-article') ?? [])
+      .find(article => normalizePath(article.dataset.docUrl ?? '') === normalizePath(href));
+
+    const getDocumentArticle = (entry: DocumentEntry) => {
+      const loaded = findLoadedArticle(entry.href);
+      if (loaded) return Promise.resolve(loaded);
+      const key = normalizePath(entry.href);
+      const pending = pendingArticles.get(key);
+      if (pending) return pending;
+      const request = fetchDocumentArticle(entry).finally(() => pendingArticles.delete(key));
+      pendingArticles.set(key, request);
+      return request;
+    };
+
+    const appendDocument = (article: HTMLElement, index: number) => {
+      const loaded = findLoadedArticle(documents[index].href);
+      if (!loaded) reader!.insertBefore(article, streamStatus);
+      nextDocumentIndex = Math.max(nextDocumentIndex, index + 1);
+      setStreamState(nextDocumentIndex < documents.length ? 'idle' : 'end', nextDocumentIndex < documents.length ? '继续向下阅读' : '已到达公开文档末尾');
+      requestReadingUpdate();
+      return loaded ?? article;
+    };
+
     const loadNextDocument = async () => {
-      if (!reader || !streamStatus || loadingNextDocument || nextDocumentIndex < 0) return;
+      if (!reader || !streamStatus || loadingNextDocument || navigating || nextDocumentIndex < 0) return;
       if (nextDocumentIndex >= documents.length) {
         setStreamState('end', '已到达公开文档末尾');
         return;
       }
 
       loadingNextDocument = true;
-      const nextDocument = documents[nextDocumentIndex];
+      const generation = navigationGeneration;
+      const index = nextDocumentIndex;
+      const nextDocument = documents[index];
       setStreamState('loading', `正在载入 ${nextDocument.label}`);
       try {
-        const nextArticle = await fetchDocumentArticle(nextDocument);
-        reader.insertBefore(nextArticle, streamStatus);
-        nextDocumentIndex += 1;
-        setStreamState(nextDocumentIndex < documents.length ? 'idle' : 'end', nextDocumentIndex < documents.length ? '继续向下阅读' : '已到达公开文档末尾');
-        requestReadingUpdate();
-        window.requestAnimationFrame(() => {
-          if (nextDocumentIndex < documents.length && streamStatus.getBoundingClientRect().top < window.innerHeight + 600) {
-            loadNextDocument();
-          }
-        });
+        const nextArticle = await getDocumentArticle(nextDocument);
+        if (generation !== navigationGeneration) return;
+        appendDocument(nextArticle, index);
+        requestNextDocument();
       } catch {
-        setStreamState('error', `${nextDocument.label} 载入失败`);
+        if (generation === navigationGeneration) setStreamState('error', `${nextDocument.label} 载入失败`);
       } finally {
         loadingNextDocument = false;
+        if (generation !== navigationGeneration) requestNextDocument();
       }
     };
+
+    const requestNextDocument = () => window.requestAnimationFrame(() => {
+      if (streamStatus && nextDocumentIndex < documents.length && streamStatus.getBoundingClientRect().top < window.innerHeight + 600) {
+        loadNextDocument();
+      }
+    });
 
     const requestReadingUpdate = () => {
       if (!readingFrame) readingFrame = window.requestAnimationFrame(updateReadingProgress);
@@ -354,48 +383,34 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     if (initialArticle && currentDocument) enhanceArticle(initialArticle, currentDocument);
 
     document.addEventListener('click', async (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       if (!(event.target instanceof Element)) return;
       const link = event.target.closest<HTMLAnchorElement>('[data-doc-link]');
-      if (!link) return;
+      if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+      if (link.origin !== window.location.origin) return;
 
       const targetPath = normalizePath(link.dataset.docLink ?? link.pathname);
-      const loadedArticle = Array.from(document.querySelectorAll<HTMLElement>('.docs-article'))
-        .find((article) => normalizePath(article.dataset.docUrl ?? '') === targetPath);
-
-      if (loadedArticle) {
-        event.preventDefault();
-        const rect = loadedArticle.getBoundingClientRect();
-        window.scrollTo({
-          top: window.scrollY + rect.top - 84,
-          behavior: 'smooth',
-        });
+      const targetDocIndex = documents.findIndex(doc => normalizePath(doc.href) === targetPath);
+      if (targetDocIndex < 0 || !reader || !streamStatus) return;
+      event.preventDefault();
+      const generation = ++navigationGeneration;
+      navigating = true;
+      const targetDoc = documents[targetDocIndex];
+      try {
+        const loadedArticle = findLoadedArticle(targetDoc.href);
+        if (!loadedArticle) setStreamState('loading', `正在载入 ${targetDoc.label}`);
+        const article = loadedArticle ?? await getDocumentArticle(targetDoc);
+        if (generation !== navigationGeneration) return;
+        const newArticle = appendDocument(article, targetDocIndex);
+        const rect = newArticle.getBoundingClientRect();
+        window.scrollTo({ top: window.scrollY + rect.top - 84, behavior: 'smooth' });
         history.pushState(null, '', link.href);
-        syncDocumentNavigation(loadedArticle);
-        return;
-      }
-
-      const targetDocIndex = documents.findIndex((doc) => normalizePath(doc.href) === targetPath);
-      if (targetDocIndex >= 0 && reader && streamStatus) {
-        event.preventDefault();
-        const targetDoc = documents[targetDocIndex];
-        try {
-          setStreamState('loading', `正在载入 ${targetDoc.label}`);
-          const newArticle = await fetchDocumentArticle(targetDoc);
-          reader.insertBefore(newArticle, streamStatus);
-          nextDocumentIndex = Math.max(nextDocumentIndex, targetDocIndex + 1);
-          setStreamState(nextDocumentIndex < documents.length ? 'idle' : 'end', nextDocumentIndex < documents.length ? '继续向下阅读' : '已到达公开文档末尾');
-          requestReadingUpdate();
-
-          const rect = newArticle.getBoundingClientRect();
-          window.scrollTo({
-            top: window.scrollY + rect.top - 84,
-            behavior: 'smooth',
-          });
-          history.pushState(null, '', link.href);
-          syncDocumentNavigation(newArticle);
-        } catch {
-          window.location.assign(link.href);
-        }
+        syncDocumentNavigation(newArticle);
+        requestNextDocument();
+      } catch {
+        if (generation === navigationGeneration) window.location.assign(link.href);
+      } finally {
+        if (generation === navigationGeneration) navigating = false;
       }
     });
 

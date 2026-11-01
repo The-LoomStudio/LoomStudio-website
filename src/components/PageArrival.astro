@@ -5,7 +5,7 @@ interface Props { locale: SiteLocale }
 const { locale } = Astro.props;
 const label = { 'zh-CN': '正在准备画面', en: 'Preparing the page', ja: 'ページを準備しています', ko: '페이지 준비 중' }[locale];
 ---
-<div class="page-arrival" aria-label={label} aria-busy="true" data-page-arrival>
+<div class="page-arrival" aria-label={label} aria-busy="false" data-page-arrival>
   <PageArrivalScene locale={locale} client:load />
 </div>
 <style is:global>
@@ -17,11 +17,44 @@ const label = { 'zh-CN': '正在准备画面', en: 'Preparing the page', ja: '�
   .page-arrival .logo-transition { border: 0; border-radius: 0; aspect-ratio: auto; }
 </style>
 <script is:inline>
-  if (!document.documentElement.dataset.routeTransition) {
+  (() => {
+    const root = document.documentElement;
+    const overlay = document.querySelector('[data-page-arrival]');
+    if (root.dataset.routeTransition) return;
     let seen = false;
     try { seen = sessionStorage.getItem('loom-site-arrival-seen') === '1'; } catch {}
-    if (!seen) document.documentElement.dataset.arrival = 'loading';
-  }
+    if (seen) return;
+
+    root.dataset.arrival = 'loading';
+    overlay.setAttribute('aria-busy', 'true');
+    const previousInert = new Map();
+    const lock = () => {
+      for (const node of document.body.children) {
+        if (node instanceof HTMLElement && node !== overlay) {
+          previousInert.set(node, node.inert);
+          node.inert = true;
+        }
+      }
+    };
+    const restore = () => {
+      clearTimeout(timeout);
+      document.removeEventListener('DOMContentLoaded', lock);
+      window.removeEventListener('pagehide', finish);
+      overlay.removeEventListener('loom:arrival-finish', restore);
+      previousInert.forEach((inert, node) => { node.inert = inert; });
+      previousInert.clear();
+      overlay.setAttribute('aria-busy', 'false');
+      delete root.dataset.arrival;
+    };
+    const finish = () => overlay.dispatchEvent(new Event('loom:arrival-finish'));
+    // This deadline also releases the document when the React module never loads.
+    // It allows the existing 12s asset wait plus the remaining reveal sequence.
+    const timeout = setTimeout(finish, 20000);
+    overlay.addEventListener('loom:arrival-finish', restore);
+    window.addEventListener('pagehide', finish);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', lock, { once: true });
+    else lock();
+  })();
 </script>
 <script>
   const root = document.documentElement;

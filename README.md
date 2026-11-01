@@ -10,7 +10,7 @@ Loom Studio 的独立产品官网与公开文档站。首版使用 Astro 静态�
 
 ## 本地运行
 
-网站工具链使用 Node.js 22.18.0（`package.json` 限定 `>=22.18.0 <23`）与 pnpm 9.15.0。桌面产品仓库使用 Node.js 24.22.0 或更新版本；两者是独立项目，不要把网站的 Node 版本当成产品启动要求。
+网站工具链使用 Node.js 24.22.0 起的 24.x（`package.json` 限定 `>=24.22.0 <25`）与 pnpm 9.15.0；`.nvmrc` 和 `.node-version` 同步指定 24.22.0。网站与桌面产品仍独立管理依赖。
 
 ~~~bash
 corepack pnpm install
@@ -38,8 +38,7 @@ corepack pnpm preview
 
 ## 当前边界
 
-- 发布页 `/#system` 提供工作区分栏与 Agent 对话的真实 React 组件草稿。完整界面截图待补充；来源、适配与更新方式见 [组件说明](src/components/studio-demo/README.md)。
-
+- 旧 Studio 组件快照演示已退役；首页保留角色、设备、Prompt 编排与故事工作区演示。
 - 纯静态站点，不连接 Studio Server、不读取本地工作区、不调用 Provider。
 - 公开文档由本仓库单独维护，不自动同步产品仓库中的 Workbench 或 Archive。
 - src/styles/global.css 是网站自己的银灰色视觉 Token，不 import 产品仓库样式。
@@ -54,8 +53,6 @@ corepack pnpm preview
 | Astro / `@astrojs/react` / React / React DOM | `src/pages/`；React 岛如 [`ArchitectureMap.tsx`](src/components/architecture-map/ArchitectureMap.tsx)、[`DownloadConsole.tsx`](src/components/download/DownloadConsole.tsx) | Astro 生成页面；React 仅承载互动岛。 |
 | Motion | [`SiteMotion.tsx`](src/components/motion/SiteMotion.tsx)、各 React 岛、[`site-motion.ts`](src/scripts/site-motion.ts) | React 动画与 Astro 原生 DOM 动效共用 Motion，不为相同职责另造帧循环。 |
 | `@xyflow/react` | [`ArchitectureMap.tsx`](src/components/architecture-map/ArchitectureMap.tsx)、[`SemanticMap.tsx`](src/components/architecture-map/SemanticMap.tsx) | 架构节点、边与视图交互。 |
-| `@dnd-kit/core` | [`file-tree.tsx`](src/components/studio-demo/snapshot/shared/ui/file-tree/file-tree.tsx) | 产品演示文件树的拖放样例。 |
-| CodeMirror 语言包 | [`code-highlight.tsx`](src/components/studio-demo/snapshot/shared/ui/markdown-content/code-highlight.tsx) | 演示代码语法高亮，不作为桌面产品编辑器依赖。 |
 | Pagefind | [`site-search.ts`](src/integrations/site-search.ts)、[`site-search.ts`](src/scripts/site-search.ts) | 构建静态全文索引并在浏览器查询。 |
 
 新增或手写前先复用这些现有消费者和依赖能力，不把网站演示依赖混入产品依赖。

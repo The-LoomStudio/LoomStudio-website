@@ -14,6 +14,7 @@ const copy = {
   ko: { explore: 'Loom 둘러보기', learn: '사용법과 구조', connect: '소식과 커뮤니티', expand: '일러스트 펼치기' },
 }[currentLocale];
 const routes = getRoutes(currentLocale);
+const logo = await siteImage('/brand/loom-logo.png', [28, 42, 56, 84], 90);
 const columns = [
   { title: copy.explore, ids: ['download', 'showcase', 'marketplace'] },
   { title: copy.learn, ids: ['docs', 'architecture'] },
@@ -27,9 +28,7 @@ const artwork = easterEgg ? await siteImage('/images/nom/banners/nom-banner-013.
   <div class="container site-footer__inner">
     <div class="site-footer__brand">
       <div class="site-footer__brand-line">
-        {easterEgg ? <button class="site-footer__mark" type="button" aria-label={t(currentLocale, 'footer.easterEgg')} aria-pressed="false" data-sakura-trigger>
-          <img src="/brand/loom-logo.png" alt="" width="42" height="42" />
-        </button> : <img src="/brand/loom-logo.png" alt="" width="42" height="42" />}
+        <img src={logo.src} srcset={logo.srcSet} sizes="42px" alt="" width="42" height="42" />
         <a href={getLocalizedPath('/', currentLocale)}>Loom Studio</a>
       </div>
       <p>{t(currentLocale, 'footer.slogan')}</p>
@@ -57,9 +56,6 @@ const artwork = easterEgg ? await siteImage('/images/nom/banners/nom-banner-013.
   .site-footer__inner { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 44px; align-items: start; }
   .site-footer__brand-line { display: flex; gap: 12px; align-items: center; font-size: 23px; font-weight: 650; }
   .site-footer__brand-line img { display: block; width: 42px; height: 42px; }
-  .site-footer__mark { display: block; flex: none; width: 42px; height: 42px; margin: 0; border: 0; padding: 0; background: none; cursor: pointer; }
-  .site-footer__mark:hover { transform: rotate(-8deg); }
-  .site-footer__mark[aria-pressed='true'] { transform: rotate(8deg); }
   .site-footer__brand p { max-width: 25ch; margin: 20px 0 24px; color: var(--loom-site-text-muted); line-height: 1.8; font-size: 14px; }
   .site-footer__brand .footer-artwork .zoom-image__trigger { width: auto; color: var(--loom-site-text-muted); font: inherit; font-size: 13px; padding-block: 8px; }
   .site-footer__column { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }

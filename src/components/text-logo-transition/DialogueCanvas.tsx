@@ -36,9 +36,11 @@ function textLayout(width: number, height: number, locale: SiteLocale) {
 /** Rasterize each glyph once; animation frames only blit cached pixels, never reflow text. */
 export default function DialogueCanvas({ width, height, progress, waiting = false, locale = 'zh-CN' }: { width: number; height: number; progress: number; waiting?: boolean; locale?: SiteLocale }) {
   const canvas = useRef<HTMLCanvasElement>(null)
+  const caret = useRef<HTMLElement>(null)
   const cache = useRef<{
     context: CanvasRenderingContext2D; atlas: HTMLCanvasElement; ratio: number; cell: number;
     text: ReturnType<typeof textLayout>; scale: number;
+    caretMetrics: Map<number, { ascent: number; height: number }>;
     targets: { x: number; y: number; stagger: number }[];
   } | null>(null)
 
@@ -58,6 +60,16 @@ export default function DialogueCanvas({ width, height, progress, waiting = fals
     ink.font = `${text.fontSize * ratio}px ${style.fontFamily}`
     ink.textAlign = 'center'
     ink.textBaseline = 'middle'
+    // Match the atlas baseline using full-height glyphs, not punctuation or the em box.
+    const caretMetrics = new Map<number, { ascent: number; height: number }>()
+    for (const size of new Set(text.glyphs.map(glyph => glyph.fontSize))) {
+      ink.font = `${size * ratio}px ${style.fontFamily}`
+      const metrics = ink.measureText(locale === 'en' ? 'Hg' : locale === 'ko' ? '한' : '汉')
+      caretMetrics.set(size, {
+        ascent: metrics.actualBoundingBoxAscent / ratio + size * .1,
+        height: (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent) / ratio + size * .2,
+      })
+    }
     const muted = style.getPropertyValue('--loom-site-text-muted').trim()
     const scale = Math.min(width * .64, height * .84, 540) / 1254
     for (let i = 0; i < points.length * 2; i++) {
@@ -67,7 +79,7 @@ export default function DialogueCanvas({ width, height, progress, waiting = fals
       ink.fillText(text.glyphs[index % text.glyphs.length].character, (i % 32 + .5) * cell, (Math.floor(i / 32) + .5) * cell)
     }
     cache.current = {
-      context, atlas, ratio, cell, text, scale,
+      context, atlas, ratio, cell, text, scale, caretMetrics,
       targets: points.map(([x, y], index) => ({
         x: width / 2 + (Number(x) - 620) * scale,
         y: height / 2 + (Number(y) - 619) * scale,
@@ -78,11 +90,22 @@ export default function DialogueCanvas({ width, height, progress, waiting = fals
   }, [width, height, locale])
 
   useLayoutEffect(() => {
-    const { context, atlas, ratio, cell, text, scale, targets } = cache.current!
+    const { context, atlas, ratio, cell, text, scale, caretMetrics, targets } = cache.current!
     context.setTransform(ratio, 0, 0, ratio, 0, 0)
     context.clearRect(0, 0, width, height)
     const typed = progress < .18 ? Math.floor(ramp(progress, 0, .16) * text.pause)
       : text.pause + Math.floor(ramp(progress, .18, .196) * (text.glyphs.length - text.pause))
+    if (caret.current) {
+      const last = text.glyphs[Math.max(0, typed - 1)]
+      const metrics = caretMetrics.get(last.fontSize)!
+      Object.assign(caret.current.style, {
+        left: `${last.x + (typed ? last.advance / 2 : -last.advance / 2)}px`,
+        top: `${last.y - metrics.ascent}px`,
+        height: `${metrics.height}px`,
+        width: `${Math.max(2, last.fontSize * .08)}px`,
+        marginLeft: `${last.fontSize * .15}px`,
+      })
+    }
     const visible = progress >= .20 ? points.length : typed
     context.globalAlpha = 1 - smooth(ramp(progress, .55, .65))
     for (let index = 0; index < visible; index++) {
@@ -102,12 +125,8 @@ export default function DialogueCanvas({ width, height, progress, waiting = fals
     context.globalAlpha = 1
   }, [progress, width, height, waiting, locale])
 
-  const layout = textLayout(width, height, locale)
-  const typed = progress < .18 ? Math.floor(ramp(progress, 0, .16) * layout.pause)
-    : layout.pause + Math.floor(ramp(progress, .18, .196) * (layout.glyphs.length - layout.pause))
-  const last = layout.glyphs[Math.max(0, typed - 1)]
   return <>
     <canvas ref={canvas} className="text-logo__characters" aria-hidden="true" />
-    {progress < .20 && <b className="text-logo__caret" aria-hidden="true" style={{ position: 'absolute', left: last.x + (typed ? last.advance / 2 : -last.advance / 2), top: last.y - last.fontSize / 2, height: last.fontSize }} />}
+    {progress < .20 && <b ref={caret} className="text-logo__caret" aria-hidden="true" style={{ position: 'absolute' }} />}
   </>
 }

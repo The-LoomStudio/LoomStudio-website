@@ -1,3 +1,4 @@
+import type { DiaryImages } from './SummerPostcard'
 import type { SiteLocale } from '../../lib/i18n'
 import { getHomeDemoText } from '../../data/home-demo-copy'
 import { useLayoutEffect, useRef, useState } from 'react'
@@ -13,7 +14,7 @@ const replyText = '诺姆拿起笔，认真想了想，又把笔尖停在半空�
 const slice = (text: string, progress: number, start: number, end: number) => text.slice(0, Math.floor(text.length * Math.max(0, Math.min(1, (progress - start) / (end - start)))))
 
 /** A scroll-scrubbed product illustration. Timeline owns both the work record and the resulting body. */
-export default function StoryDemo({ progress, avatar, weather, onWeatherChange, locale = 'zh-CN' }: { locale?: SiteLocale; progress: number; avatar: DisplayImage; weather: Weather; onWeatherChange: (weather: Weather) => void }) {
+export default function StoryDemo({ progress, diaryImages, avatar, weather, onWeatherChange, locale = 'zh-CN' }: { locale?: SiteLocale; progress: number; diaryImages: DiaryImages; avatar: DisplayImage; weather: Weather; onWeatherChange: (weather: Weather) => void }) {
   const text = getHomeDemoText(locale)
   const intro = text(introText)
   const action = text(actionText)
@@ -54,7 +55,7 @@ export default function StoryDemo({ progress, avatar, weather, onWeatherChange, 
           </div>}
           {response && <div>{response.split('\n\n').map((text, index) => <p key={index}>{text}</p>)}</div>}
           </>}
-          {feature === 'render' && <SummerPostcard locale={locale} />}
+          {feature === 'render' && <SummerPostcard images={diaryImages} locale={locale} />}
           {feature === 'theme' && <aside className="story-theme-demo" aria-label={text("外观切换演示")}>
             <div><b>{text("外观")}</b><small>{text("当前故事保持不变")}</small></div>
             <div className="story-theme-demo__options">{[

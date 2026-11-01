@@ -1,3 +1,4 @@
+import type { DiaryImages } from './story-demo/SummerPostcard'
 import type { SiteLocale } from '../lib/i18n'
 import { getHomeDemoText } from '../data/home-demo-copy'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -12,7 +13,7 @@ const devices = [
   { id: 'laptop', label: '电脑端工作台演示', width: 740, viewportWidth: 1280, className: 'device-macbook-pro device-spacegray' },
 ] as const
 
-export default function DeviceShowcase({ progress, avatar, weather, onWeatherChange, locale = 'zh-CN' }: { locale?: SiteLocale; progress: number; avatar: DisplayImage; weather: Weather; onWeatherChange: (weather: Weather) => void }) {
+export default function DeviceShowcase({ progress, diaryImages, avatar, weather, onWeatherChange, locale = 'zh-CN' }: { locale?: SiteLocale; progress: number; diaryImages: DiaryImages; avatar: DisplayImage; weather: Weather; onWeatherChange: (weather: Weather) => void }) {
   const text = getHomeDemoText(locale)
   const reducedMotion = useReducedMotion()
   const [active, setActive] = useState(0)
@@ -57,7 +58,7 @@ export default function DeviceShowcase({ progress, avatar, weather, onWeatherCha
           <div className="device-frame">
             <div ref={screen} className="device-screen">
               <div className="device-app-viewport">
-                <StoryDemo locale={locale} progress={reducedMotion ? 1 : progress} avatar={avatar} weather={weather} onWeatherChange={onWeatherChange} />
+                <StoryDemo diaryImages={diaryImages} locale={locale} progress={reducedMotion ? 1 : progress} avatar={avatar} weather={weather} onWeatherChange={onWeatherChange} />
               </div>
             </div>
           </div>

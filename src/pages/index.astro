@@ -29,6 +29,10 @@ const layers = {
   foreground: await siteImage('/images/nom/layers/nom-layer-002.png', [780, 1280, 1560], 90),
 };
 const brand = await siteImage('/brand/banner.png', [360, 720, 1080], 90);
+const diaryImages = {
+  rain: await siteImage('/images/nom/banners/nom-banner-013.png', [480, 960]),
+  night: await siteImage('/images/nom/illustrations/nom-illustration-001.png', [480, 960]),
+};
 const promptIllustration = await siteImage('/images/nom/illustrations/nom-illustration-001.png', [480, 960], 90);
 
 import { getLocaleFromPath, getHomeCopy, getLocalizedPath, type SiteLocale } from '../lib/i18n';
@@ -70,7 +74,7 @@ const descriptions: Record<SiteLocale, string> = {
           <h2 id="card-banner-title">{homeCopy.cardBanner.title}</h2>
         </div>
       </div>
-      <CharacterJourney locale={currentLocale} client:visible={{ rootMargin: '400px' }} images={cardImages} />
+      <CharacterJourney locale={currentLocale} client:visible={{ rootMargin: '400px' }} images={cardImages} diaryImages={diaryImages} />
     </section>
 
     <PromptComposition locale={currentLocale} client:visible portrait={promptIllustration.src} />
