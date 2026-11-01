@@ -3,7 +3,27 @@ import PortalLayout from '../layouts/PortalLayout.astro';
 import NomSticker from '../components/NomSticker.astro';
 import { BookOpen, Compass, GitBranch } from '@lucide/astro';
 
-const worlds = [
+import type { SiteLocale } from '../lib/i18n';
+interface Props { locale?: SiteLocale; }
+const { locale = 'zh-CN' } = Astro.props;
+const worldsData = {
+  'en': [
+    { title: 'The Lost Route', copy: 'Set sail from the edge of sea mist and follow a lost route to the next island.', meta: 'Epic Adventure · Sample Work' },
+    { title: 'Silver Court Protocol', copy: 'Where technological order meets personal choice, every agreement carries a price.', meta: 'Sci-Fi Fantasy · Sample Work' },
+    { title: 'After the Tide', copy: 'After one irreversible choice, a familiar shore leads to a different life.', meta: 'Timeline Narrative · Sample Work' },
+  ],
+  'ja': [
+    { title: '失われた航路', copy: '海霧の果てから船を出し、失われた航路をたどって次の島を目指す。', meta: '長編冒険譚 · サンプル作品' },
+    { title: '銀庭プロトコル', copy: '技術の秩序と個人の選択が交わるとき、すべての協定に新たな代償が生まれる。', meta: 'サイエンスファンタジー · サンプル作品' },
+    { title: '潮汐の果てに', copy: '取り返しのつかない選択の後、見慣れた海岸が別の暮らしへとつながっていく。', meta: '世界線叙事 · サンプル作品' },
+  ],
+  'ko': [
+    { title: '잃어버린 항로', copy: '바다 안개의 경계에서 출항해 잃어버린 항로를 따라 다음 섬을 찾아갑니다.', meta: '장편 모험 · 샘플 작품' },
+    { title: '은정 프로토콜', copy: '기술의 질서와 개인의 선택이 만나는 곳에서 모든 협약에는 새로운 대가가 따릅니다.', meta: 'SF 판타지 · 샘플 작품' },
+    { title: '조석의 뒤편', copy: '되돌릴 수 없는 선택 이후 익숙한 해안이 또 다른 삶으로 이어집니다.', meta: '세계선 서사 · 샘플 작품' },
+  ],
+};
+const worlds = locale === 'zh-CN' ? [
   {
     title: '失落航线',
     copy: '从海雾边缘起航，沿着失落的航线寻找下一座岛屿。',
@@ -19,24 +39,25 @@ const worlds = [
     copy: '一次无法撤回的选择之后，熟悉的海岸通向了另一种生活。',
     meta: '世界线叙事 · 示例作品',
   },
-];
+] : worldsData[locale];
+const copy = {
+  'zh-CN': { title: '作品展厅', description: '探索 Loom Studio 的故事示例与创作世界。', headline: '先看见世界 再看见工具', intro: '从海雾中的航线到未来城市，在这些故事示例里寻找下一段旅程。', feature: ['故事不是一次会话', '而是一段留下路径的旅程'], body: '与角色一起走过漫长章节，让每一次选择在世界里留下回响。', chapters: '长篇章节', branches: '可追踪分支', state: '世界状态', gallery: '概念作品墙' },
+  en: { title: 'Showcase', description: 'Explore story samples and creative worlds in Loom Studio.', headline: 'See the worlds before the tools', intro: 'From misty sea routes to future cities, find inspiration for your next journey in these story samples.', feature: ['A story is more than a session', 'It is a journey that leaves a trail'], body: 'Travel through long chapters with your characters, and let each choice leave its mark on their world.', chapters: 'Long-form chapters', branches: 'Traceable branches', state: 'World state', gallery: 'Concept showcase' },
+  ja: { title: '作品ギャラリー', description: 'Loom Studio の物語サンプルと創作世界を探索しましょう。', headline: 'ツールの前に、世界と出会う', intro: '海霧の航路から未来の街まで。物語のサンプルから、次の旅のひらめきを見つけましょう。', feature: ['物語は一度の会話ではなく', '足跡を残す旅路です'], body: 'キャラクターと長い章を歩み、一つひとつの選択を世界に響かせましょう。', chapters: '長編の章', branches: 'たどれる分岐', state: '世界の状態', gallery: 'コンセプト作品集' },
+  ko: { title: '작품 갤러리', description: 'Loom Studio의 이야기 예시와 창작 세계를 살펴보세요.', headline: '도구보다 먼저 세계를 만나세요', intro: '바다 안개의 항로부터 미래 도시까지, 이야기 예시 속에서 다음 여정의 영감을 찾아보세요.', feature: ['이야기는 한 번의 대화가 아닌', '발자취를 남기는 여정입니다'], body: '캐릭터와 긴 이야기를 함께하며 선택 하나하나가 세계에 울림을 남기게 하세요.', chapters: '장편 이야기', branches: '추적 가능한 분기', state: '세계 상태', gallery: '콘셉트 작품 모음' },
+}[locale];
 ---
 
-<PortalLayout
-  title="作品展厅"
-  description="探索 Loom Studio 的故事示例与创作世界。"
-  headline="先看见世界 再看见工具"
-  intro="从海雾中的航线到未来城市，在这些故事示例里寻找下一段旅程。"
->
+<PortalLayout title={copy.title} description={copy.description} headline={copy.headline} intro={copy.intro} locale={locale}>
   <section class="portal-section portal-section--soft">
     <div class="container showcase-feature">
       <div class="showcase-feature__copy" data-motion-reveal>
-        <h2>故事不是一次会话<br />而是一段留下路径的旅程</h2>
-        <p>与角色一起走过漫长章节，让每一次选择在世界里留下回响。</p>
+        <h2>{copy.feature[0]}<br />{copy.feature[1]}</h2>
+        <p>{copy.body}</p>
         <div class="showcase-feature__facts">
-          <span><BookOpen size={15} stroke-width={1.6} /> 长篇章节</span>
-          <span><GitBranch size={15} stroke-width={1.6} /> 可追踪分支</span>
-          <span><Compass size={15} stroke-width={1.6} /> 世界状态</span>
+          <span><BookOpen size={15} stroke-width={1.6} /> {copy.chapters}</span>
+          <span><GitBranch size={15} stroke-width={1.6} /> {copy.branches}</span>
+          <span><Compass size={15} stroke-width={1.6} /> {copy.state}</span>
         </div>
       </div>
     </div>
@@ -45,7 +66,7 @@ const worlds = [
   <section class="portal-section">
     <div class="container">
       <div class="portal-section__heading" data-motion-reveal>
-        <div><h2>概念作品墙</h2></div>
+        <div><h2>{copy.gallery}</h2></div>
         <div class="showcase-gallery-description">
           <div class="showcase-gallery-nom"><NomSticker src="/images/nom/stickers/bust/proud.png" size="medium" /></div>
         </div>

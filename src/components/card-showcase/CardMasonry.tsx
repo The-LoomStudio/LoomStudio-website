@@ -1,3 +1,5 @@
+import type { SiteLocale } from '../../lib/i18n'
+import { getHomeDemoText, type HomeDemoText } from '../../data/home-demo-copy'
 import { memo, useEffect, useRef, useState } from 'react'
 import './card-showcase.css'
 import ZoomImage from '../illustration/ZoomImage'
@@ -64,7 +66,8 @@ export const cards = portraitCards.flatMap((card, index) => {
     : [card, ...additions]
 })
 
-function CardMasonry({ images }: { images: Record<string, DisplayImage> }) {
+function CardMasonry({ images, locale = 'zh-CN' }: { images: Record<string, DisplayImage>; locale?: SiteLocale }) {
+  const text = getHomeDemoText(locale)
   const root = useRef<HTMLDivElement>(null)
   const [layout, setLayout] = useState({ count: 4, gapRatio: .05 })
   useEffect(() => {
@@ -86,10 +89,10 @@ function CardMasonry({ images }: { images: Record<string, DisplayImage> }) {
     column.cards.push(card)
     column.height += image.height / image.width + layout.gapRatio
   }
-  return <div ref={root} className="card-masonry" aria-label="角色画廊">
+  return <div ref={root} className="card-masonry" aria-label={text("角色画廊")}>
     {columns.map((column, index) => <div className="card-masonry__column" key={index}>
       {column.cards.map(card => <div className="card-masonry__item" key={card.src} data-journey-source={card.src === selectedCard.src || undefined}>
-        <ZoomImage image={images[card.src]} sizes="(max-width: 680px) 33vw, (max-width: 1440px) 25vw, 360px" alt={card.alt} className="card-masonry__card" />
+        <ZoomImage locale={locale} image={images[card.src]} sizes="(max-width: 680px) 33vw, (max-width: 1440px) 25vw, 360px" alt={text(card.alt as HomeDemoText)} className="card-masonry__card" />
       </div>)}
     </div>)}
   </div>

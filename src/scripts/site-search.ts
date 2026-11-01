@@ -1,10 +1,16 @@
-import { routes } from '../lib/site-routes';
+import { getRoutes } from '../lib/site-routes';
+import { getLocaleFromPath } from '../lib/i18n';
+import { searchCopy } from '../data/search-copy';
 import { animate, type AnimationPlaybackControls } from 'motion';
+const locale = getLocaleFromPath(location.pathname);
+const routes = getRoutes(locale);
+const copy = searchCopy[locale];
 
 type SearchData = { url: string; meta: { title?: string }; excerpt: string; sub_results?: { url: string; title: string; excerpt: string }[] };
 type SearchResult = { data(): Promise<SearchData> };
 type SearchApi = { search(query: string | null, options: { filters?: { section: string } }): Promise<{ results: SearchResult[] }> };
-const scopes: Record<string, string> = { all: '全部', pages: '页面', docs: '文档', architecture: '架构', news: '新闻' };
+const scopes: Record<string, string> = { all: copy.all, pages: copy.pages, docs: copy.docs, architecture: copy.architecture, news: copy.news };
+const chineseScopes: Record<string, string> = { all: '全部', pages: '页面', docs: '文档', architecture: '架构', news: '新闻' };
 const dialog = document.querySelector<HTMLDialogElement>('#site-search')!;
 const input = dialog.querySelector<HTMLInputElement>('[data-search-input]')!;
 const list = dialog.querySelector<HTMLUListElement>('[data-search-results]')!;
@@ -61,17 +67,17 @@ async function loadMore(token: number) {
   if (token !== generation || !dialog.open) return;
   for (const item of data) {
     const sections = input.value.trim() && item.sub_results?.length ? item.sub_results : [];
-    if (sections.length) for (const section of sections.slice(0, 3)) append(section.title || item.meta.title || '未命名页面', section.url, plainExcerpt(section.excerpt));
-    else append(item.meta.title || '未命名页面', item.url, plainExcerpt(item.excerpt));
+    if (sections.length) for (const section of sections.slice(0, 3)) append(section.title || item.meta.title || copy.untitled, section.url, plainExcerpt(section.excerpt));
+    else append(item.meta.title || copy.untitled, item.url, plainExcerpt(item.excerpt));
   }
   count += data.length;
   more.hidden = count >= matches.length; more.disabled = false;
-  status.textContent = matches.length ? `${scopes[scope]} · ${matches.length} 项匹配` : '没有匹配内容，试试其他关键词或范围。';
+  status.textContent = matches.length ? copy.matches.replace('{scope}', scopes[scope]).replace('{count}', String(matches.length)) : copy.empty;
   if (start === 0) select(0);
 }
 function failed(error: unknown, token: number) {
   if (token !== generation || !dialog.open) return;
-  status.textContent = import.meta.env.DEV ? '搜索索引不可用，请先运行 pnpm build，再重试。' : '搜索暂时无法加载，请重试。';
+  status.textContent = import.meta.env.DEV ? copy.devError : copy.error;
   more.hidden = true; retry.hidden = false;
   console.error('Website search failed', error);
 }
@@ -82,11 +88,11 @@ async function search() {
   dialog.querySelectorAll<HTMLElement>('[data-search-scope]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.searchScope === scope)));
   const query = input.value.trim();
   if (!query && scope === 'all') {
-    status.textContent = '常用页面 · 选择范围可直接浏览';
+    status.textContent = copy.commonHint;
     for (const route of routes) append(route.label, route.href, route.caption);
     select(0); return;
   }
-  status.textContent = '正在搜索…';
+  status.textContent = copy.loading;
   try {
     if (!api) { const path = '/pagefind/pagefind.js'; api = import(/* @vite-ignore */ path); }
     const engine = await api;
@@ -149,12 +155,13 @@ dialog.addEventListener('keydown', event => {
 input.addEventListener('input', () => {
   const prefix = /^in:([^\s]+)\s*/i.exec(input.value);
   if (prefix) {
-    const entry = Object.entries(scopes).find(([key, label]) => key === prefix[1].toLowerCase() || label === prefix[1]);
+    const entry = Object.entries(scopes).find(([key, label]) =>
+      key === prefix[1].toLowerCase() || label === prefix[1] || chineseScopes[key] === prefix[1]);
     if (entry) { scope = entry[0]; input.value = input.value.slice(prefix[0].length); }
   }
   generation++; clearTimeout(debounce);
   // Do not leave stale, clickable results while a different query is pending.
-  list.replaceChildren(); selected = -1; more.hidden = true; status.textContent = '正在搜索…';
+  list.replaceChildren(); selected = -1; more.hidden = true; status.textContent = copy.loading;
   debounce = setTimeout(() => { void search(); }, 150);
 });
 dialog.querySelectorAll<HTMLElement>('[data-search-scope]').forEach(button => button.addEventListener('click', () => {

@@ -1,3 +1,5 @@
+import type { SiteLocale } from '../../lib/i18n'
+import { getHomeDemoText } from '../../data/home-demo-copy'
 import { brailleCells, type BrailleCell } from '../../lib/braille-cells'
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play, RotateCcw } from 'lucide-react'
@@ -5,13 +7,14 @@ import { useReducedMotion } from 'motion/react'
 import PresetAssembly from './PresetAssembly'
 import './prompt-composition.css'
 
-const phases = ['预设骨架', 'Lore 注入', 'Session 与 Narrative', '用户输入', '回应']
+const phases = ['预设骨架', 'Lore 注入', 'Session 与 Narrative', '用户输入', '回应'] as const
 const duration = 22000
 const clamp = (n: number) => Math.max(0, Math.min(1, n))
 const ramp = (p: number, a: number, b: number) => clamp((p - a) / (b - a))
 
 /** Fixed context-composition example; the illustration visualizes the scene, not image generation. */
-export default function PromptComposition({ portrait }: { portrait: string }) {
+export default function PromptComposition({ portrait, locale = 'zh-CN' }: { portrait: string; locale?: SiteLocale }) {
+  const text = getHomeDemoText(locale)
   const root = useRef<HTMLElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
   const elapsed = useRef(0)
@@ -103,35 +106,35 @@ export default function PromptComposition({ portrait }: { portrait: string }) {
     setProgress(value)
     setPlaying(false)
   }
-  return <section ref={root} id="prompt-builder" lang="zh-CN" className="prompt-composition" aria-labelledby="prompt-composition-title">
+  return <section ref={root} id="prompt-builder" lang={locale} className="prompt-composition" aria-labelledby="prompt-composition-title">
     <div className="prompt-composition__layout">
       <div className="prompt-composition__copy">
-        <h2 id="prompt-composition-title">从设定编排<br />到角色回应</h2>
-        <p className="prompt-composition__intro">预设构成骨架 Lore 按条件注入锚点 历史与当前输入共同组成上下文</p>
+        <h2 id="prompt-composition-title">{text("从设定编排")}<br />{text("到角色回应")}</h2>
+        <p className="prompt-composition__intro">{text("预设构成骨架 Lore 按条件注入锚点 历史与当前输入共同组成上下文")}</p>
         <div className="prompt-composition__assembly-stage">
-          <div className="prompt-composition__assembly-size" aria-hidden="true" inert><PresetAssembly progress={1} /></div>
-          <div className="prompt-composition__assembly-live"><PresetAssembly progress={p} /></div>
+          <div className="prompt-composition__assembly-size" aria-hidden="true" inert><PresetAssembly locale={locale} progress={1} /></div>
+          <div className="prompt-composition__assembly-live"><PresetAssembly locale={locale} progress={p} /></div>
         </div>
         <div className="prompt-composition__controls">
-          <nav className="prompt-composition__chapters" aria-label="上下文编排演示阶段">
-            {phases.map((label, i) => <button key={label} type="button" aria-label={label} title={label} aria-pressed={phase === i} disabled={!!reduced} onClick={() => seek([.115, .38, .57, .70, 1][i])}><span className="prompt-composition__step" /></button>)}
+          <nav className="prompt-composition__chapters" aria-label={text("上下文编排演示阶段")}>
+            {phases.map((source, i) => <button key={source} type="button" aria-label={text(source)} title={text(source)} aria-pressed={phase === i} disabled={!!reduced} onClick={() => seek([.115, .38, .57, .70, 1][i])}><span className="prompt-composition__step" /></button>)}
           </nav>
           <div className="prompt-composition__playback">
             <button type="button" disabled={!!reduced} onClick={() => {
               if (progress >= 1) { elapsed.current = 0; setProgress(0); setPlaying(true) }
               else setPlaying(value => !value)
-            }}>{playing && progress < 1 ? <Pause size={14} /> : <Play size={14} />}{playing && progress < 1 ? '暂停' : '播放'}</button>
-            <button type="button" disabled={!!reduced} onClick={() => { elapsed.current = 0; setProgress(0); setPlaying(true) }}><RotateCcw size={14} />重播</button>
+            }}>{playing && progress < 1 ? <Pause size={14} /> : <Play size={14} />}{playing && progress < 1 ? text("暂停") : text("播放")}</button>
+            <button type="button" disabled={!!reduced} onClick={() => { elapsed.current = 0; setProgress(0); setPlaying(true) }}><RotateCcw size={14} />{text("重播")}</button>
           </div>
         </div>
       </div>
       <figure className="prompt-composition__art">
         <div className="prompt-composition__picture">
           <canvas ref={canvas} className="prompt-composition__flow" aria-hidden="true" />
-          <img src={portrait} alt="夜色中的诺姆坐在窗边，膝上摊开一本书" style={{ opacity: ramp(p, .87, .96) }} />
+          <img src={portrait} alt={text("夜色中的诺姆坐在窗边，膝上摊开一本书")} style={{ opacity: ramp(p, .87, .96) }} />
         </div>
-        <figcaption style={{ opacity: ramp(p, .94, 1) }}>「刚读到有趣的地方。<br />要一起看吗？」</figcaption>
-        {imageFailed && <p role="status">插画未能加载，请刷新后重试。</p>}
+        <figcaption style={{ opacity: ramp(p, .94, 1) }}>{text("「刚读到有趣的地方。")}<br />{text("要一起看吗？」")}</figcaption>
+        {imageFailed && <p role="status">{text("插画未能加载，请刷新后重试。")}</p>}
       </figure>
     </div>
   </section>

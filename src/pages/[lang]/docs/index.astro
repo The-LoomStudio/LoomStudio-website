@@ -25,7 +25,7 @@ const cardsData: Record<string, CardItem[]> = {
   'en': [
     { href: '/docs/architecture', title: 'Architecture Map', copy: 'Trace file import, narrative timeline, model and tools connection to local data.' },
     { href: '/docs/getting-started', title: 'Quick Start', copy: 'Install and start Loom Studio, connect a model, and begin a first story.' },
-    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: 'Story nodes and branches preserve prose; a Timeline root Session receives input while ordinary replies remain in work history.' },
+    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: 'Story nodes and branches preserve prose; the root Session adopts replies according to narrative mode, while discussion stays in work history.' },
     { href: '/docs/concepts/agent-sessions', title: 'Agent Session', copy: 'Distinguish ordinary work Sessions from the Timeline root Session, and see how their Transcripts enter context.' },
     { href: '/docs/concepts/prompt-build', title: 'Prompt Build', copy: 'Runtime combines sources and orders them by Activation and DFS, with optional processing and build observations.' },
     { href: '/docs/concepts/composition-skeleton', title: 'Setting Layer & Skeleton', copy: 'Separating storage topology and assembly projection for clean context.' },
@@ -36,7 +36,7 @@ const cardsData: Record<string, CardItem[]> = {
   'ja': [
     { href: '/docs/architecture', title: 'アーキテクチャマップ', copy: 'ファイル取り込み、物語生成、モデルやツールがローカルデータと接続する境界を俯瞰。' },
     { href: '/docs/getting-started', title: 'クイックスタート', copy: 'Loom Studio を起動し、モデルを設定して最初の物語を始めます。' },
-    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: '本文ノードと分岐が物語を保持し、Timeline のルート Session が入力を受け取ります。通常の返信は作業記録に残ります。' },
+    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: '本文ノードと分岐が物語を保持します。ルート Session は本文モードに応じて返信を採用し、議論は作業記録に残します。' },
     { href: '/docs/concepts/agent-sessions', title: 'Agent Session', copy: '通常の作業 Session と Timeline ルート Session、それぞれの Transcript と文脈の扱いを説明します。' },
     { href: '/docs/concepts/prompt-build', title: 'Prompt Build', copy: 'Runtime が Source を組み合わせ、Activation と DFS で編成します。加工と構築記録の範囲も説明します。' },
     { href: '/docs/concepts/composition-skeleton', title: '設定層とアセンブリ骨格', copy: 'ストレージ構成と投影の分離により、世界観設定と実行時文脈を秩序正しく保つ。' },
@@ -47,7 +47,7 @@ const cardsData: Record<string, CardItem[]> = {
   'ko': [
     { href: '/docs/architecture', title: '아키텍처 맵', copy: '파일 가져오기, 서사 생성, 모델 및 도구가 로컬 데이터와 연결되는 경계를 살펴봅니다.' },
     { href: '/docs/getting-started', title: '빠른 시작', copy: 'Loom Studio를 실행하고 모델을 연결해 첫 이야기를 시작하세요.' },
-    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: '본문 노드와 분기가 이야기를 보존하고, Timeline 루트 Session이 입력을 받습니다. 일반 응답은 작업 기록에 남습니다.' },
+    { href: '/docs/concepts/narrative-timeline', title: 'Narrative Timeline', copy: '본문 노드와 분기가 이야기를 보존합니다. 루트 Session은 본문 모드에 따라 응답을 채택하고 토론은 작업 기록에 남깁니다.' },
     { href: '/docs/concepts/agent-sessions', title: 'Agent Session', copy: '일반 작업 Session과 Timeline 루트 Session, 각 Transcript와 컨텍스트의 관계를 설명합니다.' },
     { href: '/docs/concepts/prompt-build', title: 'Prompt Build', copy: 'Runtime이 Source를 조합하고 Activation과 DFS로 정렬합니다. 선택적 처리와 빌드 관찰도 설명합니다.' },
     { href: '/docs/concepts/composition-skeleton', title: '설정 계층 및 조립 골격', copy: '저장 토폴로지와 조립 투영의 분리로 세계 설정과 런타임 문맥을 질서 있게 유지.' },

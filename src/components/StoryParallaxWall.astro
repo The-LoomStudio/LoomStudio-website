@@ -1,7 +1,12 @@
 ---
+import type { SiteLocale } from '../lib/i18n';
+import { getHomeDemoText, type HomeDemoText } from '../data/home-demo-copy';
 import { siteImage } from '../lib/site-images';
 import BranchReveal from './branch-reveal/BranchReveal';
 
+interface Props { locale?: SiteLocale; }
+const { locale = 'zh-CN' } = Astro.props;
+const text = getHomeDemoText(locale);
 const portraits = [
   { src: '/images/nom/illustrations/nom-illustration-001.png', alt: '诺姆手持书本的竖向插画', speed: '-0.08', className: 'story-wall__image--portrait-a' },
   { src: '/images/nom/illustrations/nom-illustration-004.png', alt: '诺姆站在城市光影中的竖向插画', speed: '0.12', className: 'story-wall__image--portrait-b' },
@@ -47,40 +52,40 @@ const denseSizes = [
 <section id="vertical-parallax" class="story-wall" aria-labelledby="story-wall-title">
   <div class="container story-wall__intro" data-motion-reveal>
     <p class="eyebrow">ONE STORY, MANY POSSIBILITIES</p>
-    <h2 id="story-wall-title">如果当时，选了另一条路</h2>
-    <p>留下读完那本书，走进雨里的街道，或搭上夜间列车。同一个故事，可以继续走向不同的下一幕。</p>
+    <h2 id="story-wall-title">{text("如果当时，选了另一条路")}</h2>
+    <p>{text("留下读完那本书，走进雨里的街道，或搭上夜间列车。同一个故事，可以继续走向不同的下一幕。")}</p>
   </div>
 
-  <div class="story-wall__portrait-field" aria-label="故事的最初片段">
+  <div class="story-wall__portrait-field" aria-label={text("故事的最初片段")}>
     {portraits.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <BranchReveal client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
-          order={[1, 0, 2][index]} text={index === 0 ? "选择留下。她翻开那本书，让故事从窗边继续。" : undefined}
+        <BranchReveal locale={locale} client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          order={[1, 0, 2][index]} text={index === 0 ? text("选择留下。她翻开那本书，让故事从窗边继续。") : undefined}
           sizes="(max-width: 680px) clamp(150px, 42vw, 190px), clamp(150px, 18vw, 250px)"
-          alt={image.alt} />
+          alt={text(image.alt as HomeDemoText)} />
       </figure>
     ))}
   </div>
 
-  <div class="story-wall__wide-field" aria-label="故事逐渐展开">
+  <div class="story-wall__wide-field" aria-label={text("故事逐渐展开")}>
     {wide.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <BranchReveal client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
-          order={index + 3} text={index === 1 ? "如果走进雨里，下一幕就在街道展开。伞下的人向你靠近了一点。" : undefined}
+        <BranchReveal locale={locale} client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+          order={index + 3} text={index === 1 ? text("如果走进雨里，下一幕就在街道展开。伞下的人向你靠近了一点。") : undefined}
           sizes={index === 3
             ? '(max-width: 680px) clamp(175px, 48vw, 250px), clamp(240px, 31vw, 420px)'
             : '(max-width: 680px) clamp(190px, 55vw, 290px), clamp(280px, 38vw, 520px)'}
-          alt={image.alt} />
+          alt={text(image.alt as HomeDemoText)} />
       </figure>
     ))}
   </div>
 
-  <div class="story-wall__dense-field" aria-label="交织的故事片段">
+  <div class="story-wall__dense-field" aria-label={text("交织的故事片段")}>
     {dense.map((image, index) => (
       <figure class={`story-wall__image ${image.className}`} data-parallax={image.speed}>
-        <BranchReveal client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
+        <BranchReveal locale={locale} client:visible={{ rootMargin: '400px' }} image={images[image.src]} fullSrc={images[image.src].fullSrc}
           order={index + 7}
-          sizes={denseSizes[index]} alt={image.alt} />
+          sizes={denseSizes[index]} alt={text(image.alt as HomeDemoText)} />
       </figure>
     ))}
   </div>

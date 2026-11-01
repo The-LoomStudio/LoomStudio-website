@@ -1,9 +1,16 @@
 ---
 import { ArrowRight, MapPin, Sparkles, Sun } from '@lucide/astro';
+import type { SiteLocale } from '../../lib/i18n';
 import { siteImage } from '../../lib/site-images';
 
-interface Props { kind: 'bridge' | 'world'; compact?: boolean; }
-const { kind, compact = false } = Astro.props;
+interface Props { kind: 'bridge' | 'world'; compact?: boolean; locale?: SiteLocale; }
+const { kind, compact = false, locale = 'zh-CN' } = Astro.props;
+const copy = {
+  'zh-CN': { characters: '熟悉的角色', story: '新的故事', dusk: '故事里的黄昏', home: '下一站，回家' },
+  en: { characters: 'Familiar characters', story: 'A new story', dusk: 'Dusk in the story', home: 'Next stop, home' },
+  ja: { characters: 'おなじみの仲間', story: '新しい物語', dusk: '物語の黄昏', home: '次は、我が家へ' },
+  ko: { characters: '익숙한 캐릭터', story: '새로운 이야기', dusk: '이야기 속 황혼', home: '다음은 집으로' },
+}[locale];
 const cards = kind === 'bridge' ? await Promise.all([
   siteImage('/images/cards/display/card-007.png', [188, 376]),
   siteImage('/images/cards/display/card-001.png', [188, 376]),
@@ -20,7 +27,7 @@ const worldIcon = kind === 'world' ? await siteImage('/brand/the-world-icon.png'
           <div class:list={['bridge-photo', `bridge-photo--${index}`]}>
             <span class="photo-tape"></span>
             <img src={card.src} srcset={card.srcSet} width={card.width} height={card.height} sizes="(max-width: 440px) 135px, 165px" alt="" loading={compact ? 'lazy' : 'eager'} decoding="async" />
-            <span class="photo-caption">{index === 0 ? '熟悉的角色' : '新的故事'}</span>
+            <span class="photo-caption">{index === 0 ? copy.characters : copy.story}</span>
           </div>
         ))}
       </div>
@@ -37,15 +44,15 @@ const worldIcon = kind === 'world' ? await siteImage('/brand/the-world-icon.png'
       <Sparkles class="world-sparkle world-sparkle--two" size={18} stroke-width={1.5} />
       {worldIcon && <img class="world-icon" src={worldIcon.src} srcset={worldIcon.srcSet} width={worldIcon.width} height={worldIcon.height} sizes="200px" alt="" loading="lazy" decoding="async" />}
       <div class="world-postcard">
-        <span><Sun size={21} stroke-width={1.5} /><b>18:30<small>故事里的黄昏</small></b></span>
-        <span><MapPin size={17} stroke-width={1.5} />下一站，回家</span>
+        <span><Sun size={21} stroke-width={1.5} /><b>18:30<small>{copy.dusk}</small></b></span>
+        <span><MapPin size={17} stroke-width={1.5} />{copy.home}</span>
       </div>
     </>
   )}
 </div>
 
 <style>
-  .extension-art { position: relative; display: flex; flex-direction: column; align-items: center; min-height: 390px; padding: 30px 24px 24px; border-radius: var(--loom-site-radius-lg); color: var(--loom-site-note-ink); font-family: var(--loom-site-note-body); }
+  .extension-art { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; min-height: 390px; padding: 30px 24px 24px; border-radius: var(--loom-site-radius-lg); color: var(--loom-site-note-ink); font-family: var(--loom-site-note-body); }
   .extension-art--bridge { background: #f7eedc; }
   .extension-art--world { background: var(--loom-site-note-mint); }
   .extension-art--compact { min-height: 366px; border-radius: var(--loom-site-radius-lg) var(--loom-site-radius-lg) 0 0; }
@@ -59,7 +66,7 @@ const worldIcon = kind === 'world' ? await siteImage('/brand/the-world-icon.png'
   .bridge-photo img { width: 100%; height: auto; aspect-ratio: 376 / 524; object-fit: cover; border-radius: var(--loom-site-radius-sm); }
   .photo-tape { position: absolute; z-index: 1; top: -8px; left: calc(50% - 27px); width: 54px; height: 17px; background: #f4d06fc9; transform: rotate(5deg); }
   .bridge-photo--1 .photo-tape { background: #d5c6e8d9; transform: rotate(-5deg); }
-  .photo-caption { display: block; padding: 9px 0 10px; text-align: center; font-size: 10px; color: var(--loom-site-note-muted); }
+  .photo-caption { display: block; padding: 9px 0 10px; text-align: center; font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; color: var(--loom-site-note-muted); }
   .bridge-transfer { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: auto; padding: 10px 16px; border-radius: 999px; background: var(--loom-site-note-paper); }
   .bridge-transfer > span { display: inline-flex; align-items: center; gap: 8px; }
   .bridge-transfer img, .bridge-transfer > :global(svg) { flex: none; }

@@ -1,3 +1,5 @@
+import type { SiteLocale } from '../lib/i18n'
+import { getHomeDemoText, type HomeDemoText } from '../data/home-demo-copy'
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
@@ -28,12 +30,14 @@ export const slides = [
 ]
 
 type Props = {
+  locale?: SiteLocale
   className?: string
   images: Record<string, DisplayImage & { fullSrc: string }>
   layers?: { background: DisplayImage; foreground: DisplayImage }
 }
 
-export default function HeroBanner({ className = '', images, layers }: Props) {
+export default function HeroBanner({ className = '', images, layers, locale = 'zh-CN' }: Props) {
+  const text = getHomeDemoText(locale)
   const reducedMotion = useReducedMotion()
   const root = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -101,7 +105,7 @@ export default function HeroBanner({ className = '', images, layers }: Props) {
   const controls = <div className="hero-banner__controls" onFocus={() => setPaused(true)} onBlur={event => {
     if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false)
   }}>
-    <div className="hero-banner__dots" aria-label="选择 Banner">
+    <div className="hero-banner__dots" aria-label={text("选择 Banner")}>
       {slideSet.map((slide, index) => (
         <m.button
           initial={false}
@@ -111,7 +115,7 @@ export default function HeroBanner({ className = '', images, layers }: Props) {
           className={index === active ? 'is-active' : ''}
           key={slide.src}
           onClick={() => select(index)}
-          aria-label={`第 ${index + 1} 张 Banner`}
+          aria-label={text('第 {number} 张 Banner').replace('{number}', String(index + 1))}
           aria-current={index === active ? 'true' : undefined}
         />
       ))}
@@ -120,7 +124,7 @@ export default function HeroBanner({ className = '', images, layers }: Props) {
 
   return (
     <SiteMotion>
-      <div ref={root} className={`hero-banner hero-banner--top ${className}`} aria-label="Loom Studio 介绍 Banner">
+      <div ref={root} className={`hero-banner hero-banner--top ${className}`} aria-label={text("Loom Studio 介绍 Banner")}>
         {slideSet.map((slide, index) => (
           <m.article
             initial={false}
@@ -136,21 +140,21 @@ export default function HeroBanner({ className = '', images, layers }: Props) {
           >
             {(index === active || index === target || loaded.current.has(index)) && (
               <BannerArtwork breathe={!('layered' in slide && slide.layered)} playing={playing && !paused && index === active}>
-              <ZoomImage image={images[slide.src]} fullSrc={images[slide.src].fullSrc}
+              <ZoomImage locale={locale} image={images[slide.src]} fullSrc={images[slide.src].fullSrc}
                 sizes={`max(100vw, ${Math.ceil(images[slide.src].width / images[slide.src].height * 100)}svh)`}
-                alt={slide.alt} loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'}
+                alt={text(slide.alt as HomeDemoText)} loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'}
                 onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
                 onError={() => setTarget(active)}
                 className="hero-banner__zoom">
                 {'layered' in slide && slide.layered && layers ? (
-                  <LayeredIllustration {...layers} label={slide.alt}
+                  <LayeredIllustration {...layers} label={text(slide.alt as HomeDemoText)}
                     onLoad={() => { loaded.current.add(index); if (index === target) setActive(index) }}
                     onError={() => setTarget(active)} />
                 ) : undefined}
               </ZoomImage>
               </BannerArtwork>
             )}
-            {'layered' in slide && slide.layered === true && <BannerIntro />}
+            {'layered' in slide && slide.layered === true && <BannerIntro locale={locale} />}
           </m.article>
         ))}
       </div>

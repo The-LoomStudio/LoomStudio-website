@@ -1,3 +1,5 @@
+import type { SiteLocale } from '../../lib/i18n'
+import { getHomeDemoText, type HomeDemoText } from '../../data/home-demo-copy'
 import { useRef } from 'react'
 import { useInView, useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
@@ -17,6 +19,7 @@ export const brandCards = [
 
 export type BrandWelcomeCopy = { label: string; slogan: string; download: string }
 type Props = {
+  locale?: SiteLocale
   cards: { src: string; alt: string; image: DisplayImage }[]
   logo: DisplayImage
   id: string
@@ -29,7 +32,8 @@ export default function BrandWelcome(props: Props) {
   return <SiteMotion><WelcomeScene {...props} /></SiteMotion>
 }
 
-function WelcomeScene({ cards, logo, id, downloadHref, copy }: Props) {
+function WelcomeScene({ cards, logo, id, downloadHref, copy, locale = 'zh-CN' }: Props) {
+  const text = getHomeDemoText(locale)
   const root = useRef<HTMLElement>(null)
   const entered = useInView(root, { once: true, amount: 0.2 })
   const reducedMotion = useReducedMotion()
@@ -44,7 +48,7 @@ function WelcomeScene({ cards, logo, id, downloadHref, copy }: Props) {
             whileFocus={reducedMotion ? undefined : { y: -10, scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 260, damping: 24 }}>
             <BrandAsciiReveal src={card.image.src} ratio={188 / 262} entered={visible} reduced={!!reducedMotion} delay={index * 90}>
-              <ZoomImage image={card.image} fullSrc={card.src} sizes="(max-width: 640px) 130px, 220px" alt={card.alt} />
+              <ZoomImage locale={locale} image={card.image} fullSrc={card.src} sizes="(max-width: 640px) 130px, 220px" alt={text(card.alt as HomeDemoText)} />
             </BrandAsciiReveal>
           </m.div>
         </div>

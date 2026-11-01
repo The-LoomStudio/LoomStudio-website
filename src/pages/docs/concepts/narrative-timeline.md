@@ -22,11 +22,13 @@ Provider 的原始消息协议、推理内容、工具调用与失败重试不�
 ~~~text
 用户提交正文
   → 写入 Narrative 节点
-  → 以已提交节点身份交给 Timeline 根 Session
+  → 以已提交节点身份启动 Timeline 根 Session 的 Run
   → Provider / Tool Loop
-  → 获准的正文工具可明确写入后续 Narrative
-  → 普通最终回复留在 Session 工作记录
+  → 按正文模式采用 Assistant 文本
+  → 讨论、工具结果与推理保留在工作记录
 ~~~
+
+源码版支持声明式与自动正文模式，详见 [Agent Session](/docs/concepts/agent-sessions)。下载版本的能力以对应发行说明为准。
 
 ## 分支与回溯
 
@@ -36,4 +38,4 @@ Provider 的原始消息协议、推理内容、工具调用与失败重试不�
 
 ## 为何长篇必须如此
 
-长篇叙事需要把正文、交互操作与模型通信记录区分开。Narrative Timeline 以正文节点和分支保存故事，同时由根 Session 承接输入与工作历史；章节归档、多线发展、状态快照与长文摘要都围绕故事正文组织。
+长篇叙事需要把正文、交互操作与模型通信记录区分开。Narrative Timeline 以正文节点和分支保存故事，同时由根 Session 承接输入与工作历史；分支、状态版本与剧情摘要围绕采用的正文路径组织。

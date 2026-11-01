@@ -1,3 +1,5 @@
+import type { SiteLocale } from '../../lib/i18n'
+import { getHomeDemoText } from '../../data/home-demo-copy'
 import { useEffect, useRef, type ReactNode } from 'react'
 import { animate, type AnimationPlaybackControls } from 'motion'
 import { useReducedMotion } from 'motion/react'
@@ -32,13 +34,14 @@ export function BannerArtwork({ children, breathe, playing }: { children: ReactN
   return <div ref={root} className="banner-artwork">{children}</div>
 }
 
-export function BannerIntro() {
+export function BannerIntro({ locale = 'zh-CN' }: { locale?: SiteLocale }) {
+  const text = getHomeDemoText(locale)
   return <div className="banner-intro">
     <h1 className="banner-wordmark" aria-label="Loom Studio"><span>LOOM</span><span>STUDIO</span></h1>
     <div className="banner-copy">
-    <p className="eyebrow">编织世界，交织故事。</p>
-    <h2><span>一个角色</span><span>一段未完的故事</span></h2>
-    <p>Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台。角色、世界设定、故事分支，都在这里接着写。</p>
+    <p className="eyebrow">{text("编织世界，交织故事。")}</p>
+    <h2><span>{text("一个角色")}</span><span>{text("一段未完的故事")}</span></h2>
+    <p>{text("Loom Studio 是本地运行的 AI 角色扮演与互动叙事工作台。角色、世界设定、故事分支，都在这里接着写。")}</p>
     </div>
   </div>
 }

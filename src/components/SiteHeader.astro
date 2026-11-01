@@ -40,8 +40,8 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
     ))}
   </nav>
   <div class="site-controls__right">
-    {activeRoute === 'home' && <GitHubStars />}
-    <SiteSearch />
+    {activeRoute === 'home' && <GitHubStars locale={currentLocale} />}
+    <SiteSearch locale={currentLocale} />
     <div class="locale-dropdown" data-locale-dropdown>
       <button class="site-icon locale-toggle" type="button" aria-label={t(currentLocale, 'nav.language')}
         title={t(currentLocale, 'nav.language')} aria-expanded="false" data-locale-toggle>
@@ -60,7 +60,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
       </div>
     </div>
     <button class="site-icon theme-toggle" type="button" aria-label={t(currentLocale, 'nav.themeDark')}
-      aria-pressed="false" title={t(currentLocale, 'nav.themeDark')} data-theme-toggle>
+      aria-pressed="false" title={t(currentLocale, 'nav.themeDark')} data-theme-toggle data-theme-dark-label={t(currentLocale, 'nav.themeDark')} data-theme-light-label={t(currentLocale, 'nav.themeLight')}>
       <Sun class="theme-toggle__sun" size={22} stroke-width={1.6} aria-hidden="true" />
       <Moon class="theme-toggle__moon" size={22} stroke-width={1.6} aria-hidden="true" />
     </button>
@@ -118,6 +118,7 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
         <a
           href={getLocalizedPath(Astro.url.pathname, loc)}
           class:list={['route-menu__locale-item', { 'route-menu__locale-item--active': loc === currentLocale }]}
+          aria-current={loc === currentLocale ? 'page' : undefined}
           data-menu-link
           data-locale-choice={loc}
         >
@@ -447,15 +448,16 @@ const details = await Promise.all(routes.map((route) => siteImage(`/images/nom/$
     color: var(--loom-site-text-muted);
     text-decoration: none;
     padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid transparent;
+    pointer-events: auto;
   }
   .route-menu__locale-item:hover {
     color: var(--loom-site-text);
   }
   .route-menu__locale-item--active {
     color: var(--loom-site-text);
-    border-color: var(--loom-site-border);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 7px;
     font-weight: 600;
   }
 

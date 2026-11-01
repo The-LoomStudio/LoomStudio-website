@@ -1,14 +1,17 @@
+import type { SiteLocale } from '../../lib/i18n'
+import { getHomeDemoText } from '../../data/home-demo-copy'
 import { brailleCells } from '../../lib/braille-cells'
 import { useEffect, useRef, useState } from 'react'
 import ZoomImage from '../illustration/ZoomImage'
 import type { DisplayImage } from '../../lib/site-images'
 import './branch-reveal.css'
 
-type Props = { image: DisplayImage; fullSrc: string; sizes: string; alt: string; order: number; text?: string }
+type Props = { locale?: SiteLocale; image: DisplayImage; fullSrc: string; sizes: string; alt: string; order: number; text?: string }
 const clamp = (n: number) => Math.max(0, Math.min(1, n))
 
 /** Scroll-driven branch illustration; text remains visible while the image loads. */
-export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }: Props) {
+export default function BranchReveal({ image, fullSrc, sizes, alt, order, text: authoredText, locale = 'zh-CN' }: Props) {
+  const text = getHomeDemoText(locale)
   const root = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
   const [progress, setProgress] = useState(0)
@@ -17,10 +20,10 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
   const [focused, setFocused] = useState(false)
   const [pixels, setPixels] = useState<HTMLCanvasElement[] | null>(null)
   const rows = Math.max(12, Math.round(44 * image.height / image.width))
-  const choice = text ?? ['如果换一个选择，故事会往哪里走？', '沿着另一条可能，展开接下来的一幕。', '同一个起点，也可以走向不同的远方。'][order % 3]
+  const choice = authoredText ?? [text("如果换一个选择，故事会往哪里走？"), text("沿着另一条可能，展开接下来的一幕。"), text("同一个起点，也可以走向不同的远方。")][order % 3]
   const copy = `${choice}
 
-保留角色的性格与已有经历，从这次行动出发。结合地点和环境，组织她的回应，让另一条故事自然展开。`
+${text('保留角色的性格与已有经历，从这次行动出发。结合地点和环境，组织她的回应，让另一条故事自然展开。')}`
   const pending = !pixels || !imageReady
   const shown = focused || failed ? 1 : pending ? Math.min(progress, .40) : progress
 
@@ -110,14 +113,14 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text }
   return <div ref={root} className="branch-reveal" style={{ '--branch-image': clamp((shown - .95) / .05) } as React.CSSProperties}
     onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}>
     <div className="branch-reveal__surface">
-    <ZoomImage image={image} fullSrc={fullSrc} sizes={sizes} alt={alt} onLoad={() => setImageReady(true)} onError={() => setFailed(true)} />
+    <ZoomImage locale={locale} image={image} fullSrc={fullSrc} sizes={sizes} alt={alt} onLoad={() => setImageReady(true)} onError={() => setFailed(true)} />
     <div className="branch-reveal__text" aria-hidden="true" style={{ opacity: 1 - clamp((shown - .56) / .08) }}>
       <p>{copy.slice(0, Math.max(1, Math.floor(copy.length * clamp(shown / .20))))}</p>
     </div>
     <canvas ref={canvas} width={440} height={rows * 10} aria-hidden="true" />
     </div>
-    {text && <div className="branch-reveal__caption" data-parallax={order % 2 ? '0.025' : '-0.025'} style={{ opacity: clamp((shown - .82) / .18) }}>
-      <p>{text}</p>
+    {authoredText && <div className="branch-reveal__caption" data-parallax={order % 2 ? '0.025' : '-0.025'} style={{ opacity: clamp((shown - .82) / .18) }}>
+      <p>{authoredText}</p>
     </div>}
   </div>
 }

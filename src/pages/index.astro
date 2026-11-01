@@ -55,11 +55,11 @@ const descriptions: Record<SiteLocale, string> = {
 
   <main>
     <section class="hero" id="top">
-      <HeroBanner client:load images={topImages} layers={layers} />
+      <HeroBanner locale={currentLocale} client:load images={topImages} layers={layers} />
     </section>
 
     <div class="home-content">
-    <BrandWelcome client:visible={{ rootMargin: '200px' }} id="brand-intro" cards={welcomeCards} logo={brand}
+    <BrandWelcome locale={currentLocale} client:visible={{ rootMargin: '200px' }} id="brand-intro" cards={welcomeCards} logo={brand}
       copy={guide.brand} downloadHref={getLocalizedPath('/download', currentLocale)} />
     <noscript><style is:inline>.brand-ascii { --brand-image-opacity: 1 !important; }.brand-ascii > canvas { display: none; }</style></noscript>
 
@@ -70,15 +70,15 @@ const descriptions: Record<SiteLocale, string> = {
           <h2 id="card-banner-title">{homeCopy.cardBanner.title}</h2>
         </div>
       </div>
-      <CharacterJourney client:visible={{ rootMargin: '400px' }} images={cardImages} />
+      <CharacterJourney locale={currentLocale} client:visible={{ rootMargin: '400px' }} images={cardImages} />
     </section>
 
-    <PromptComposition client:visible portrait={promptIllustration.src} />
+    <PromptComposition locale={currentLocale} client:visible portrait={promptIllustration.src} />
     <noscript><style is:inline>.prompt-composition__picture img, .prompt-composition figcaption { opacity: 1 !important; }</style></noscript>
 
-    <StoryWorkspace client:visible expressions={guideExpressions} />
+    <StoryWorkspace locale={currentLocale} client:visible expressions={guideExpressions} />
 
-    <StoryParallaxWall />
+    <StoryParallaxWall locale={currentLocale} />
     <section id="nom-stickers" class="home-nom" aria-labelledby="home-nom-title">
       <div class="container home-nom__inner">
         <div>

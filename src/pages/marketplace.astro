@@ -6,7 +6,55 @@ import NomSticker from '../components/NomSticker.astro';
 import ExtensionArtwork from '../components/extensions/ExtensionArtwork.astro';
 import { ArrowUpRight, ArrowRight, Puzzle } from '@lucide/astro';
 
-const extensions = [
+import { type SiteLocale, pageMeta } from '../lib/i18n';
+interface Props { locale?: SiteLocale; }
+const { locale = 'zh-CN' } = Astro.props;
+const meta = pageMeta.marketplace[locale];
+const extensionsData = {
+  'en': [
+    {
+      kind: 'bridge' as const, name: 'ST Data Bridge', label: 'Familiar characters on a new journey',
+      headline: 'Familiar characters in a new story',
+      copy: 'Import SillyTavern character cards, lorebooks, presets, and chats into Loom Studio.',
+      tags: ['Card Migration', 'Lorebooks & Presets', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
+    },
+    {
+      kind: 'world' as const, name: 'The World', label: 'Pack a whole little world',
+      headline: 'Every story has its own sky and weather',
+      copy: 'Track time, weather, locations, and scenes, letting AI participate in world maintenance.',
+      tags: ['World State', 'Locations & Scenes', 'Weather & Mood'], href: '/marketplace/the-world',
+    },
+  ],
+  'ja': [
+    {
+      kind: 'bridge' as const, name: 'ST Data Bridge', label: 'キャラクターと共に、次の旅へ',
+      headline: 'おなじみのキャラクターと物語の次のステージへ',
+      copy: 'SillyTavern のキャラクターカード、世界設定、プリセット、チャットログを Loom Studio へ引き継ぎます。',
+      tags: ['カード移行', '世界設定とプリセット', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
+    },
+    {
+      kind: 'world' as const, name: 'The World', label: '小さな世界を丸ごと収める',
+      headline: '物語ごとにそれぞれ固有の空模様がある',
+      copy: '時間、天気、場所、シーンを記録し、AI が世界観の維持に参加します。',
+      tags: ['世界の状態', '場所とシーン', '天候と空気感'], href: '/marketplace/the-world',
+    },
+  ],
+  'ko': [
+    {
+      kind: 'bridge' as const, name: 'ST Data Bridge', label: '캐릭터와 함께 새로운 여정으로',
+      headline: '익숙한 캐릭터 이야기의 다음 정거장',
+      copy: 'SillyTavern의 캐릭터 카드, 로어북, 프리셋 및 대화 기록을 Loom Studio로 가져옵니다.',
+      tags: ['카드 마이그레이션', '로어북 및 프리셋', 'EJS / MVU'], href: '/marketplace/st-data-bridge',
+    },
+    {
+      kind: 'world' as const, name: 'The World', label: '작은 세계 전체를 담다',
+      headline: '모든 이야기에는 그 이야기만의 하늘이 있습니다',
+      copy: '시간, 날씨, 장소, 장면을 기록하여 AI가 세계관 유지에 함께 참여합니다.',
+      tags: ['세계관 상태', '장소 및 장면', '날씨 분위기'], href: '/marketplace/the-world',
+    },
+  ],
+};
+const extensions = locale === 'zh-CN' ? [
   {
     kind: 'bridge' as const, name: 'ST Data Bridge', label: '带着角色，继续出发',
     headline: '带着熟悉的角色走向下一站',
@@ -19,40 +67,47 @@ const extensions = [
     copy: '记下时间、天气、地点与场景，让 AI 参与世界维护。推开工作台，也能看见故事里的黄昏。',
     tags: ['世界状态', '地点与场景', '天气氛围'], href: '/marketplace/the-world',
   },
-];
+] : extensionsData[locale];
+const labels = {
+  'zh-CN': { sticker: '给工作台的一点新灵感', title: '官方扩展', sub: '带来熟悉的角色，或为故事添上一整个世界。', official: 'Loom Studio 官方扩展', about: '认识', help: '慢慢搭出自己的工作台', helpCopy: '从扩展中心安装与管理。每个扩展页都有功能介绍、使用步骤和源码入口。', learn: '了解扩展体系' },
+  en: { sticker: 'Inspiration for the workbench', title: 'Official Extensions', sub: 'Bring familiar characters along, or add a whole world to your story.', official: 'Loom Studio Official Extension', about: 'Meet', help: 'Make the workbench your own', helpCopy: 'Install and manage extensions in the Extension Center. Each page introduces features, setup steps, and source code.', learn: 'Explore the extension system' },
+  ja: { sticker: 'スタジオに新しいひらめきを', title: '公式拡張', sub: 'おなじみの仲間を連れてくる、あるいは物語に世界そのものを添える。', official: 'Loom Studio 公式拡張', about: '紹介：', help: '自分だけのスタジオを少しずつ', helpCopy: '拡張センターからインストール・管理できます。各ページで機能、使い方、ソースコードを紹介します。', learn: '拡張システムについて' },
+  ko: { sticker: '작업대를 위한 새로운 영감', title: '공식 확장', sub: '익숙한 캐릭터를 데려오거나, 이야기에 세계 전체를 더해보세요.', official: 'Loom Studio 공식 확장', about: '알아보기:', help: '나만의 작업대를 만들어 가세요', helpCopy: '확장 센터에서 설치하고 관리하세요. 각 페이지에서 기능, 사용법과 소스 코드를 소개합니다.', learn: '확장 시스템 알아보기' },
+}[locale];
+
 ---
 
-<BaseLayout title="官方扩展 · Marketplace" description="探索 Loom Studio 官方扩展：用 ST Data Bridge 迁移 SillyTavern 资源，用 The World 为故事建立时间、地点、场景与天气。">
-  <SiteHeader />
+<BaseLayout title={meta.title} description={meta.description} locale={locale}>
+  <SiteHeader locale={locale} />
   <main class="marketplace">
     <header class="market-heading" data-motion-reveal>
-      <span class="market-sticker"><Puzzle size={17} aria-hidden="true" />给工作台的一点新灵感</span>
-      <h1>Extensions <span>/ 官方扩展</span></h1>
-      <p>带来熟悉的角色，或为故事添上一整个世界。</p>
+      <span class="market-sticker"><Puzzle size={17} aria-hidden="true" />{labels.sticker}</span>
+      <h1>Extensions <span>/ {labels.title}</span></h1>
+      <p>{labels.sub}</p>
     </header>
-    <section class="extension-board" data-motion-group aria-label="官方扩展">
+    <section class="extension-board" data-motion-group aria-label={labels.title}>
       {extensions.map((extension) => (
         <article data-motion-reveal data-motion-feedback class:list={['extension-tile', `extension-tile--${extension.kind}`]}>
-          <a class="extension-tile__art" href={extension.href} aria-label={`了解 ${extension.name}`}><ExtensionArtwork kind={extension.kind} compact /></a>
+          <a class="extension-tile__art" href={extension.href} aria-label={`${labels.about} ${extension.name}`}><ExtensionArtwork kind={extension.kind} compact locale={locale} /></a>
           <div class="extension-tile__copy">
             <span class="extension-tile__tag">{extension.label}</span>
-            <span class="extension-tile__official">Loom Studio 官方扩展</span>
+            <span class="extension-tile__official">{labels.official}</span>
             <h2><a href={extension.href}>{extension.name}</a></h2>
             <h3>{extension.headline}</h3>
             <p>{extension.copy}</p>
             <ul>{extension.tags.map((tag) => <li>{tag}</li>)}</ul>
-            <a class="extension-tile__link" data-motion-feedback href={extension.href}>认识 {extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
+            <a class="extension-tile__link" data-motion-feedback href={extension.href}>{labels.about} {extension.name}<ArrowUpRight size={18} aria-hidden="true" /></a>
           </div>
         </article>
       ))}
     </section>
     <aside class="market-help" data-motion-reveal>
       <div class="market-help__nom"><NomSticker src="/images/nom/stickers/bust/gift.png" size="small" /></div>
-      <div class="market-help__copy"><h2>慢慢搭出自己的工作台</h2><p>从扩展中心安装与管理。每个扩展页都有功能介绍、使用步骤和源码入口。</p></div>
-      <a href="/docs/concepts/extension-system">了解扩展体系 <ArrowRight size={16} aria-hidden="true" /></a>
+      <div class="market-help__copy"><h2>{labels.help}</h2><p>{labels.helpCopy}</p></div>
+      <a href="/docs/concepts/extension-system">{labels.learn} <ArrowRight size={16} aria-hidden="true" /></a>
     </aside>
   </main>
-  <SiteFooter />
+  <SiteFooter locale={locale} />
 </BaseLayout>
 
 <style>
@@ -65,9 +120,9 @@ const extensions = [
   .extension-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; align-items: start; }
   .extension-tile { min-width: 0; background: var(--loom-site-note-paper); color: var(--loom-site-note-ink); border-radius: var(--loom-site-radius-lg); }
   .extension-tile--world { margin-top: 36px; }
-  .extension-tile__art { display: block; border-radius: var(--loom-site-radius-lg) var(--loom-site-radius-lg) 0 0; }
+  .extension-tile__art { display: block; min-width: 0; border-radius: var(--loom-site-radius-lg) var(--loom-site-radius-lg) 0 0; }
   .extension-tile__copy { position: relative; padding: 0 32px 30px; }
-  .extension-tile__tag { position: relative; display: table; margin: -16px 0 20px; padding: 8px 14px; border: 5px solid var(--loom-site-note-paper); border-radius: 999px; background: var(--loom-site-note-yellow); font-size: 11px; font-weight: 700; transform: rotate(-3deg); }
+  .extension-tile__tag { position: relative; display: table; max-width: 100%; overflow-wrap: anywhere; margin: -16px 0 20px; padding: 8px 14px; border: 5px solid var(--loom-site-note-paper); border-radius: 999px; background: var(--loom-site-note-yellow); font-size: 11px; font-weight: 700; transform: rotate(-3deg); }
   .extension-tile--world .extension-tile__tag { background: var(--loom-site-note-lilac); transform: rotate(2deg); }
   .extension-tile__official { display: block; color: var(--loom-site-note-muted); font-size: 10px; }
   .extension-tile h2 { margin: 12px 0 14px; font: 500 clamp(28px, 3.2vw, 36px)/1.2 var(--loom-site-note-heading); }

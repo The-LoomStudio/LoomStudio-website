@@ -8,7 +8,7 @@ export function setupThemeToggle(button: HTMLButtonElement | null) {
 
   const syncButton = () => {
     const dark = root.dataset.theme === 'dark';
-    const label = dark ? '切换至浅色模式' : '切换至暗色模式';
+    const label = dark ? button.dataset.themeLightLabel! : button.dataset.themeDarkLabel!;
     button.setAttribute('aria-pressed', String(dark));
     button.setAttribute('aria-label', label);
     button.title = label;

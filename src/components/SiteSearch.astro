@@ -1,27 +1,33 @@
 ---
 import { Search, X } from '@lucide/astro';
-import { routes } from '../lib/site-routes';
+import { getRoutes } from '../lib/site-routes';
+import { type SiteLocale, getLocaleFromPath } from '../lib/i18n';
+import { searchCopy } from '../data/search-copy';
+interface Props { locale?: SiteLocale; }
+const { locale = getLocaleFromPath(Astro.url.pathname) } = Astro.props;
+const copy = searchCopy[locale];
+const routes = getRoutes(locale);
 ---
-<button class="site-icon" type="button" data-site-search-open aria-label="搜索网站" aria-haspopup="dialog" aria-controls="site-search" title="搜索网站（⌘K / Ctrl+K）"><Search size={21} stroke-width={1.6} /></button>
-<dialog id="site-search" class="site-search" aria-label="搜索网站" data-pagefind-ignore>
+<button class="site-icon" type="button" data-site-search-open aria-label={copy.open} aria-haspopup="dialog" aria-controls="site-search" title={`${copy.open} (⌘K / Ctrl+K)`}><Search size={21} stroke-width={1.6} /></button>
+<dialog id="site-search" class="site-search" aria-label={copy.open} data-pagefind-ignore>
   <div class="site-search__input-row">
     <Search size={22} aria-hidden="true" />
-    <input type="text" role="searchbox" placeholder="搜索页面、文档、架构或新闻…" aria-label="搜索网站内容" autocomplete="off" maxlength="256" data-search-input />
-    <button type="button" class="site-search__close" aria-label="关闭搜索" data-search-close><X size={20} /></button>
+    <input type="text" role="searchbox" placeholder={copy.placeholder} aria-label={copy.input} autocomplete="off" maxlength="256" data-search-input />
+    <button type="button" class="site-search__close" aria-label={copy.close} data-search-close><X size={20} /></button>
   </div>
-  <div class="site-search__scopes" role="group" aria-label="搜索范围">
-    {([['all', '全部'], ['pages', '页面'], ['docs', '文档'], ['architecture', '架构'], ['news', '新闻']] as const).map(([value, label]) => <button type="button" data-search-scope={value} aria-pressed={value === 'all'}>{label}</button>)}
-    <small>例如 in:文档</small>
+  <div class="site-search__scopes" role="group" aria-label={copy.range}>
+    {([['all', copy.all], ['pages', copy.pages], ['docs', copy.docs], ['architecture', copy.architecture], ['news', copy.news]] as const).map(([value, label]) => <button type="button" data-search-scope={value} aria-pressed={value === 'all'}>{label}</button>)}
+    <small>{copy.example}</small>
   </div>
   <div class="site-search__body">
-    <p class="site-search__status" role="status" aria-live="polite" data-search-status>常用页面</p>
-    <ul class="site-search__results" aria-label="搜索结果" data-search-results>
+    <p class="site-search__status" role="status" aria-live="polite" data-search-status>{copy.common}</p>
+    <ul class="site-search__results" aria-label={copy.results} data-search-results>
       {routes.map(route => <li><a href={route.href}><strong>{route.label}</strong><span>{route.caption}</span></a></li>)}
     </ul>
-    <button type="button" class="site-search__more" data-search-more hidden>加载更多</button>
-    <button type="button" class="site-search__more" data-search-retry hidden>重新加载搜索</button>
+    <button type="button" class="site-search__more" data-search-more hidden>{copy.more}</button>
+    <button type="button" class="site-search__more" data-search-retry hidden>{copy.retry}</button>
   </div>
-  <footer class="site-search__footer"><span>↑ ↓ 移动　↵ 打开</span><span>esc 关闭</span></footer>
+  <footer class="site-search__footer"><span>{copy.keys}</span><span>{copy.escape}</span></footer>
 </dialog>
 <script>
   import '../scripts/site-search';

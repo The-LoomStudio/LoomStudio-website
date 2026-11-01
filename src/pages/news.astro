@@ -6,35 +6,40 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import AnimatedDetails from '../components/motion/AnimatedDetails.astro';
 import NomSticker from '../components/NomSticker.astro';
+import { type SiteLocale, getLocalizedPath } from '../lib/i18n';
+import { newsCopy } from '../data/news-copy';
 import { siteImage } from '../lib/site-images';
 
+interface Props { locale?: SiteLocale; }
+const { locale = 'zh-CN' } = Astro.props;
+const copy = newsCopy[locale];
 const [logo, cover, postcard] = await Promise.all([
   siteImage('/brand/banner.png', [360, 720, 1080], 90),
   siteImage('/images/nom/banners/nom-banner-015.png', [480, 960]),
   siteImage('/images/nom/banners/nom-banner-003.png', [480, 960]),
 ]);
-const categories = [
-  ['all', '全部'],
-  ['update', '更新'],
-  ['fix', '修复'],
-  ['journal', '随笔'],
-];
+const categories = {
+ 'zh-CN': [['all', '全部'], ['update', '更新'], ['fix', '修复'], ['journal', '随笔']],
+ en: [['all', 'All'], ['update', 'Updates'], ['fix', 'Fixes'], ['journal', 'Notes']],
+ ja: [['all', 'すべて'], ['update', '更新'], ['fix', '修正'], ['journal', '手記']],
+ ko: [['all', '전체'], ['update', '업데이트'], ['fix', '수정'], ['journal', '노트']],
+}[locale];
 ---
 
-<BaseLayout title="News" description="Loom Studio 的新闻、官网更新、修复记录与开发随笔。">
-  <SiteHeader />
+<BaseLayout locale={locale} title="News" description={copy.description}>
+  <SiteHeader locale={locale} />
   <main class="news">
     <header class="news-heading" data-motion-reveal>
-      <a href="/" aria-label="Loom Studio 首页" class="news-logo">
+      <a href={getLocalizedPath('/', locale)} aria-label="Loom Studio" class="news-logo">
         <img src={logo.src} srcset={logo.srcSet} width={logo.width} height={logo.height}
           sizes="(max-width: 600px) 80vw, 420px" alt="Loom Studio" fetchpriority="high" />
       </a>
-      <h1>News <span>工作室手记</span></h1>
-      <p>新消息、小修补，还有创作途中的一点灵感。</p>
+      <h1>News <span>{copy.subtitle}</span></h1>
+      <p>{copy.intro}</p>
     </header>
 
     <fieldset class="news-filters">
-      <legend class="sr-only">消息分类</legend>
+      <legend class="sr-only">{copy.category}</legend>
       {categories.map(([value, label]) => (
         <label>
           <input type="radio" name="news-category" value={value} checked={value === 'all'} />
@@ -43,32 +48,32 @@ const categories = [
       ))}
     </fieldset>
 
-    <section class="news-board" aria-label="新闻与手记">
+    <section class="news-board" aria-label={copy.board}>
       <div class="news-motion-card" data-news-card data-category="update"><article id="news-diagonal-menu" class="news-item news-cover" data-category="update">
         <img class="news-cover__image" src={cover.src} srcset={cover.srcSet}
           width={cover.width} height={cover.height} sizes="(max-width: 680px) 90vw, 380px"
-          alt="诺姆捧着书，站在 Loom Studio 文字前" />
+          alt={copy.coverAlt} />
         <div class="news-copy">
-          <span class="news-tag">官网更新</span>
-          <h2>沿着斜线<br />遇见下一页</h2>
-          <p>全屏 Menu 换上了新的图文编排。图片、标题与小段文字沿斜线展开，每个入口都有自己的样子。</p>
+          <span class="news-tag">{copy.update}</span>
+          <h2 set:html={copy.menuTitle} />
+          <p>{copy.menuBody}</p>
           <footer><time datetime="2026-10-07">2026.10.07</time><Sparkles size={19} aria-hidden="true" /></footer>
         </div>
       </article></div>
 
       <div class="news-motion-card" data-news-card data-category="fix"><article id="news-touch-scroll" class="news-item news-ticket" data-category="fix">
-        <header><span class="news-tag">修复记录</span><MoveDown size={22} aria-hidden="true" /></header>
+        <header><span class="news-tag">{copy.fix}</span><MoveDown size={22} aria-hidden="true" /></header>
         <div class="ticket-perforation" aria-hidden="true"></div>
-        <h2>上下滑<br />就好啦</h2>
-        <p>移动端 Menu 现在跟随手指的纵向移动，不必顺着画面的斜线划。横向偏移也不会再影响滑动速度。</p>
+        <h2 set:html={copy.scrollTitle} />
+        <p>{copy.scrollBody}</p>
         <div class="news-nom"><NomSticker src="/images/nom/stickers/bust/wink.png" size="small" /></div>
         <footer><time datetime="2026-10-07">2026.10.07</time></footer>
       </article></div>
 
       <div class="news-motion-card" data-news-card data-category="update"><article id="news-welcome-board" class="news-item news-welcome" data-category="update">
         <Megaphone size={32} stroke-width={1.7} aria-hidden="true" />
-        <h2>工作室的<br />小小公告板</h2>
-        <p>新闻、更新通知、Bug 修复，今后都在这里见。</p>
+        <h2 set:html={copy.boardTitle} />
+        <p>{copy.boardBody}</p>
         <div class="news-nom"><NomSticker src="/images/nom/stickers/fullbody/welcome.png" size="small" /></div>
         <footer><time datetime="2026-10-07">2026.10.07</time></footer>
       </article></div>
@@ -76,40 +81,40 @@ const categories = [
       <div class="news-motion-card" data-news-card data-category="journal"><article id="news-architecture-map" class="news-item news-postcard" data-category="journal">
         <span class="news-tape" aria-hidden="true"></span>
         <img src={postcard.src} srcset={postcard.srcSet} width={postcard.width} height={postcard.height}
-          sizes="(max-width: 680px) 90vw, 380px" alt="诺姆与书本的插画" loading="lazy" />
-        <span class="news-tag">从工作台寄来</span>
-        <h2>故事背后的地图</h2>
-        <p>正文、推演与上下文，如何在工作台里相遇？沿着架构地图的连线，看看故事背后的结构。</p>
-        <a href="/docs/architecture">去地图逛逛 <ArrowUpRight size={18} aria-hidden="true" /></a>
+          sizes="(max-width: 680px) 90vw, 380px" alt={copy.postcardAlt} loading="lazy" />
+        <span class="news-tag">{copy.postcard}</span>
+        <h2>{copy.mapTitle}</h2>
+        <p>{copy.mapBody}</p>
+        <a href={getLocalizedPath('/docs/architecture', locale)}>{copy.mapLink} <ArrowUpRight size={18} aria-hidden="true" /></a>
       </article></div>
 
       <div class="news-motion-card" data-news-card data-category="update"><article id="news-menu-details" class="news-item news-checklist" data-category="update">
-        <span class="news-tag">交互小记</span>
-        <h2>多一点停留<br />少一点匆忙</h2>
-        <p>这次 Menu 的几个小变化，放在一起记下来。</p>
+        <span class="news-tag">{copy.interaction}</span>
+        <h2 set:html={copy.detailsTitle} />
+        <p>{copy.detailsBody}</p>
         <ul>
-          <li><Check size={17} aria-hidden="true" />更有重量的滚动阻尼</li>
-          <li><Check size={17} aria-hidden="true" />图片内部更明显的视差</li>
-          <li><Check size={17} aria-hidden="true" />首尾相接的循环浏览</li>
+          <li><Check size={17} aria-hidden="true" />{copy.damping}</li>
+          <li><Check size={17} aria-hidden="true" />{copy.parallax}</li>
+          <li><Check size={17} aria-hidden="true" />{copy.loop}</li>
         </ul>
         <AnimatedDetails>
-          <Fragment slot="summary">还有两个熟悉的细节 <ChevronDown size={18} aria-hidden="true" /></Fragment>
-          <p>Menu 按钮的线条动画和进入页面时的卷帘转场都保留下来。</p>
+          <Fragment slot="summary">{copy.more} <ChevronDown size={18} aria-hidden="true" /></Fragment>
+          <p>{copy.moreBody}</p>
         </AnimatedDetails>
         <footer><time datetime="2026-10-07">2026.10.07</time></footer>
       </article></div>
 
       <div class="news-motion-card" data-news-card data-category="journal"><article id="news-studio-layout" class="news-item news-note" data-category="journal">
         <Feather size={28} stroke-width={1.6} aria-hidden="true" />
-        <span class="news-tag">设计手记</span>
-        <h2>同一个工作室<br />不必同一种排版</h2>
-        <p>有的入口适合大幅插画，有的适合两张错落的图片，还有的应该先看见文字。</p>
-        <p>这次给每个导航做了不同的编排，也让这个公告板保留一点不整齐的趣味。</p>
+        <span class="news-tag">{copy.design}</span>
+        <h2 set:html={copy.layoutTitle} />
+        <p>{copy.layoutBody}</p>
+        <p>{copy.layoutEnd}</p>
         <footer><time datetime="2026-10-07">2026.10.07</time></footer>
       </article></div>
     </section>
   </main>
-  <SiteFooter />
+  <SiteFooter locale={locale} />
 </BaseLayout>
 
 <style>

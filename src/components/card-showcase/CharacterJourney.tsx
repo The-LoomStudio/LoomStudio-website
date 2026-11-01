@@ -1,3 +1,4 @@
+import type { SiteLocale } from '../../lib/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 import type { DisplayImage } from '../../lib/site-images'
@@ -8,7 +9,7 @@ import WeatherBackdrop, { type Weather } from '../story-demo/WeatherBackdrop'
 
 const range = (value: number, start: number, end: number) => Math.max(0, Math.min(1, (value - start) / (end - start)))
 
-export default function CharacterJourney({ images }: { images: Record<string, DisplayImage> }) {
+export default function CharacterJourney({ images, locale = 'zh-CN' }: { images: Record<string, DisplayImage>; locale?: SiteLocale }) {
   const root = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const stage = useRef<HTMLDivElement>(null)
@@ -65,14 +66,14 @@ export default function CharacterJourney({ images }: { images: Record<string, Di
   return <div ref={root} className="character-journey" data-reduced={reducedMotion || undefined}>
     <div className="character-journey__gallery" inert={!reducedMotion && progress > 0} aria-hidden={!reducedMotion && progress > 0}
         style={{ opacity: reducedMotion ? 1 : 1 - range(progress, 0, .12) }}>
-        <CardMasonry images={images} />
+        <CardMasonry locale={locale} images={images} />
       </div>
     <div ref={track} className="character-journey__track">
     <div ref={stage} className="character-journey__stage">
       <div className="character-journey__scene" aria-hidden={!landed} inert={!landed} data-landed={landed}
         style={{ opacity: reducedMotion ? 1 : range(progress, .025, .14) }}>
         <WeatherBackdrop weather={weather} />
-        <DeviceShowcase progress={demoProgress} avatar={avatar} weather={weather} onWeatherChange={setWeather} />
+        <DeviceShowcase locale={locale} progress={demoProgress} avatar={avatar} weather={weather} onWeatherChange={setWeather} />
       </div>
       <img ref={traveller} className="character-journey__traveller" src={avatar.src} alt="" aria-hidden="true"
         style={{ visibility: !reducedMotion && progress > 0 && progress < .14 ? 'visible' : 'hidden' }} />

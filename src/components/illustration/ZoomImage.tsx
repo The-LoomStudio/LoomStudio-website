@@ -1,9 +1,12 @@
+import type { SiteLocale } from '../../lib/i18n'
+import { getHomeDemoText } from '../../data/home-demo-copy'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { animate, type AnimationPlaybackControls } from 'motion'
 import type { DisplayImage } from '../../lib/site-images'
 import './zoom-image.css'
 
 type Props = {
+  locale?: SiteLocale
   image: DisplayImage
   fullSrc?: string
   sizes: string
@@ -20,8 +23,9 @@ type Props = {
 /** 同比例缩略图的 FLIP 展开；不裁切图片，也不改变正文占位。 */
 export default function ZoomImage({
   image, fullSrc = image.src, sizes, alt, caption, className, loading = 'lazy',
-  fetchPriority = 'auto', onLoad, onError, children,
+  fetchPriority = 'auto', onLoad, onError, children, locale = 'zh-CN',
 }: Props) {
+  const text = getHomeDemoText(locale)
   const thumbnail = useRef<HTMLImageElement>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const enlarged = useRef<HTMLImageElement>(null)
@@ -120,7 +124,7 @@ export default function ZoomImage({
   }
 
   return <figure className={['zoom-image', className].filter(Boolean).join(' ')}>
-    <button ref={trigger} className="zoom-image__trigger" type="button" data-zoom-source={image.src} aria-label={`放大图片：${alt}`} onClick={open}>
+    <button ref={trigger} className="zoom-image__trigger" type="button" data-zoom-source={image.src} aria-label={text('放大图片：') + alt} onClick={open}>
       {children ?? <img ref={thumbnail} src={image.src} srcSet={image.srcSet} sizes={sizes}
         width={image.width} height={image.height} alt={alt} loading={loading}
         fetchPriority={fetchPriority} decoding="async" style={{ opacity: previewReady ? 1 : 0 }}
@@ -131,7 +135,7 @@ export default function ZoomImage({
     <dialog ref={dialog} className="zoom-image__dialog" aria-label={alt}
       onCancel={event => { event.preventDefault(); close() }}
       onClick={event => { if (event.target === event.currentTarget) close() }}>
-      <button className="zoom-image__close" type="button" onClick={close} autoFocus aria-label="关闭图片">×</button>
+      <button className="zoom-image__close" type="button" onClick={close} autoFocus aria-label={text("关闭图片")}>×</button>
       <img ref={enlarged} width={image.width} height={image.height} alt={alt} onClick={close}
         style={{ opacity: enlargedReady ? 1 : 0 }}
         onLoad={() => setEnlargedReady(true)} onError={() => setEnlargedReady(false)} />

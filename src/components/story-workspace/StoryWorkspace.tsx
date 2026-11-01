@@ -1,3 +1,5 @@
+import type { SiteLocale } from '../../lib/i18n'
+import { getHomeDemoText, type HomeDemoText } from '../../data/home-demo-copy'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { FileText, FolderOpen, Pause, Play, RotateCcw } from 'lucide-react'
@@ -23,7 +25,7 @@ const operations: Operation[] = [
   { at: 26900, agent: '记录', action: '更新', file: '伏笔.md', duration: 2400, text: '# 一封来自明天的信\n\n线索：信封上的日期，比今天晚了一天。\n状态：已在钟楼重逢时回收。\n原来，那是我们约好再见的日子。\n\n保留来处，让下一次重逢有所依凭。' },
 ]
 const end = 32000
-const scenes = [
+const sceneData = [
   { at: 0, title: '01 / 埋下一笔', expression: 'surprised', quote: '「奇怪，这封信上的日期……是明天。」', prose: '雨停了。诺姆将信举到灯下，湿润的纸角透出一行熟悉的字迹。' },
   { at: 8000, title: '02 / 故事在幕后生长', expression: 'thinking', quote: '「也许，旧街上有人认得这个落款。」', prose: '她把信收进书里。还没说出口的答案，先留在故事的另一页。' },
   { at: 13700, title: '03 / 一个人物，一整个世界', expression: 'proud', quote: '「走吧。我们还有好多地方没去过。」', prose: '街道、约定、人物与时间逐渐交织。几位助手分工接力，为后面的故事做好准备。' },
@@ -33,10 +35,10 @@ const scenes = [
 
 const agentColors: Record<string, string> = { '叙事': '#57b9e8', '策划': '#b69af7', '记录': '#e9b65b' }
 
-function AgentCursor({ agent, quiet = false }: { agent: string; quiet?: boolean }) {
+function AgentCursor({ agent, label, quiet = false }: { agent: string; label: string; quiet?: boolean }) {
   return <span className="story-workspace__cursor" data-quiet={quiet} style={{ '--agent-color': agentColors[agent] } as CSSProperties} aria-hidden="true">
     <svg viewBox="0 0 24 28" width="20" height="24"><path d="M2 2 21 15 12 17 8 26Z" fill="currentColor" stroke="var(--loom-site-bg)" strokeWidth="2" strokeLinejoin="round" /></svg>
-    <span>{agent} Agent</span>
+    <span>{label} Agent</span>
   </span>
 }
 
@@ -54,7 +56,9 @@ function editFrame(before: string, after: string, progress: number) {
   return { prefix, removed: selecting ? removed : '', typed, suffix, selecting, text: prefix + (selecting ? removed : typed) + suffix }
 }
 
-export default function StoryWorkspace({ expressions }: { expressions: Record<NomExpression, DisplayImage> }) {
+export default function StoryWorkspace({ expressions, locale = 'zh-CN' }: { expressions: Record<NomExpression, DisplayImage>; locale?: SiteLocale }) {
+  const text = getHomeDemoText(locale)
+  const scenes = sceneData.map(scene => ({ ...scene, title: text(scene.title), quote: text(scene.quote), prose: text(scene.prose) }))
   const root = useRef<HTMLElement>(null)
   const elapsed = useRef(0)
   const [time, setTime] = useState(end)
@@ -101,7 +105,7 @@ export default function StoryWorkspace({ expressions }: { expressions: Record<No
       if (t >= item.at + 1500) files.delete(item.file)
     } else if (item.text !== undefined) {
       const fraction = Math.max(0, Math.min(1, (t - item.at - 250) / (item.duration - 250)))
-      const frame = editFrame(files.get(item.file) ?? '', item.text, fraction)
+      const frame = editFrame(files.get(item.file) ?? '', text(item.text as HomeDemoText), fraction)
       if (item === active) {
         edit = frame
         previousWriter = history.filter(other => other.at < item.at && other.file === item.file && other.text !== undefined).at(-1)?.agent
@@ -110,8 +114,8 @@ export default function StoryWorkspace({ expressions }: { expressions: Record<No
     }
   }
   const references = new Map<string, string>()
-  if (t >= 22400) references.set('工作交接', '# 工作交接\n\n已到达钟楼，信件的日期尚未解释。\n下一步先读「伏笔.md」，衔接重逢场景。\n\n当前会话的接续摘要')
-  if (t >= 26900) references.set('剧情记忆', '# 钟楼重逢\n\n诺姆循着信上的落款来到钟楼，终于理解了那个日期。\n那不是预言，而是两人约好再见的日子。\n\n来源：发现信件 → 旧街寻访 → 钟楼重逢\n\n由官方剧情记忆扩展整理正文，可修订、确认后采用。')
+  if (t >= 22400) references.set('工作交接', text("# 工作交接\n\n已到达钟楼，信件的日期尚未解释。\n下一步先读「伏笔.md」，衔接重逢场景。\n\n当前会话的接续摘要"))
+  if (t >= 26900) references.set('剧情记忆', text("# 钟楼重逢\n\n诺姆循着信上的落款来到钟楼，终于理解了那个日期。\n那不是预言，而是两人约好再见的日子。\n\n来源：发现信件 → 旧街寻访 → 钟楼重逢\n\n由官方剧情记忆扩展整理正文，可修订、确认后采用。"))
   const currentFile = selected && (files.has(selected) || references.has(selected)) ? selected : t >= 22400 && t < 23900 ? '工作交接' : active && files.has(active.file) ? active.file : [...files.keys()].at(-1)
   const working = !selected && active && active.file === currentFile && t < active.at + active.duration
   const writing = working && !!active.text
@@ -120,10 +124,10 @@ export default function StoryWorkspace({ expressions }: { expressions: Record<No
   function seek(value: number, play = false) {
     elapsed.current = value; setTime(value); setSelected(null); setPlaying(play)
   }
-  return <section className="story-workspace" id="story-workspace" ref={root} lang="zh-CN" aria-labelledby="workspace-title">
+  return <section className="story-workspace" id="story-workspace" ref={root} lang={locale} aria-labelledby="workspace-title">
     <header className="story-workspace__heading">
-      <h2 id="workspace-title">写下这一句<br />也为下一章做好准备</h2>
-      <p>从一条伏笔，到一整个世界。让助手用故事的工作文件，安排、记录，再接着写。</p>
+      <h2 id="workspace-title">{text("写下这一句")}<br />{text("也为下一章做好准备")}</h2>
+      <p>{text("从一条伏笔，到一整个世界。让助手用故事的工作文件，安排、记录，再接着写。")}</p>
     </header>
     <div className="story-workspace__stage">
       <div className="story-workspace__actor">
@@ -136,20 +140,20 @@ export default function StoryWorkspace({ expressions }: { expressions: Record<No
       </div>
       <div className="story-workspace__desk">
         <div className="story-workspace__window">
-          <header><FolderOpen size={16} /><span>钟楼来信 / Workspace</span></header>
+          <header><FolderOpen size={16} /><span>{text("钟楼来信 / Workspace")}</span></header>
           <div className="story-workspace__browser">
-            <nav aria-label="示例工作文件"><small>故事工作文件</small>
-              {!files.size && <p className="story-workspace__empty">第一条线索，即将落笔。</p>}
-              {[...files.keys()].map(file => <button key={file} aria-pressed={file === currentFile} onClick={() => { setSelected(file); setPlaying(false) }}><FileText size={14} /><span>{file}</span></button>)}
-              {references.size > 0 && <div className="story-workspace__references">{[...references.keys()].map(name => <button key={name} aria-pressed={name === currentFile} onClick={() => { setSelected(name); setPlaying(false) }}><FileText size={14} /><span>{name}</span></button>)}</div>}
+            <nav aria-label={text("示例工作文件")}><small>{text("故事工作文件")}</small>
+              {!files.size && <p className="story-workspace__empty">{text("第一条线索，即将落笔。")}</p>}
+              {[...files.keys()].map(file => <button key={file} aria-pressed={file === currentFile} onClick={() => { setSelected(file); setPlaying(false) }}><FileText size={14} /><span>{text(file as HomeDemoText)}</span></button>)}
+              {references.size > 0 && <div className="story-workspace__references">{[...references.keys()].map(name => <button key={name} aria-pressed={name === currentFile} onClick={() => { setSelected(name); setPlaying(false) }}><FileText size={14} /><span>{text(name as HomeDemoText)}</span></button>)}</div>}
             </nav>
             <div className="story-workspace__editor">
-              <header><span>{currentFile ?? ''}</span></header>
+              <header><span>{currentFile ? text(currentFile as HomeDemoText) : ''}</span></header>
               <pre key={currentFile} style={{ '--agent-color': active ? agentColors[active.agent] : undefined } as CSSProperties}>{frame ? <>
-                {frame.prefix}{previousWriter && previousWriter !== active?.agent && <AgentCursor agent={previousWriter} quiet />}
+                {frame.prefix}{previousWriter && previousWriter !== active?.agent && <AgentCursor agent={previousWriter} label={text(previousWriter as HomeDemoText)} quiet />}
                 {frame.selecting ? <mark className="story-workspace__selection">{frame.removed}</mark> : <span className="story-workspace__insert">{frame.typed}</span>}
-                {cursorVisible && <AgentCursor agent={active.agent} />}{frame.suffix}
-              </> : <>{currentFile ? files.get(currentFile) ?? references.get(currentFile) : ''}{cursorVisible && <AgentCursor agent={active.agent} />}</>}</pre>
+                {cursorVisible && <AgentCursor agent={active.agent} label={text(active.agent as HomeDemoText)} />}{frame.suffix}
+              </> : <>{currentFile ? files.get(currentFile) ?? references.get(currentFile) : ''}{cursorVisible && <AgentCursor agent={active.agent} label={text(active.agent as HomeDemoText)} />}</>}</pre>
 
             </div>
           </div>
@@ -158,8 +162,8 @@ export default function StoryWorkspace({ expressions }: { expressions: Record<No
       </div>
     </div>
     <div className="story-workspace__controls">
-      <div className="story-workspace__chapters" aria-label="演出阶段">{scenes.map(item => <button key={item.at} disabled={!!reduced} aria-pressed={scene.at === item.at} aria-label={item.title} title={item.title} onClick={() => seek(item.at)}><span className="story-workspace__step" /></button>)}</div>
-      <div><button disabled={!!reduced} onClick={() => { setSelected(null); if (time >= end) seek(0, true); else setPlaying(!playing) }}>{playing && time < end ? <Pause size={14} /> : <Play size={14} />}{playing && time < end ? '暂停' : '播放'}</button><button disabled={!!reduced} onClick={() => seek(0, true)}><RotateCcw size={14} />重播</button></div>
+      <div className="story-workspace__chapters" aria-label={text("演出阶段")}>{scenes.map(item => <button key={item.at} disabled={!!reduced} aria-pressed={scene.at === item.at} aria-label={item.title} title={item.title} onClick={() => seek(item.at)}><span className="story-workspace__step" /></button>)}</div>
+      <div><button disabled={!!reduced} onClick={() => { setSelected(null); if (time >= end) seek(0, true); else setPlaying(!playing) }}>{playing && time < end ? <Pause size={14} /> : <Play size={14} />}{playing && time < end ? text("暂停") : text("播放")}</button><button disabled={!!reduced} onClick={() => seek(0, true)}><RotateCcw size={14} />{text("重播")}</button></div>
     </div>
 
   </section>

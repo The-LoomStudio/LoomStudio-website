@@ -37,7 +37,10 @@ export function stripLocalePrefix(pathname: string): string {
 
 export function getLocalizedPath(pathname: string, targetLocale: SiteLocale): string {
   const unlocalized = stripLocalePrefix(pathname);
-  if (targetLocale === defaultLocale) {
+  // Only these pages have [lang] routes. Detailed docs and extension pages
+  // currently stay in Chinese; do not generate links to nonexistent translations.
+  const translatedPages = ['/', '/showcase', '/marketplace', '/download', '/docs', '/news', '/stickers'];
+  if (targetLocale === defaultLocale || !translatedPages.includes(unlocalized)) {
     return unlocalized;
   }
   return unlocalized === '/' ? `/${targetLocale}` : `/${targetLocale}${unlocalized}`;

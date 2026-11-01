@@ -1,3 +1,5 @@
+import type { SiteLocale } from '../lib/i18n'
+import { getHomeDemoText } from '../data/home-demo-copy'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 import type { DisplayImage } from '../lib/site-images'
@@ -6,11 +8,12 @@ import StoryDemo from './story-demo/StoryDemo'
 import './device-showcase.css'
 
 const devices = [
-  { id: 'phone', label: '手机', width: 428, viewportWidth: 390, className: 'device-iphone-14-pro' },
-  { id: 'laptop', label: '电脑', width: 740, viewportWidth: 1280, className: 'device-macbook-pro device-spacegray' },
+  { id: 'phone', label: '手机端工作台演示', width: 428, viewportWidth: 390, className: 'device-iphone-14-pro' },
+  { id: 'laptop', label: '电脑端工作台演示', width: 740, viewportWidth: 1280, className: 'device-macbook-pro device-spacegray' },
 ] as const
 
-export default function DeviceShowcase({ progress, avatar, weather, onWeatherChange }: { progress: number; avatar: DisplayImage; weather: Weather; onWeatherChange: (weather: Weather) => void }) {
+export default function DeviceShowcase({ progress, avatar, weather, onWeatherChange, locale = 'zh-CN' }: { locale?: SiteLocale; progress: number; avatar: DisplayImage; weather: Weather; onWeatherChange: (weather: Weather) => void }) {
+  const text = getHomeDemoText(locale)
   const reducedMotion = useReducedMotion()
   const [active, setActive] = useState(0)
   const slot = useRef<HTMLDivElement>(null)
@@ -46,7 +49,7 @@ export default function DeviceShowcase({ progress, avatar, weather, onWeatherCha
     return () => query.removeEventListener('change', sync)
   }, [])
   return <div className="device-showcase">
-    <div aria-label={`${device.label}端工作台演示`}
+    <div aria-label={text(device.label)}
       className={`device-preview device-preview--${device.id}`}>
       <div ref={slot} className="device-slot"
         style={{ aspectRatio: device.id === 'phone' ? 428 / 868 : 740 / 434 }}>
@@ -54,7 +57,7 @@ export default function DeviceShowcase({ progress, avatar, weather, onWeatherCha
           <div className="device-frame">
             <div ref={screen} className="device-screen">
               <div className="device-app-viewport">
-                <StoryDemo progress={reducedMotion ? 1 : progress} avatar={avatar} weather={weather} onWeatherChange={onWeatherChange} />
+                <StoryDemo locale={locale} progress={reducedMotion ? 1 : progress} avatar={avatar} weather={weather} onWeatherChange={onWeatherChange} />
               </div>
             </div>
           </div>
