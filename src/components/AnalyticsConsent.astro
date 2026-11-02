@@ -1,0 +1,74 @@
+---
+import NomSticker from './NomSticker.astro';
+import type { SiteLocale } from '../lib/i18n';
+interface Props { locale: SiteLocale }
+const { locale } = Astro.props;
+const copy = {
+  'zh-CN': {
+    title: '可以帮我了解这里的使用情况吗？',
+    body: '我是诺姆。允许使用 Google Analytics 统计 Cookie 吗？它会向 Google 发送页面浏览和交互信息，帮助我们改进官网。拒绝不影响浏览，你也可以随时更改选择。',
+    accept: '允许统计', reject: '暂不允许', settings: 'Cookie 设置', close: '收起',
+    allowed: '当前：已允许统计', denied: '当前：未允许统计', privacy: 'Google 隐私说明',
+  },
+  en: {
+    title: 'May I learn how you use this site?',
+    body: 'I’m Nom. May we use Google Analytics cookies? They send page views and interactions to Google to help us improve this website. You can decline and keep browsing, or change your choice anytime.',
+    accept: 'Allow analytics', reject: 'No thanks', settings: 'Cookie settings', close: 'Close',
+    allowed: 'Analytics is allowed', denied: 'Analytics is not allowed', privacy: 'Google privacy information',
+  },
+  ja: {
+    title: 'サイトの使われ方を教えてもらえますか？',
+    body: 'ノムです。Google Analytics の統計 Cookie を使ってもいいですか？閲覧や操作の情報を Google に送信し、サイトの改善に役立てます。拒否しても閲覧でき、設定はいつでも変更できます。',
+    accept: '統計を許可', reject: '許可しない', settings: 'Cookie 設定', close: '閉じる',
+    allowed: '現在：統計を許可しています', denied: '現在：統計を許可していません', privacy: 'Google のプライバシーについて',
+  },
+  ko: {
+    title: '사이트 이용 현황을 알려 주실래요?',
+    body: '저는 노므예요. Google Analytics 통계 쿠키를 허용할까요? 페이지 조회와 상호작용 정보를 Google에 보내 사이트 개선에 활용해요. 거절해도 사이트를 이용할 수 있고 언제든 설정을 바꿀 수 있어요.',
+    accept: '통계 허용', reject: '허용 안 함', settings: '쿠키 설정', close: '닫기',
+    allowed: '현재: 통계 허용', denied: '현재: 통계 허용 안 함', privacy: 'Google 개인정보 보호 안내',
+  },
+}[locale];
+---
+<div class="analytics-consent" data-analytics-consent hidden>
+  <section class="analytics-consent__panel" id="analytics-consent-panel" aria-labelledby="analytics-consent-title" hidden>
+    <div class="analytics-consent__character"><NomSticker src="/images/nom/stickers/bust/thank-you.png" size="small" /></div>
+    <div class="analytics-consent__bubble">
+      <h2 id="analytics-consent-title">{copy.title}</h2>
+      <p>{copy.body}</p>
+      <p data-consent-status data-allowed={copy.allowed} data-denied={copy.denied} aria-live="polite"></p>
+      <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">{copy.privacy}</a>
+      <div class="analytics-consent__actions">
+        <button type="button" data-consent-choice="denied">{copy.reject}</button>
+        <button type="button" data-consent-choice="granted">{copy.accept}</button>
+      </div>
+      <button class="analytics-consent__close" type="button" data-consent-close>{copy.close}</button>
+    </div>
+  </section>
+  <button class="analytics-consent__settings" type="button" aria-controls="analytics-consent-panel" aria-expanded="false" data-consent-settings>{copy.settings}</button>
+</div>
+<script>
+  import '../scripts/analytics-consent';
+</script>
+<style>
+  .analytics-consent { position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); left: 16px; z-index: 300; max-width: calc(100vw - 32px); }
+  .analytics-consent [hidden], .analytics-consent[hidden] { display: none; }
+  .analytics-consent__panel { display: flex; align-items: end; gap: 12px; width: 450px; max-width: 100%; margin-bottom: 10px; max-height: calc(100dvh - 100px); overflow-y: auto; }
+  .analytics-consent__character { flex: 0 0 80px; padding-bottom: 12px; }
+  .analytics-consent__bubble { flex: 1; min-width: 0; padding: 20px; border-radius: 20px 20px 20px 5px; background: var(--loom-site-note-paper); color: var(--loom-site-note-ink); box-shadow: 0 6px 28px rgb(8 12 16 / .18); font: 500 13px/1.7 var(--loom-site-note-body); }
+  h2 { margin: 0 0 10px; font: 600 17px/1.5 var(--loom-site-note-body); }
+  p { margin: 0 0 12px; }
+  a { color: inherit; text-underline-offset: 3px; }
+  button { cursor: pointer; font: inherit; }
+  .analytics-consent__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .analytics-consent__actions button { flex: 1; padding: 9px 12px; border: 1px solid currentColor; border-radius: 12px; color: inherit; background: transparent; }
+  .analytics-consent__actions button:hover { background: rgb(0 0 0 / .06); }
+  .analytics-consent__close { display: block; margin: 12px 0 0 auto; padding: 4px 8px; border: 0; background: transparent; color: inherit; text-decoration: underline; }
+  .analytics-consent__settings { padding: 8px 12px; border: 1px solid var(--loom-site-border-strong); border-radius: 999px; background: var(--loom-site-bg); color: var(--loom-site-text); font-size: 12px; }
+  button:focus-visible, a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  @media (max-width: 480px) {
+    .analytics-consent__panel { gap: 6px; }
+    .analytics-consent__character { flex-basis: 48px; }
+    .analytics-consent__bubble { padding: 16px; }
+  }
+</style>

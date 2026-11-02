@@ -3,6 +3,7 @@ import '../styles/global.css';
 import '../styles/site-motion.css';
 import PageArrival from '../components/PageArrival.astro';
 import PageMotif from '../components/PageMotif.astro';
+import AnalyticsConsent from '../components/AnalyticsConsent.astro';
 import { getImage } from 'astro:assets';
 import socialBanner from '../../public/images/nom/banners/og-banner.png';
 import docsBanner from '../../public/images/nom/banners/nom-banner-004.png';
@@ -137,6 +138,7 @@ const pageTitle = title === 'Loom Studio'
     <PageMotif path={unlocalizedPath} />
     {unlocalizedPath !== '/docs/architecture' && <div class="site-reading-progress" data-reading-progress aria-hidden="true"></div>}
     <slot />
+    <AnalyticsConsent locale={currentLocale} />
     <div
       class="page-scrollbar"
       role="scrollbar"
