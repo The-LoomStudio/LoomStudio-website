@@ -3,6 +3,7 @@ import react from '@astrojs/react';
 import siteSearch from './src/integrations/site-search.ts';
 
 export default defineConfig({
+  site: 'https://loomstudio.pages.dev',
   output: 'static',
   trailingSlash: 'never',
   integrations: [react(), siteSearch(), {
