@@ -6,9 +6,9 @@ const analyticsWindow = window as typeof window & {
   'ga-disable-G-T81JY514CC'?: boolean;
 };
 const root = document.querySelector<HTMLElement>('[data-analytics-consent]')!;
-const panel = root.querySelector<HTMLElement>('#analytics-consent-panel')!;
+const panel = document.getElementById('analytics-consent-panel')!;
 const settings = root.querySelector<HTMLButtonElement>('[data-consent-settings]')!;
-const status = root.querySelector<HTMLElement>('[data-consent-status]')!;
+const status = panel.querySelector<HTMLElement>('[data-consent-status]')!;
 const isProductionSite = import.meta.env.PROD && location.hostname === 'loomstudio.pages.dev';
 let initialized = false;
 
@@ -67,8 +67,12 @@ function applyConsent(consent: Consent) {
 function showPanel(open: boolean, focus = false) {
   panel.hidden = !open;
   settings.setAttribute('aria-expanded', String(open));
+  if (!open) delete panel.dataset.consentFocusRequested;
   if (focus) {
-    if (open) panel.querySelector<HTMLButtonElement>('[data-consent-choice]')!.focus();
+    if (open) {
+      panel.dataset.consentFocusRequested = '';
+      panel.querySelector<HTMLButtonElement>('[data-consent-choice]')!.focus();
+    }
     else settings.focus();
   }
 }
@@ -78,11 +82,11 @@ const initialConsent = readConsent();
 applyConsent(initialConsent);
 showPanel(initialConsent === null);
 settings.addEventListener('click', () => showPanel(Boolean(panel.hidden), true));
-root.querySelector('[data-consent-close]')!.addEventListener('click', () => showPanel(false, true));
-root.addEventListener('keydown', event => {
+panel.querySelector('[data-consent-close]')!.addEventListener('click', () => showPanel(false, true));
+panel.addEventListener('keydown', event => {
   if (event.key === 'Escape' && !panel.hidden) showPanel(false, true);
 });
-root.querySelectorAll<HTMLButtonElement>('[data-consent-choice]').forEach(button => {
+panel.querySelectorAll<HTMLButtonElement>('[data-consent-choice]').forEach(button => {
   button.addEventListener('click', () => {
     const consent = button.dataset.consentChoice as Exclude<Consent, null>;
     try { localStorage.setItem(storageKey, consent); } catch {

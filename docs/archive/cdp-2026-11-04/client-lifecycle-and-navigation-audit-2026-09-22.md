@@ -1,7 +1,9 @@
 # Website 客户端生命周期与导航审查
 
+> 已归档（2026-11-04）：本次调查与修复已收束。正文保留各阶段证据，不代表每条旧结论仍成立；最终结果见网络与性能记录末尾，未完成项见[后续待办](../../issues/website-cdp-followups.md)。
+
 日期：2026-09-22  
-状态：Open Issues，待修复  
+状态：已归档。WEB-001 / WEB-005 已于 2026-11-04 修复并在生产预览验收；其他历史项的反证与边界见文末复核及本目录网络与性能记录。
 基线：HEAD `eb9101b1e9cf1b6e1ed3bf63b77a1e4ec00ceb22` 加当前工作区，包含未提交页面和插图修改。  
 来源：前四项为同模型子智能体独立只读审查，主 Agent 整理，未作第二次独立复现；WEB-005 为主 Agent 后续独立检查。
 
@@ -110,3 +112,21 @@
 24 个 hints 主要包括 React `FormEvent` / Radix `ElementRef` 类型弃用、`StudioDemo.tsx` 中未挂载的 `AgentDemo`、快照 `AssetWorkbenchLayout` 中未使用的 `setMobilePane`，以及旧式 JavaScript 构造函数提示。当前首页实际只挂载 `WorkspaceDemo`；结合 Studio Demo 仍是独立演示草稿，未把未挂载 AgentDemo 计为线上功能缺陷，也没有为了消除提示改动 WIP 快照或 Agent 展示代码。
 
 这项账目用于区分“类型检查通过”和“源码完全无维护提示”：当前没有类型错误，但也不能据此宣称 Website 已完成浏览器、目标 Node 版本、响应式或视觉验收。未运行 `build`，没有修改 Website 实现。
+
+
+## 2026-11-04 当前生产预览复核
+
+使用当前 dist、Chrome 独立页，保留既有工作区修改。
+
+- **WEB-001 已真实复现**：从 `/docs` 导航到 `/showcase` 再返回，原 timeOrigin=1793794604361.5 保留，探针捕获 `pageshow.persisted=true`。随后 scrollY=500、maxScroll=1720，但自定义滚动条 aria-valuenow=0、阅读进度0%、TOC进度0。刷新后同一500px位置，滚动条29、阅读进度30%、TOC进度0.296981。原监听页面hide后清理、没有pageshow恢复，与现场相符。已移除本轮pageshow探针。
+- **WEB-004 当前已修复，不应继续列为开放缺陷**：当前 SiteHeader 使用 `dialog.showModal()`，对背景文档链接调用 focus 无法取得焦点，当前焦点仍在菜单；原生Escape触发退出动画，动画完成后menu.open=false，焦点回data-menu-trigger。不能用背景元素inert属性为false否认原生模态隔离。
+- **WEB-005 已真实复现**：从概览通过侧栏加载快速开始，TOC生成 `/docs/getting-started#getting-started--安装与启动`。在独立新标签页打开该已观察链接，临时ID不存在，规范ID“安装与启动”存在，scrollY=0。新标签页已关闭。一次受限playwright.evaluate尝试decodeURIComponent不可用，改用已知ID直接DOM核对；这是探针限制，不是产品错误。
+
+WEB-002 当前源码已有pendingArticles和navigationGeneration，不沿用旧结论；并发回包及去重的浏览器复核继续进行。WEB-003 当前菜单和文档均有修饰键门控，尚未把源码检查等同于所有平台原生新标签页行为验收。
+
+
+### 并发导航与历史恢复补证
+
+- WEB-002 的旧并发/去重缺陷当前未复现：对 Prompt Build 的HTML响应作一次Response阶段暂缓，连续点击该文档两次后选择Agent Session；后者先挂载，释放旧响应后仍停留Agent Session，DOM只包含概览和Agent Session。Network窗口Prompt Build请求数1，无事件截断。暂缓请求已放行、Fetch patterns已清空。首次误将已经打开的“核心概念”组点成折叠，导致高层locator找不到名称；重新核对open状态后才执行有效样本，不计为页面故障。
+- 历史恢复需区分动画阶段：导航到Agent Session并等待2秒，正文top=84、scrollY=2063后，Back稳定为/docs、scrollY=0、活动目录/docs；Forward稳定恢复Agent Session、scrollY=2063及对应活动目录。原先在800ms时返回，原平滑滚动尚未结束（当时只到约1993px），观察到地址/docs与活动目录Agent Session不一致，甚至原滚动继续走向目标。窗口未发生pagehide，仅popstate和scroll；这属于平滑滚动未结束时的快速返回边界，不能扩写成所有历史恢复失效。此边界尚未修复，需围绕取消/替换进行中的文档滚动与历史恢复另行设计最小修复。
+- 高层语义click曾返回而未形成新增文章/导航；核对DOM命中后用现有链接DOM.click隔离状态实验并确认目标实际到达。该实验验证调度与历史状态，不替代指针命中验收。新增历史事件探针随自建页关闭或显式移除，不保留监听器。

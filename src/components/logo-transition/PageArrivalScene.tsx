@@ -38,7 +38,8 @@ export default function PageArrivalScene({ locale }: { locale: SiteLocale }) {
     async function reveal() {
       // Off-screen eager images (including the footer Banner) must not gate first paint.
       const images = [...document.images].filter(image => {
-        const bounds = image.getBoundingClientRect()
+        // The curtain footer is fixed in the viewport but clipped by its off-screen wrapper.
+        const bounds = (image.closest('.footer-reveal--curtain') ?? image).getBoundingClientRect()
         return bounds.width > 0 && bounds.height > 0 && bounds.bottom > 0 && bounds.top < innerHeight
           && bounds.right > 0 && bounds.left < innerWidth
       })
@@ -58,22 +59,27 @@ export default function PageArrivalScene({ locale }: { locale: SiteLocale }) {
         image.addEventListener('error', finish, { once: true })
         if (image.complete) decode()
       })))
-      let assetsReady = false
-      void ready.then(() => { assetsReady = true })
-      // Hold before glyphs begin to form the mark, not after the mark is complete.
+      const alreadyLoaded = images.every(image => image.complete)
+      if (alreadyLoaded) {
+        await ready
+        if (signal.aborted) return
+        try { sessionStorage.setItem('loom-site-arrival-seen', '1') } catch {}
+        restore()
+        return
+      }
+
+      // The prelude runs only while resources are pending; readiness releases it.
+      let currentProgress = 0
       animation = animate(0, 0.18, {
-        duration: reducedMotion ? 0 : 1.8, ease: 'linear', onUpdate: setProgress,
-        onComplete: () => { if (!signal.aborted && !assetsReady) setWaiting(true) },
+        duration: reducedMotion ? 0 : 1.8, ease: 'linear',
+        onUpdate: value => { currentProgress = value; setProgress(value) },
+        onComplete: () => { if (!signal.aborted) setWaiting(true) },
       })
-      await Promise.all([ready, animation])
+      await ready
       if (signal.aborted) return
+      animation.stop()
       setWaiting(false)
-      animation = animate(0.18, 0.20, {
-        duration: reducedMotion ? 0 : 1.6, ease: 'linear', onUpdate: setProgress,
-      })
-      await animation
-      if (signal.aborted) return
-      animation = animate(0.20, 0.67, {
+      animation = animate(currentProgress, 0.67, {
         duration: reducedMotion ? 0 : 1.2, ease: 'linear', onUpdate: setProgress,
       })
       await animation

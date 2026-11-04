@@ -57,34 +57,36 @@ ${text('保留角色的性格与已有经历，从这次行动出发。结合地
   useEffect(() => {
     const thumbnail = root.current!.querySelector<HTMLImageElement>('.zoom-image__trigger img')
     if (thumbnail?.complete && thumbnail.naturalWidth) setImageReady(true)
-    const sample = new Image()
-    sample.onload = () => {
-      setPixels([16, 32, 48].map(cols => {
-        const sampleRows = Math.max(1, Math.round(cols * image.height / image.width))
-        const buffer = document.createElement('canvas')
-        buffer.width = cols * 2
-        buffer.height = sampleRows * 4
-        const context = buffer.getContext('2d')!
-        context.drawImage(sample, 0, 0, buffer.width, buffer.height)
-        const cells = brailleCells(context.getImageData(0, 0, buffer.width, buffer.height).data, cols, sampleRows)
-        const bitmap = document.createElement('canvas')
-        bitmap.width = 440
-        bitmap.height = rows * 10
-        const ink = bitmap.getContext('2d')!
-        const cellWidth = 440 / cols
-        const cellHeight = bitmap.height / sampleRows
-        ink.font = `${cellHeight}px "Apple Braille", "Segoe UI Symbol", monospace`
-        cells.forEach((cell, index) => {
-          ink.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${cell.alpha})`
-          ink.fillText(cell.char, index % cols * cellWidth, Math.floor(index / cols) * cellHeight + cellHeight * .9)
-        })
-        return bitmap
-      }))
-    }
-    sample.onerror = () => setFailed(true)
-    sample.src = image.src
-    return () => { sample.onload = null; sample.onerror = null }
-  }, [image.src, rows])
+  }, [image.src])
+
+  useEffect(() => {
+    if (!imageReady) return
+    const sample = root.current!.querySelector<HTMLImageElement>('.zoom-image__trigger img')!
+    // Read the already-decoded responsive preview; no second maximum-size image request.
+    // This surface is only used for pixel readback, not for compositing the animation.
+    const buffer = document.createElement('canvas')
+    const context = buffer.getContext('2d', { willReadFrequently: true })!
+    setPixels([16, 32, 48].map(cols => {
+      const sampleRows = Math.max(1, Math.round(cols * image.height / image.width))
+      buffer.width = cols * 2
+      buffer.height = sampleRows * 4
+      context.drawImage(sample, 0, 0, buffer.width, buffer.height)
+      const cells = brailleCells(context.getImageData(0, 0, buffer.width, buffer.height).data, cols, sampleRows)
+      const bitmap = document.createElement('canvas')
+      bitmap.width = 440
+      bitmap.height = rows * 10
+      const ink = bitmap.getContext('2d')!
+      const cellWidth = 440 / cols
+      const cellHeight = bitmap.height / sampleRows
+      ink.font = `${cellHeight}px "Apple Braille", "Segoe UI Symbol", monospace`
+      cells.forEach((cell, index) => {
+        if (!cell.alpha) return
+        ink.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${cell.alpha})`
+        ink.fillText(cell.char, index % cols * cellWidth, Math.floor(index / cols) * cellHeight + cellHeight * .9)
+      })
+      return bitmap
+    }))
+  }, [imageReady, image.src, image.height, image.width, rows])
 
   useEffect(() => {
     const context = canvas.current!.getContext('2d')

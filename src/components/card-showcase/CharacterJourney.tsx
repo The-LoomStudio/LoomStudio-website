@@ -1,6 +1,6 @@
 import type { DiaryImages } from '../story-demo/SummerPostcard'
 import type { SiteLocale } from '../../lib/i18n'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useReducedMotion } from 'motion/react'
 import type { DisplayImage } from '../../lib/site-images'
 import CardMasonry, { selectedCard } from './CardMasonry'
@@ -10,15 +10,26 @@ import WeatherBackdrop, { type Weather } from '../story-demo/WeatherBackdrop'
 
 const range = (value: number, start: number, end: number) => Math.max(0, Math.min(1, (value - start) / (end - start)))
 
-export default function CharacterJourney({ images, diaryImages, locale = 'zh-CN' }: { images: Record<string, DisplayImage>; diaryImages: DiaryImages; locale?: SiteLocale }) {
+export default function CharacterJourney({ images, diaryImages, background, locale = 'zh-CN' }: { images: Record<string, DisplayImage>; diaryImages: DiaryImages; background: DisplayImage; locale?: SiteLocale }) {
   const root = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const stage = useRef<HTMLDivElement>(null)
   const traveller = useRef<HTMLImageElement>(null)
   const [weather, setWeather] = useState<Weather>('illustration')
+  const [backgroundReady, setBackgroundReady] = useState(false)
   const [progress, setProgress] = useState(0)
   const reducedMotion = useReducedMotion()
   const avatar = images[selectedCard.src]
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return
+      setBackgroundReady(true)
+      observer.disconnect()
+    }, { rootMargin: '400px' })
+    observer.observe(stage.current!)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (reducedMotion) return
@@ -72,7 +83,7 @@ export default function CharacterJourney({ images, diaryImages, locale = 'zh-CN'
     <div ref={track} className="character-journey__track">
     <div ref={stage} className="character-journey__stage">
       <div className="character-journey__scene" aria-hidden={!landed} inert={!landed} data-landed={landed}
-        style={{ opacity: reducedMotion ? 1 : range(progress, .025, .14) }}>
+        style={{ opacity: reducedMotion ? 1 : range(progress, .025, .14), '--journey-background': backgroundReady ? `url("${background.src}")` : undefined } as CSSProperties}>
         <WeatherBackdrop weather={weather} />
         <DeviceShowcase diaryImages={diaryImages} locale={locale} progress={demoProgress} avatar={avatar} weather={weather} onWeatherChange={setWeather} />
       </div>

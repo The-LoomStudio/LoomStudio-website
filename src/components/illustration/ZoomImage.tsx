@@ -32,11 +32,12 @@ export default function ZoomImage({
   const trigger = useRef<HTMLButtonElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const closing = useRef(false)
+  const decodeGeneration = useRef(0)
   const animation = useRef<AnimationPlaybackControls | undefined>(undefined)
   const [previewReady, setPreviewReady] = useState(false)
   const [enlargedReady, setEnlargedReady] = useState(false)
 
-  useEffect(() => () => { clearTimeout(timer.current); animation.current?.stop() }, [])
+  useEffect(() => () => { decodeGeneration.current++; clearTimeout(timer.current); animation.current?.stop() }, [])
   useEffect(() => {
     const preview = thumbnail.current
     setPreviewReady(Boolean(preview?.complete && preview.naturalWidth))
@@ -63,6 +64,7 @@ export default function ZoomImage({
   const thumbnailRect = () => (thumbnail.current ?? trigger.current!).getBoundingClientRect()
   const open = () => {
     if ((!children && !thumbnail.current!.naturalWidth) || dialog.current!.open) return
+    const generation = ++decodeGeneration.current
     closing.current = false
     delete dialog.current!.dataset.closing
     setEnlargedReady(false)
@@ -80,7 +82,7 @@ export default function ZoomImage({
       const full = new Image()
       full.src = fullSrc
       full.decode().then(() => {
-        if (dialog.current?.open && !closing.current) preview.src = fullSrc
+        if (generation === decodeGeneration.current && dialog.current?.open && !closing.current) preview.src = fullSrc
       }).catch(() => {
         // A failed high-resolution request must not discard the usable preview.
       })
@@ -90,6 +92,8 @@ export default function ZoomImage({
     clearTimeout(timer.current)
     animation.current?.stop()
     dialog.current!.close()
+    enlarged.current!.removeAttribute('src')
+    setEnlargedReady(false)
     trigger.current!.style.visibility = ''
     trigger.current!.focus({ preventScroll: true })
     closing.current = false
@@ -97,6 +101,7 @@ export default function ZoomImage({
   const close = () => {
     if (closing.current || !dialog.current!.open) return
     closing.current = true
+    decodeGeneration.current++
     dialog.current!.dataset.closing = ''
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       finish()

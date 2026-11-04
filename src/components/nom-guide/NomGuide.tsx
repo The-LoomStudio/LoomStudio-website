@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, useReducedMotion } from 'motion/react'
 import * as m from 'motion/react-m'
 import { Minus, X } from 'lucide-react'
@@ -28,9 +28,19 @@ function Guide({ sections, expressions, reactions, copy }: Props) {
   const [current, setCurrent] = useState<{ index: number; reaction: number | null } | null>(null)
   const [minimized, setMinimized] = useState(false)
   const [closed, setClosed] = useState(false)
+  const [consentPanel, setConsentPanel] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
-    if (closed) return
+    const panel = document.getElementById('analytics-consent-panel')!
+    const sync = () => setConsentPanel(panel.hidden ? null : panel)
+    const observer = new MutationObserver(sync)
+    observer.observe(panel, { attributes: true, attributeFilter: ['hidden'] })
+    sync()
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (closed || !sections.length) return
     // 以视口中上方的阅读区域切换章节；离开区域时保留上一段介绍。
     const targets = sections.map(item => document.getElementById(item.targetId)!)
     const visible = new Set<Element>()
@@ -61,43 +71,61 @@ function Guide({ sections, expressions, reactions, copy }: Props) {
     return () => { observer.disconnect(); window.removeEventListener('resize', resize) }
   }, [sections, closed])
 
-  if (closed || !current) return null
-  const section = sections[current.index]
-  const speech = current.reaction === null ? section : reactions[current.reaction]
+  if (!consentPanel && (closed || !current)) return null
+  const section = current ? sections[current.index] : null
+  const speech = current && current.reaction !== null ? reactions[current.reaction] : section
+  const expression = consentPanel ? 'smile' : speech!.expression
   function reactToTouch() {
     setCurrent({ index: current!.index, reaction: ((current!.reaction ?? -1) + 1) % reactions.length })
   }
 
-  return <aside className="nom-guide" aria-label={copy.label} data-pagefind-ignore>
+  return <aside className="nom-guide" aria-label={consentPanel ? consentPanel.getAttribute('aria-label') ?? copy.label : copy.label} data-consent-open={!!consentPanel || undefined} data-pagefind-ignore>
     <AnimatePresence mode="wait" initial={false}>
-      {minimized ? <m.div key="minimized" className="nom-guide__mini" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.12 }}>
+      {minimized && !consentPanel ? <m.div key="minimized" className="nom-guide__mini" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.12 }}>
         <button className="nom-guide__expand" type="button" onClick={() => setMinimized(false)} aria-label={copy.expand} aria-expanded="false">
           <img src={expressions.smile.src} width="36" height="36" alt="" /><span>{copy.minimized}</span>
         </button>
         <button className="nom-guide__icon" type="button" onClick={() => setClosed(true)} aria-label={copy.close}><X size={15} /></button>
       </m.div> : <m.div key="expanded" className="nom-guide__scene" initial={{ opacity: 0, y: reducedMotion ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.18 }}>
-        <m.button className="nom-guide__portrait" type="button" onClick={reactToTouch} disabled={!reactions.length} aria-label={copy.greet}
+        <m.button className="nom-guide__portrait" type="button" onClick={reactToTouch} disabled={!!consentPanel || !reactions.length} aria-label={copy.greet}
           whileHover={reducedMotion ? undefined : { rotate: -3, y: -3 }} whileTap={reducedMotion ? undefined : { scale: 0.96 }}>
-          {nomExpressions.map(expression => {
-            const image = expressions[expression]
-            return <m.img key={expression} src={image.src} srcSet={image.srcSet} sizes="(max-width: 640px) 80px, 136px" width={image.width} height={image.height} alt="" draggable={false}
-              initial={false} animate={{ opacity: speech.expression === expression ? 1 : 0, y: speech.expression === expression || reducedMotion ? 0 : 5 }} transition={{ duration: reducedMotion ? 0 : 0.18 }} />
+          {(sections.length ? nomExpressions : ['smile'] as const).map(portrait => {
+            const image = expressions[portrait]
+            return <m.img key={portrait} src={image.src} srcSet={image.srcSet} sizes="(max-width: 640px) 80px, 136px" width={image.width} height={image.height} alt="" draggable={false}
+              initial={false} animate={{ opacity: expression === portrait ? 1 : 0, y: expression === portrait || reducedMotion ? 0 : 5 }} transition={{ duration: reducedMotion ? 0 : 0.18 }} />
           })}
         </m.button>
         <div className="nom-guide__bubble">
-          <div className="nom-guide__controls">
-            <button className="nom-guide__icon" type="button" onClick={() => setMinimized(true)} aria-label={copy.minimize} aria-expanded="true"><Minus size={16} /></button>
-            <button className="nom-guide__icon" type="button" onClick={() => setClosed(true)} aria-label={copy.close}><X size={16} /></button>
-          </div>
-          <div className="nom-guide__speech" aria-live="polite" aria-atomic="true">
-            <AnimatePresence mode="wait" initial={false}>
-              <m.div key={`${section.targetId}-${speech.title}`} initial={{ opacity: 0, y: reducedMotion ? 0 : 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.12 }}>
-                <h2>{speech.title}</h2><p>{speech.text}</p>
-              </m.div>
-            </AnimatePresence>
-          </div>
+          {consentPanel ? <ConsentContent panel={consentPanel} /> : <>
+            <div className="nom-guide__controls">
+              <button className="nom-guide__icon" type="button" onClick={() => setMinimized(true)} aria-label={copy.minimize} aria-expanded="true"><Minus size={16} /></button>
+              <button className="nom-guide__icon" type="button" onClick={() => setClosed(true)} aria-label={copy.close}><X size={16} /></button>
+            </div>
+            <div className="nom-guide__speech" aria-live="polite" aria-atomic="true">
+              <AnimatePresence mode="wait" initial={false}>
+                <m.div key={`${section!.targetId}-${speech!.title}`} initial={{ opacity: 0, y: reducedMotion ? 0 : 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.12 }}>
+                  <h2>{speech!.title}</h2><p>{speech!.text}</p>
+                </m.div>
+              </AnimatePresence>
+            </div>
+          </>}
         </div>
       </m.div>}
     </AnimatePresence>
   </aside>
+}
+
+/** Keep the existing consent controls and listeners; only Nom's presentation owns this slot. */
+function ConsentContent({ panel }: { panel: HTMLElement }) {
+  const host = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const originalParent = panel.parentElement!
+    host.current!.append(panel)
+    if (panel.hasAttribute('data-consent-focus-requested')) {
+      delete panel.dataset.consentFocusRequested
+      panel.querySelector<HTMLButtonElement>('[data-consent-choice]')!.focus()
+    }
+    return () => { originalParent.prepend(panel) }
+  }, [panel])
+  return <div ref={host} className="nom-guide__consent" />
 }

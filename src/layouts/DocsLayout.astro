@@ -155,7 +155,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     const retryButton = document.querySelector<HTMLButtonElement>('[data-docs-stream-retry]');
     const toc = document.querySelector<HTMLElement>('[data-docs-toc]');
     const tocTitle = document.querySelector<HTMLElement>('[data-docs-toc-title]');
-    const progressLabel = document.querySelector<HTMLElement>('[data-reading-progress]');
+    const progressLabel = document.querySelector<HTMLElement>('.docs-toc [data-reading-progress]');
     const breadcrumb = document.querySelector<HTMLElement>('[data-doc-breadcrumb]');
     const documents = JSON.parse(reader?.dataset.documents ?? '[]') as DocumentEntry[];
     const normalizePath = (pathname: string) => pathname.replace(/\/$/, '') || '/';
@@ -211,7 +211,13 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
       const headings = Array.from(article.querySelectorAll<HTMLElement>('.markdown h2[id]'));
       for (const heading of headings) {
         const link = window.document.createElement('a');
-        link.href = `#${heading.id}`;
+        link.href = `${article.dataset.docUrl}#${heading.dataset.canonicalId ?? heading.id}`;
+        link.addEventListener('click', (event) => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          heading.scrollIntoView({ block: 'start' });
+          history.replaceState(null, '', link.href);
+        });
         link.dataset.tocLink = heading.id;
         link.textContent = heading.childNodes[0]?.textContent?.trim() || heading.textContent?.trim() || '章节';
         toc.append(link);
@@ -419,18 +425,24 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
           if (entries.some((entry) => entry.isIntersecting)) loadNextDocument();
         }, { rootMargin: '0px 0px 600px 0px' })
       : undefined;
-    if (streamStatus && nextDocumentIndex >= 0 && nextDocumentIndex < documents.length) streamObserver?.observe(streamStatus);
+    const resumeReading = () => {
+      if (streamStatus && nextDocumentIndex >= 0 && nextDocumentIndex < documents.length) streamObserver?.observe(streamStatus);
+      window.addEventListener('scroll', requestReadingUpdate, { passive: true });
+      window.addEventListener('resize', requestReadingUpdate);
+      requestReadingUpdate();
+      requestNextDocument();
+    };
     retryButton?.addEventListener('click', loadNextDocument);
 
-    window.addEventListener('scroll', requestReadingUpdate, { passive: true });
-    window.addEventListener('resize', requestReadingUpdate);
     window.addEventListener('pagehide', () => {
       window.cancelAnimationFrame(readingFrame);
+      readingFrame = 0;
       streamObserver?.disconnect();
       window.removeEventListener('scroll', requestReadingUpdate);
       window.removeEventListener('resize', requestReadingUpdate);
-    }, { once: true });
-    updateReadingProgress();
+    });
+    window.addEventListener('pageshow', resumeReading);
+    resumeReading();
   </script>
 </BaseLayout>
 
@@ -465,7 +477,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     gap: 12px;
     margin-bottom: 28px;
   }
-  .docs-nav__group :global(summary) {
+  .docs-nav__group summary {
     min-height: 34px;
     display: flex;
     align-items: center;
@@ -479,9 +491,9 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     user-select: none;
     transition: color 160ms ease;
   }
-  .docs-nav__group :global(summary::-webkit-details-marker) { display: none; }
-  .docs-nav__group :global(summary:hover),
-  .docs-nav__group.active :global(summary) { color: var(--loom-site-text); }
+  .docs-nav__group summary::-webkit-details-marker { display: none; }
+  .docs-nav__group summary:hover,
+  .docs-nav__group.active summary { color: var(--loom-site-text); }
   .docs-nav__links {
     display: grid;
     gap: 3px;

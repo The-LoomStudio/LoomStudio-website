@@ -6,7 +6,7 @@ import NomSticker from '../components/NomSticker.astro';
 import CharacterJourney from '../components/card-showcase/CharacterJourney.tsx';
 import { cards } from '../components/card-showcase/CardMasonry.tsx';
 import BrandWelcome from '../components/brand-welcome/BrandWelcome';
-import NomGuide, { nomExpressions, type NomExpression } from '../components/nom-guide/NomGuide';
+import { nomExpressions, type NomExpression } from '../components/nom-guide/NomGuide';
 import { getHomeGuide } from '../components/nom-guide/home-guide';
 import HeroBanner, { slides } from '../components/HeroBanner';
 import StoryParallaxWall from '../components/StoryParallaxWall.astro';
@@ -32,6 +32,7 @@ const diaryImages = {
   rain: await siteImage('/images/nom/banners/nom-banner-013.png', [480, 960]),
   night: await siteImage('/images/nom/illustrations/nom-illustration-001.png', [480, 960]),
 };
+const journeyBackground = await siteImage('/images/nom/banners/nom-banner-013.png', [1920], 82);
 const promptIllustration = await siteImage('/images/nom/illustrations/nom-illustration-001.png', [480, 960], 90);
 
 import { getLocaleFromPath, getHomeCopy, getLocalizedPath, type SiteLocale } from '../lib/i18n';
@@ -73,7 +74,7 @@ const descriptions: Record<SiteLocale, string> = {
           <h2 id="card-banner-title">{homeCopy.cardBanner.title}</h2>
         </div>
       </div>
-      <CharacterJourney locale={currentLocale} client:visible={{ rootMargin: '400px' }} images={cardImages} diaryImages={diaryImages} />
+      <CharacterJourney locale={currentLocale} client:visible={{ rootMargin: '400px' }} images={cardImages} diaryImages={diaryImages} background={journeyBackground} />
     </section>
 
     <PromptComposition locale={currentLocale} client:visible portrait={promptIllustration.src} />
@@ -102,7 +103,6 @@ const descriptions: Record<SiteLocale, string> = {
   </main>
 
   <SiteFooter easterEgg locale={currentLocale} />
-  <NomGuide client:idle sections={guide.sections} expressions={guideExpressions} reactions={guide.reactions} copy={guide.controls} />
 
 
   <script>
@@ -131,73 +131,6 @@ const descriptions: Record<SiteLocale, string> = {
     window.addEventListener('resize', requestUpdate);
     updateParallax();
 
-    const finePointer = window.matchMedia('(pointer: fine)');
-    let scrollTarget = window.scrollY;
-    let scrollFrame = 0;
-    let lastScrollTime = 0;
-
-    const stopWheelScroll = () => {
-      window.cancelAnimationFrame(scrollFrame);
-      scrollFrame = 0;
-      scrollTarget = window.scrollY;
-    };
-
-    const animateWheelScroll = (time: number) => {
-      scrollTarget = Math.max(0, Math.min(scrollTarget, document.documentElement.scrollHeight - window.innerHeight));
-      const current = window.scrollY;
-      const distance = scrollTarget - current;
-      if (Math.abs(distance) < 0.5) {
-        window.scrollTo({ top: scrollTarget, behavior: 'instant' });
-        scrollFrame = 0;
-        return;
-      }
-      const amount = 1 - Math.exp(-(time - lastScrollTime) / 100);
-      lastScrollTime = time;
-      window.scrollTo({ top: current + distance * amount, behavior: 'instant' });
-      scrollFrame = window.requestAnimationFrame(animateWheelScroll);
-    };
-
-    const onWheel = (event: WheelEvent) => {
-      if (
-        reduceMotion.matches || !finePointer.matches || event.defaultPrevented || !event.cancelable ||
-        event.ctrlKey || event.metaKey || event.shiftKey || !event.deltaY ||
-        Math.abs(event.deltaY) < Math.abs(event.deltaX) ||
-        document.documentElement.hasAttribute('data-menu-open') || document.querySelector('dialog[open]')
-      ) {
-        stopWheelScroll();
-        return;
-      }
-      // Let demo panes, editors and other nested scroll areas retain native input.
-      for (const element of event.composedPath()) {
-        if (element === document.body || element === document.documentElement) break;
-        if (!(element instanceof HTMLElement)) continue;
-        if (
-          element.matches('input, textarea, select, [contenteditable]:not([contenteditable="false"])') ||
-          (/(auto|scroll)/.test(getComputedStyle(element).overflowY) && element.scrollHeight > element.clientHeight)
-        ) {
-          stopWheelScroll();
-          return;
-        }
-      }
-      event.preventDefault();
-      if (!scrollFrame) scrollTarget = window.scrollY;
-      const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? window.innerHeight : 1;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      scrollTarget = Math.max(0, Math.min(maxScroll, scrollTarget + event.deltaY * unit * 0.45));
-      if (!scrollFrame) {
-        lastScrollTime = performance.now();
-        scrollFrame = window.requestAnimationFrame(animateWheelScroll);
-      }
-    };
-
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('pointerdown', stopWheelScroll, { passive: true, capture: true });
-    window.addEventListener('touchstart', stopWheelScroll, { passive: true, capture: true });
-    window.addEventListener('keydown', stopWheelScroll, { capture: true });
-    window.addEventListener('resize', stopWheelScroll);
-    window.addEventListener('pagehide', stopWheelScroll);
-    reduceMotion.addEventListener('change', stopWheelScroll);
-    finePointer.addEventListener('change', stopWheelScroll);
   </script>
 </BaseLayout>
 

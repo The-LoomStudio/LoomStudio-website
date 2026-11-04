@@ -4,7 +4,11 @@ import '../styles/site-motion.css';
 import PageArrival from '../components/PageArrival.astro';
 import PageMotif from '../components/PageMotif.astro';
 import AnalyticsConsent from '../components/AnalyticsConsent.astro';
+import NomGuide, { nomExpressions, type NomExpression } from '../components/nom-guide/NomGuide';
+import { getHomeGuide } from '../components/nom-guide/home-guide';
+import { siteImage } from '../lib/site-images';
 import { getImage } from 'astro:assets';
+import websiteIcon from '../../public/brand/website_logo.png';
 import socialBanner from '../../public/images/nom/banners/og-banner.png';
 import docsBanner from '../../public/images/nom/banners/nom-banner-004.png';
 import downloadBanner from '../../public/images/nom/banners/nom-banner-019.png';
@@ -29,6 +33,11 @@ const unlocalizedPath = stripLocalePrefix(Astro.url.pathname);
 const localePaths = Object.fromEntries(['en', 'ja', 'ko'].map(locale => [
   locale, getLocalizedPath(Astro.url.pathname, locale as SiteLocale),
 ]));
+const nomGuide = getHomeGuide(currentLocale);
+const guideExpressions = Object.fromEntries(await Promise.all(nomExpressions.map(async expression => [
+  expression, await siteImage(`/images/nom/stickers/bust/${expression}.png`, [80, 136, 272], 90),
+]))) as Record<NomExpression, Awaited<ReturnType<typeof siteImage>>>;
+const isHome = unlocalizedPath === '/';
 const sectionBanners = { docs: docsBanner, download: downloadBanner, marketplace: marketplaceBanner };
 const section = unlocalizedPath.split('/')[1] as keyof typeof sectionBanners;
 const sectionBanner = sectionBanners[section];
@@ -40,6 +49,8 @@ const defaultImage = image ? undefined : await getImage({
   quality: 88,
 });
 const imageUrl = new URL(image ?? defaultImage!.src, Astro.site ?? import.meta.env.CF_PAGES_URL ?? Astro.url).href;
+const favicon = await getImage({ src: websiteIcon, width: 48, height: 48, format: 'png' });
+const touchIcon = await getImage({ src: websiteIcon, width: 180, height: 180, format: 'png' });
 const pageTitle = title === 'Loom Studio'
   ? `Loom Studio ${t(currentLocale, 'portal.homeSuffix')}`
   : `${title} ${t(currentLocale, 'portal.suffix')}`;
@@ -123,9 +134,8 @@ const pageTitle = title === 'Loom Studio'
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" href="/brand/website_logo.png" />
-    <link rel="apple-touch-icon" href="/brand/website_logo.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href={favicon.src} />
+    <link rel="apple-touch-icon" sizes="180x180" href={touchIcon.src} />
     <title>{pageTitle}</title>
     {(['/', '/docs/architecture', '/news', '/marketplace'].includes(Astro.url.pathname) || Astro.url.pathname.startsWith('/marketplace/') || unlocalizedPath === '/stickers') && <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -139,6 +149,8 @@ const pageTitle = title === 'Loom Studio'
     {unlocalizedPath !== '/docs/architecture' && <div class="site-reading-progress" data-reading-progress aria-hidden="true"></div>}
     <slot />
     <AnalyticsConsent locale={currentLocale} />
+    <NomGuide client:idle sections={isHome ? nomGuide.sections : []} expressions={guideExpressions}
+      reactions={isHome ? nomGuide.reactions : []} copy={nomGuide.controls} />
     <div
       class="page-scrollbar"
       role="scrollbar"
@@ -223,16 +235,22 @@ const pageTitle = title === 'Loom Studio'
         });
 
         const resizeObserver = new ResizeObserver(requestScrollbarUpdate);
-        resizeObserver.observe(document.body);
-        window.addEventListener('scroll', requestScrollbarUpdate, { passive: true });
-        window.addEventListener('resize', requestScrollbarUpdate);
+        const resumeScrollbar = () => {
+          resizeObserver.observe(document.body);
+          window.addEventListener('scroll', requestScrollbarUpdate, { passive: true });
+          window.addEventListener('resize', requestScrollbarUpdate);
+          requestScrollbarUpdate();
+        };
         window.addEventListener('pagehide', () => {
           window.cancelAnimationFrame(frame);
+          frame = 0;
+          stopDragging();
           resizeObserver.disconnect();
           window.removeEventListener('scroll', requestScrollbarUpdate);
           window.removeEventListener('resize', requestScrollbarUpdate);
-        }, { once: true });
-        updateScrollbar();
+        });
+        window.addEventListener('pageshow', resumeScrollbar);
+        resumeScrollbar();
       }
     </script>
   </body>

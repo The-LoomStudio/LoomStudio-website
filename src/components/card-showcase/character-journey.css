@@ -2,7 +2,7 @@
 .character-journey__track { position: relative; height: 380svh; margin-top: -100svh; pointer-events: none; }
 .character-journey__stage { position: sticky; top: 0; height: 100svh; isolation: isolate; overflow: clip; }
 .character-journey__gallery { position: relative; mask-image: linear-gradient(transparent, #000 90px, #000 calc(100% - 100px), transparent); }
-.character-journey__scene { position: absolute; inset: 0; display: grid; align-items: center; background: linear-gradient(var(--loom-site-bg), transparent 18%, transparent 80%, var(--loom-site-bg)), url('/images/nom/banners/nom-banner-013.png') center / cover; }
+.character-journey__scene { position: absolute; inset: 0; display: grid; align-items: center; background: linear-gradient(var(--loom-site-bg), transparent 18%, transparent 80%, var(--loom-site-bg)), var(--journey-background, none) center / cover; }
 .character-journey__scene [data-journey-avatar] { visibility: hidden; }
 .character-journey__scene[data-landed=true] [data-journey-avatar] { visibility: visible; }
 .character-journey__traveller { position: absolute; z-index: 4; object-fit: cover; object-position: center 30%; pointer-events: none; }

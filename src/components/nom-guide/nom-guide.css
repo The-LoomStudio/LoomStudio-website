@@ -22,3 +22,7 @@
   .nom-guide__mini { margin-inline: auto; }
 }
 .nom-guide__controls { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; }
+
+.nom-guide[data-consent-open] { z-index: 300; }
+.nom-guide__consent { max-height: calc(100dvh - 100px); overflow-y: auto; }
+.nom-guide__portrait:disabled { cursor: default; }

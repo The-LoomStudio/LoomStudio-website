@@ -24,11 +24,11 @@ corepack pnpm dev
 
 ## 检查
 
-开放审查记录：[客户端生命周期与导航审查（2026-09-22）](docs/issues/client-lifecycle-and-navigation-audit-2026-09-22.md)。
+后续待办：[Website CDP 后续待办](docs/issues/website-cdp-followups.md)。
 
-公开说明核对：[数据边界与能力说明审查（2026-09-22）](docs/issues/public-data-boundary-audit-2026-09-22.md)。
+已归档：[Website CDP 内存调研（2026-11-04）](docs/archive/cdp-2026-11-04/website-cdp-memory-investigation-2026-11-04.md)。
 
-构建性能审查：[Website 构建性能审查（2026-09-22）](docs/issues/build-performance-audit-2026-09-22.md)。
+修复与验收归档：[Website CDP 网络与性能调研（2026-11-04）](docs/archive/cdp-2026-11-04/website-cdp-network-performance-investigation-2026-11-04.md)。
 
 ~~~bash
 corepack pnpm check
