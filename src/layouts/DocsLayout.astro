@@ -4,7 +4,7 @@ import BaseLayout from './BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import NomSticker from '../components/NomSticker.astro';
-import { ArrowUpRight } from '@lucide/astro';
+import { ArrowUpRight, List, X } from '@lucide/astro';
 
 import { type SiteLocale, getLocaleFromPath, getLocalizedPath } from '../lib/i18n';
 
@@ -147,8 +147,44 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     </aside>
   </div>
   <SiteFooter />
+  <button class="docs-nav-trigger" type="button" data-docs-nav-trigger aria-haspopup="dialog" aria-controls="docs-nav-dialog" aria-expanded="false" hidden>
+    <List size={18} aria-hidden="true" /> {navLabels.breadcrumbRoot}
+  </button>
+  <dialog id="docs-nav-dialog" class="docs-nav-dialog" aria-label="文档导航">
+    <button class="docs-nav-close" type="button" data-docs-nav-close aria-label="关闭文档导航"><X size={18} aria-hidden="true" /></button>
+  </dialog>
   <script>
     type DocumentEntry = { href: string; label: string; group: string };
+
+    const navContainer = document.querySelector<HTMLElement>('.docs-nav')!;
+    const navContent = navContainer.querySelector<HTMLElement>('.docs-nav__inner')!;
+    const navDialog = document.querySelector<HTMLDialogElement>('#docs-nav-dialog')!;
+    const navTrigger = document.querySelector<HTMLButtonElement>('[data-docs-nav-trigger]')!;
+    const mobileNav = matchMedia('(max-width: 760px)');
+    const syncNavLayout = () => {
+      if (navDialog.open) navDialog.close();
+      navTrigger.hidden = !mobileNav.matches;
+      document.documentElement.toggleAttribute('data-docs-mobile-nav', mobileNav.matches);
+      (mobileNav.matches ? navDialog : navContainer).append(navContent);
+    };
+    navTrigger.addEventListener('click', () => {
+      navDialog.showModal();
+      navTrigger.setAttribute('aria-expanded', 'true');
+    });
+    navDialog.addEventListener('close', () => navTrigger.setAttribute('aria-expanded', 'false'));
+    navDialog.querySelector('[data-docs-nav-close]')!.addEventListener('click', () => navDialog.close());
+    navDialog.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      const link = event.target.closest('a[href]');
+      if (link && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) navDialog.close();
+      if (event.target === navDialog) {
+        const bounds = navDialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) navDialog.close();
+      }
+    });
+    mobileNav.addEventListener('change', syncNavLayout);
+    syncNavLayout();
+
 
     const reader = document.querySelector<HTMLElement>('[data-docs-reader]');
     const streamStatus = document.querySelector<HTMLElement>('[data-docs-stream-status]');
@@ -166,6 +202,8 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     let readingFrame = 0;
     let navigationGeneration = 0;
     let navigating = false;
+    let restoringHistory = false;
+    let smoothNavigation = false;
     const pendingArticles = new Map<string, Promise<HTMLElement>>();
 
     const documentKey = (href: string) => href
@@ -195,7 +233,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
           event.preventDefault();
           heading.scrollIntoView({ block: 'start' });
           const canonicalUrl = new URL(`${document.href}#${canonicalId}`, window.location.origin).href;
-          history.replaceState(null, '', canonicalUrl);
+          history.replaceState(history.state, '', canonicalUrl);
           navigator.clipboard?.writeText(canonicalUrl).then(() => {
             anchor.title = '链接已复制';
             window.setTimeout(() => { anchor.title = '复制章节链接'; }, 1200);
@@ -216,7 +254,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
           if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
           event.preventDefault();
           heading.scrollIntoView({ block: 'start' });
-          history.replaceState(null, '', link.href);
+          history.replaceState(history.state, '', link.href);
         });
         link.dataset.tocLink = heading.id;
         link.textContent = heading.childNodes[0]?.textContent?.trim() || heading.textContent?.trim() || '章节';
@@ -249,7 +287,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
       if (breadcrumb) breadcrumb.textContent = article.dataset.docTitle ?? '';
       document.title = `${article.dataset.docTitle ?? '文档'} · Loom Studio`;
       if (normalizePath(window.location.pathname) !== normalizePath(documentUrl)) {
-        history.replaceState(null, '', documentUrl);
+        history.replaceState(history.state, '', documentUrl);
       }
     };
 
@@ -263,6 +301,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
 
     const updateReadingProgress = () => {
       readingFrame = 0;
+      if (restoringHistory) return;
       const articles = Array.from(document.querySelectorAll<HTMLElement>('.docs-article'));
       if (articles.length === 0) return;
       const headerOffset = 104;
@@ -400,6 +439,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
       if (targetDocIndex < 0 || !reader || !streamStatus) return;
       event.preventDefault();
       const generation = ++navigationGeneration;
+      restoringHistory = false;
       navigating = true;
       const targetDoc = documents[targetDocIndex];
       try {
@@ -409,8 +449,11 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
         if (generation !== navigationGeneration) return;
         const newArticle = appendDocument(article, targetDocIndex);
         const rect = newArticle.getBoundingClientRect();
-        window.scrollTo({ top: window.scrollY + rect.top - 84, behavior: 'smooth' });
-        history.pushState(null, '', link.href);
+        const targetScroll = window.scrollY + rect.top - 84;
+        history.replaceState({ ...history.state, docsScrollY: window.scrollY }, '');
+        history.pushState({ docsScrollY: targetScroll }, '', link.href);
+        smoothNavigation = true;
+        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
         syncDocumentNavigation(newArticle);
         requestNextDocument();
       } catch {
@@ -418,6 +461,38 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
       } finally {
         if (generation === navigationGeneration) navigating = false;
       }
+    });
+
+    window.addEventListener('scrollend', () => {
+      smoothNavigation = false;
+      if (!restoringHistory) history.replaceState({ ...history.state, docsScrollY: window.scrollY }, '');
+    });
+    window.addEventListener('popstate', (event) => {
+      const targetScroll = event.state?.docsScrollY;
+      const generation = ++navigationGeneration;
+      const targetArticle = findLoadedArticle(window.location.pathname);
+      navigating = false;
+      restoringHistory = true;
+      // Cancel the old smooth target before the browser restores this history entry.
+      if (smoothNavigation) window.scrollTo({ top: window.scrollY, behavior: 'instant' });
+      smoothNavigation = false;
+      window.requestAnimationFrame(() => {
+        if (generation !== navigationGeneration) return;
+        // A very early Back can save the new entry before its smooth scroll has moved.
+        // Keep native restoration within the requested article, otherwise align it.
+        if (typeof targetScroll === 'number') {
+          window.scrollTo({ top: targetScroll, behavior: 'instant' });
+        } else if (targetArticle) {
+          const rect = targetArticle.getBoundingClientRect();
+          if (rect.top > 184 || rect.bottom <= 104) {
+            window.scrollTo({ top: window.scrollY + rect.top - 84, behavior: 'instant' });
+          }
+        }
+        restoringHistory = false;
+        activeArticle = undefined;
+        updateReadingProgress();
+        requestNextDocument();
+      });
     });
 
     const streamObserver = streamStatus && 'IntersectionObserver' in window
@@ -456,6 +531,30 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     padding-left: 76px; /* Reserve the fixed Menu navigation rail, including on narrow screens. */
     background: var(--loom-site-bg);
   }
+  .docs-nav-trigger {
+    position: fixed; left: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 70;
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px;
+    border: 1px solid var(--loom-site-border-strong); border-radius: 999px;
+    background: var(--loom-site-bg-soft); color: var(--loom-site-text); font: inherit;
+    box-shadow: 0 4px 18px rgb(0 0 0 / 16%); cursor: pointer;
+  }
+  .docs-nav-trigger[hidden] { display: none; }
+  .docs-nav-dialog {
+    position: fixed; inset: auto auto max(12px, env(safe-area-inset-bottom)) 12px;
+    margin: 0; width: min(360px, calc(100vw - 24px)); max-height: min(75dvh, 680px);
+    padding: 0; border: 1px solid var(--loom-site-border-strong); border-radius: 18px;
+    background: var(--loom-site-bg-soft); color: var(--loom-site-text);
+    box-shadow: 0 12px 40px rgb(0 0 0 / 24%);
+    scrollbar-width: none;
+  }
+  .docs-nav-dialog::-webkit-scrollbar, .docs-nav__inner::-webkit-scrollbar { display: none; }
+  .docs-nav-dialog::backdrop { background: rgb(0 0 0 / 35%); }
+  .docs-nav-close {
+    position: sticky; top: 0; float: right; z-index: 1; display: grid; place-items: center;
+    width: 44px; height: 44px; border: 0; border-radius: 50%;
+    background: var(--loom-site-bg-soft); color: var(--loom-site-text); cursor: pointer;
+  }
+  html:has(.docs-nav-dialog[open]) { overflow: hidden; }
   .docs-nav {
     background: var(--loom-site-bg-soft);
   }
@@ -464,6 +563,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
     top: var(--loom-site-header-height);
     max-height: calc(100vh - var(--loom-site-header-height));
     overflow-y: auto;
+    scrollbar-width: none;
     padding: 34px 26px;
   }
   .docs-nav__title {
@@ -763,6 +863,7 @@ const pageHeadings = headings.filter((heading) => heading.depth === 2);
   }
   @media (max-width: 760px) {
     .docs-shell { display: block; }
+    html[data-docs-mobile-nav] .docs-nav { display: none; }
     .docs-nav { background: var(--loom-site-bg-soft); }
     .docs-nav__inner {
       position: static;

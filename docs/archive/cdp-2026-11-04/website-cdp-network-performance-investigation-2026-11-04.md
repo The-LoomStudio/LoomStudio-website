@@ -205,3 +205,15 @@ original 81次回调合计178.2ms，中位2.1ms、最大6.6ms；batched 80次合
 用户明确要求开场由资源就绪驱动，而非单纯缩短固定时长。PageArrivalScene现在首屏图片已complete时等待decode后直接退出；确实未加载时前奏只运行到资源就绪，立即停止等待并连续完成原1.2s成形+1.2s揭幕，删除原强制1.6s停留。还修正固定页脚被误算作首屏图片：footer-reveal--curtain内图片按裁切外层bounds判断可见性，避免实际离屏lazy背景阻塞到12s超时。
 
 生产预览清除自建页seen标记后刷新，缓存资源场景约navigation起596ms时arrival已清除、aria-busy=false（并非纯动画耗时）。保留seen的简单刷新跳过开场。对nom-layer-004图片Response暂缓，页面仍处于loading；放行后约2381ms完成连续收尾，aria-busy=false；拦截清空，自建页关闭。此前单纯改短时长的方案已被替换。check为0 errors/0 warnings/3既有hints，最终build39页成功。尚未部署。
+
+## 归档后的追加修复：明确待办与文档导航
+
+用户继续授权已确认问题：减少动态效果时直接显示插画、不建立三档缓存，切换模式释放缓存并清空输出Canvas；切回正常模式重建，保留正常反向滚动。生产页滚动触达15个BranchReveal，reduced模式15图可见、getImageData=0；切回no-preference后45次读回。
+
+文档历史修复取消尚未完成的旧平滑滚动，以navigationGeneration作废旧导航；在push前保存原条目的docsScrollY，目标条目先记录目标位置，scrollend保存实际阅读位置，popstate优先恢复记录。保留replaceState时的历史状态，防止目录/章节分享擦除位置。只取消旧平滑目标而依赖浏览器恢复，或提前按文章矩形校正，均曾使Forward丢失文章内偏移，已替换。最终快速Back回/docs/y0，Forward回getting-started/y2063；滚动2300px后Back/Forward准确回2300px。
+
+local-first公开说明已明确Google Analytics须经许可、拒绝不影响浏览、可随时改选且不读取本地工作区。
+
+用户要求文档侧栏隐藏滚动条而非细化：scrollbar-width:none与WebKit规则仅隐藏外观，保留overflow滚动。移动端<=760px采用左下角44px触发按钮和原生模态dialog，直接移动同一份导航DOM，桌面还原，不复制链接和活动状态；无JS仍保留原导航。390x844下浮层bounds为left12/right364/top252/bottom832；内容仅1份，焦点进入dialog，背景overflow hidden，Escape关闭并回焦按钮，选快速开始后dialog关闭、aria-expanded=false。1440px新页回到桌面侧栏，触发按钮hidden，scrollbar-width为none。
+
+最终check108文件0 errors/0 warnings/3既有hints，build39页成功，diff检查通过。跨页面/构建过程的旧测试页日志曾出现一次React hydration #418，未取得组件归因；最终新文档页error/warn为空，不能据此证明全站没有hydration问题。此线索与React长回调一起保留，不认定为本次修复回归。所有临时媒体/尺寸覆盖恢复，自建页关闭。

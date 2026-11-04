@@ -14,6 +14,7 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text: 
   const text = getHomeDemoText(locale)
   const root = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
+  const [reducedMotion, setReducedMotion] = useState(false)
   const [progress, setProgress] = useState(0)
   const [imageReady, setImageReady] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -25,7 +26,7 @@ export default function BranchReveal({ image, fullSrc, sizes, alt, order, text: 
 
 ${text('保留角色的性格与已有经历，从这次行动出发。结合地点和环境，组织她的回应，让另一条故事自然展开。')}`
   const pending = !pixels || !imageReady
-  const shown = focused || failed ? 1 : pending ? Math.min(progress, .40) : progress
+  const shown = reducedMotion || focused || failed ? 1 : pending ? Math.min(progress, .40) : progress
 
 
   useEffect(() => {
@@ -41,7 +42,10 @@ ${text('保留角色的性格与已有经历，从这次行动出发。结合地
     const scroll = () => {
       if (!frame) frame = requestAnimationFrame(update)
     }
-    const syncMotion = update
+    const syncMotion = () => {
+      setReducedMotion(query.matches)
+      update()
+    }
     syncMotion()
     window.addEventListener('scroll', scroll, { passive: true })
     window.addEventListener('resize', syncMotion)
@@ -60,7 +64,11 @@ ${text('保留角色的性格与已有经历，从这次行动出发。结合地
   }, [image.src])
 
   useEffect(() => {
-    if (!imageReady) return
+    if (reducedMotion) {
+      setPixels(null)
+      return
+    }
+    if (!imageReady || matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const sample = root.current!.querySelector<HTMLImageElement>('.zoom-image__trigger img')!
     // Read the already-decoded responsive preview; no second maximum-size image request.
     // This surface is only used for pixel readback, not for compositing the animation.
@@ -86,13 +94,13 @@ ${text('保留角色的性格与已有经历，从这次行动出发。结合地
       })
       return bitmap
     }))
-  }, [imageReady, image.src, image.height, image.width, rows])
+  }, [reducedMotion, imageReady, image.src, image.height, image.width, rows])
 
   useEffect(() => {
     const context = canvas.current!.getContext('2d')
-    if (!context || !pixels) return
+    if (!context) return
     context.clearRect(0, 0, 440, rows * 10)
-    if (shown <= .64 || shown >= 1) return
+    if (!pixels || shown <= .64 || shown >= 1) return
     const level = shown < .83 ? 0 : shown < .89 ? 1 : 2
     context.save()
     context.globalAlpha = 1 - clamp((shown - .95) / .05)
