@@ -24,8 +24,6 @@ corepack pnpm dev
 
 ## 检查
 
-后续待办：[Website CDP 后续待办](docs/issues/website-cdp-followups.md)。
-
 已归档：[Website CDP 内存调研（2026-11-04）](docs/archive/cdp-2026-11-04/website-cdp-memory-investigation-2026-11-04.md)。
 
 修复与验收归档：[Website CDP 网络与性能调研（2026-11-04）](docs/archive/cdp-2026-11-04/website-cdp-network-performance-investigation-2026-11-04.md)。

@@ -1,6 +1,6 @@
 # Website CDP 网络与性能调研
 
-> 已归档（2026-11-04）：本次调查与修复已收束。正文保留各阶段证据，不代表每条旧结论仍成立；最终结果见网络与性能记录末尾，未完成项见[后续待办](../../issues/website-cdp-followups.md)。
+> 已归档（2026-11-04）：本次调查与修复已收束。正文保留各阶段证据，不代表每条旧结论仍成立；最终结果见网络与性能记录末尾，剩余调查线索见[网络与性能归档](website-cdp-network-performance-investigation-2026-11-04.md#收束后保留的调查线索)。
 
 日期：2026-11-04。状态：首批修复已实施并完成本地客观验收，待人工观感确认与部署。前序记录见[内存调研](website-cdp-memory-investigation-2026-11-04.md)。
 
@@ -217,3 +217,7 @@ local-first公开说明已明确Google Analytics须经许可、拒绝不影响�
 用户要求文档侧栏隐藏滚动条而非细化：scrollbar-width:none与WebKit规则仅隐藏外观，保留overflow滚动。移动端<=760px采用左下角44px触发按钮和原生模态dialog，直接移动同一份导航DOM，桌面还原，不复制链接和活动状态；无JS仍保留原导航。390x844下浮层bounds为left12/right364/top252/bottom832；内容仅1份，焦点进入dialog，背景overflow hidden，Escape关闭并回焦按钮，选快速开始后dialog关闭、aria-expanded=false。1440px新页回到桌面侧栏，触发按钮hidden，scrollbar-width为none。
 
 最终check108文件0 errors/0 warnings/3既有hints，build39页成功，diff检查通过。跨页面/构建过程的旧测试页日志曾出现一次React hydration #418，未取得组件归因；最终新文档页error/warn为空，不能据此证明全站没有hydration问题。此线索与React长回调一起保留，不认定为本次修复回归。所有临时媒体/尺寸覆盖恢复，自建页关闭。
+
+## 收束后保留的调查线索
+
+后续issue按用户要求删除；以下仅保留证据，不表示已修复：已缓存快速程序滚动的约291ms React MessagePort长回调与一次hydration #418仍缺少细分归因；不同语言首页Google Fonts入口条件不一致，视觉影响尚未验收。
